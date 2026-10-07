@@ -14,3 +14,7 @@ ENV/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+
+# Personal Study Notebook
+STUDY_NOTEBOOK/
