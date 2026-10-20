@@ -1,0 +1,5 @@
+Order_ID,Product,Quantity,Price,City,Total_Sales
+101,Laptop,2500,1500.0,Paris,3750000.0
+102,Mouse,5500,50.0,Madrid,275000.0
+103,Keyboard,31500,99.0,Munich,3118500.0
+104,Monitor,12000,550.0,Delhi,6600000.0

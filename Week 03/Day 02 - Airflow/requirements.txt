@@ -1,0 +1,4 @@
+# Add additional Python dependencies for your DAGs here, for example:
+pandas
+# requests
+# psycopg2-binary
