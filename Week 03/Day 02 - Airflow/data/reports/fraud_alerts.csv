@@ -1,0 +1,5 @@
+transaction_id,timestamp,customer_id,account_number,transaction_type,amount,merchant,country,fraud_detected
+TXN_0018,2026-10-18 03:14:22,CUST_027,ES1100049143900337,TRANSFER,9850.0,CryptoGlobal Exchange,Cayman Islands,True
+TXN_0042,2026-10-19 02:45:10,CUST_022,ES7200048121374291,WITHDRAWAL,5400.0,ATM Unknown,Nigeria,True
+TXN_0067,2026-10-20 03:50:41,CUST_004,ES5300044659684175,PAYMENT,7200.5,Luxury Goods Offshore,Russia,True
+TXN_0089,2026-10-20 04:12:00,CUST_025,ES6800048639623985,TRANSFER,14999.0,WireTransfer Private Ltd,Panama,True
