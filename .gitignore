@@ -12,6 +12,7 @@ venv/
 ENV/
 .venv/
 .vscode/
+/Week 03/Day 02 - Airflow/logs/
 
 # Jupyter Notebook
 .ipynb_checkpoints
