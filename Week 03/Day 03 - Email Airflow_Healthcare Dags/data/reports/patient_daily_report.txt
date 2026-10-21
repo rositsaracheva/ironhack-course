@@ -1,0 +1,4 @@
+=== HOSPITAL PATIENT DAILY MONITORING REPORT ===
+Total Patients Monitored: 4
+Average Heart Rate: 83.8 bpm
+Patients with High Blood Pressure: 2

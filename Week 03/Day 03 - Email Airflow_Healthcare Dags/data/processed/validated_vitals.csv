@@ -1,0 +1,5 @@
+patient_id,heart_rate,systolic_bp,oxygen_level
+P001,72,120,98
+P002,88,135,96
+P003,110,145,93
+P004,65,118,99
