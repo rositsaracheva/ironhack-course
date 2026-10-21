@@ -12,8 +12,9 @@ venv/
 ENV/
 .venv/
 .vscode/
-/Week 03/Day 02 - Airflow/logs/
-/Week 03/Day 03 - Email Airflow_Healthcare Dags/logs/
+# Airflow & General Logs
+logs/
+**/logs/
 
 # Jupyter Notebook
 .ipynb_checkpoints
