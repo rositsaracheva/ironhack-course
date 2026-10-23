@@ -1,0 +1,26 @@
+services:
+  airflow:
+    build: .
+    image: airflow-day04-miniproject:latest
+    container_name: airflow-day04-miniproject
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - "./Section D - Q2 Airflow DAG Development:/opt/airflow/dags"
+      - ./logs:/opt/airflow/logs
+      - ./data:/opt/airflow/data
+      - ./simple_auth_manager_passwords.json:/opt/airflow/simple_auth_manager_passwords.json
+    environment:
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE=/opt/airflow/simple_auth_manager_passwords.json
+      - AIRFLOW_CONN_FS_DEFAULT=fs://?path=
+      - AIRFLOW__SMTP__SMTP_HOST=smtp.gmail.com
+      - AIRFLOW__SMTP__SMTP_PORT=587
+      - AIRFLOW__SMTP__SMTP_STARTTLS=True
+      - AIRFLOW__SMTP__SMTP_SSL=False
+      - AIRFLOW__SMTP__SMTP_USER=${SMTP_USER}
+      - AIRFLOW__SMTP__SMTP_PASSWORD=${SMTP_PASSWORD}
+      - AIRFLOW__SMTP__SMTP_MAIL_FROM=${SMTP_USER}
+      - AIRFLOW_CONN_SMTP_DEFAULT=${AIRFLOW_CONN_SMTP_DEFAULT}
+    command: standalone
