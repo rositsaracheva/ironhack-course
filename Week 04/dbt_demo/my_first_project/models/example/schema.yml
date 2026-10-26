@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: stg_sales
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_name
+        data_tests:
+          - not_null
+      - name: quantity
+        data_tests:
+          - not_null
+      - name: unit_price
+        data_tests:
+          - not_null
+      - name: sales_amount
+        data_tests:
+          - not_null
+
+  - name: customer_sales
+    description: "Total sales aggregated by customer"
+    columns:
+      - name: customer
+        description: "Customer name"
+      - name: total_sales
+        description: "Total sales amount"
