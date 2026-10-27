@@ -270,7 +270,7 @@ sales.csv  ──▶  dbt seed  ──▶  stg_sales (cleaning & tests)  ──�
 ## Part 2: Data Cleaning & Automated Quality Tests (stg_sales)
 
 ### Step 18 — Create Staging Model (`stg_sales.sql`)
-Inside `models/example/`, create [`stg_sales.sql`](file:///Users/rosi/Documents/IronHack%20Course%20/Week%2004/dbt_demo/my_first_project/models/example/stg_sales.sql):
+Inside `models/example/`, create [`stg_sales.sql`](file:///Users/rosi/Documents/IronHack%20Course%20/Week%2004/Day%2001/dbt_demo/my_first_project/models/example/stg_sales.sql):
 
 ```sql
 SELECT
