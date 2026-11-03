@@ -1,0 +1,19 @@
+{
+  "type" : "record",
+  "name" : "accounts",
+  "doc" : "Sqoop import of accounts",
+  "fields" : [
+    {"name" : "acct_num", "type" : ["null", "int"], "default" : null},
+    {"name" : "acct_create_dt", "type" : ["null", "string"], "default" : null},
+    {"name" : "acct_close_dt", "type" : ["null", "string"], "default" : null},
+    {"name" : "first_name", "type" : ["null", "string"], "default" : null},
+    {"name" : "last_name", "type" : ["null", "string"], "default" : null},
+    {"name" : "address", "type" : ["null", "string"], "default" : null},
+    {"name" : "city", "type" : ["null", "string"], "default" : null},
+    {"name" : "state", "type" : ["null", "string"], "default" : null},
+    {"name" : "zipcode", "type" : ["null", "string"], "default" : null},
+    {"name" : "phone_number", "type" : ["null", "string"], "default" : null},
+    {"name" : "created", "type" : ["null", "string"], "default" : null},
+    {"name" : "modified", "type" : ["null", "string"], "default" : null}
+  ]
+}
