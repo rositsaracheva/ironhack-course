@@ -295,7 +295,7 @@ ORDER BY city ASC;
 > **My Notes:**
 > - In standard SQL (both **Hive** and **Impala**), every non-aggregated column in the `SELECT` list (`city`, `first_name`, `last_name`) must appear in the `GROUP BY` clause.
 > - `ORDER BY city ASC, first_name ASC, last_name ASC` first organises the output by `city` (Austin -> Los Angeles -> Miami -> New York -> Seattle), and inside each city orders the people alphabetically by `first_name` and `last_name` (e.g. inside Los Angeles: *Aaron Carter*, then *Britney Spears*, then *Emma Watson*).
-> - **Execution difference you notice in class:** When you run this query in **Hive**, it launches a MapReduce job (`Map 1: 100%, Reduce 1: 100%`) which takes several seconds because of job startup overhead. When you run the exact same query in **Impala**, it executes in memory and returns the result in less than a second!
+> - **Execution difference:** When you run this query in **Hive**, it launches a MapReduce job (`Map 1: 100%, Reduce 1: 100%`) which takes several seconds because of job startup overhead. When you run the exact same query in **Impala**, it executes in memory and returns the result in less than a second!
 
 ---
 
