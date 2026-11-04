@@ -281,7 +281,7 @@ flowchart LR
 
 ---
 
-## Quick Revision Cheat Sheet (Summary for Class)
+## Cheat Sheet (Summary for Class)
 
 | Question Topic | Key Takeaway to Remember |
 | :--- | :--- |
