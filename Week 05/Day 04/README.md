@@ -33,3 +33,4 @@ Click the button below to open and interact with the 3D Isometric Presentation d
 5. **`05 // APACHE PARQUET`**: Column Pruning, Predicate Pushdown (`min/max` statistics) & Snappy/Dictionary Compression
 6. **`06 // SPEC MATRIX`**: Head-to-Head Engineering Decision Matrix
 7. **`07 // DATA LAKE MAP`**: Medallion Architecture (Landing `CSV/JSON` ➔ Bronze `Avro` ➔ Gold `Parquet`)
+
