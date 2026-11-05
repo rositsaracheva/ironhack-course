@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSV vs. Avro vs. Parquet — Rositsa Racheva Kaloyanova (05/11/2026)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-blueprint: #162238;
+      --grid-line: rgba(125, 211, 252, 0.11);
+      --grid-major: rgba(125, 211, 252, 0.22);
+      --panel-bg: rgba(24, 38, 64, 0.92);
+      --panel-light: rgba(34, 52, 84, 0.94);
+      --border-tech: rgba(125, 211, 252, 0.42);
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --cyan: #38bdf8;
+      --neon-cyan: #00f5d4;
+      --emerald: #10b981;
+      --neon-green: #34d399;
+      --amber: #f59e0b;
+      --neon-amber: #fbbf24;
+      --coral: #f43f5e;
+      --neon-coral: #fb7185;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background-color: var(--bg-blueprint);
+      color: var(--text-primary);
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      user-select: none;
+    }
+
+    /* ==================== TOP HUD (CLEAN + TIMER) ==================== */
+    .hud-top {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 60px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2.2rem;
+      background: rgba(16, 26, 46, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1.5px solid var(--border-tech);
+    }
+    .node-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .node-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.86rem;
+      font-weight: 700;
+      padding: 0.42rem 0.9rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(125, 211, 252, 0.3);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    }
+    .node-btn.active, .node-btn:hover {
+      background: var(--cyan);
+      color: #0b1324;
+      border-color: #fff;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.6);
+    }
+
+    /* Presentation Timer in Top Right */
+    .timer-widget {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .timer-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--neon-green);
+      background: rgba(11, 19, 36, 0.9);
+      border: 1.5px solid var(--neon-green);
+      padding: 0.25rem 0.9rem;
+      border-radius: 8px;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .timer-display:hover {
+      box-shadow: 0 0 14px rgba(52, 211, 153, 0.5);
+    }
+    .timer-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 0.4rem 0.75rem;
+      background: rgba(56, 189, 248, 0.16);
+      color: #fff;
+      border: 1px solid var(--cyan);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .timer-btn:hover {
+      background: var(--cyan);
+      color: #0b1324;
+    }
+
+    /* Minimal Bottom Bar (No Buttons on Right) */
+    .hud-bottom {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 44px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2.2rem;
+      background: rgba(16, 26, 46, 0.82);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border-tech);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+    }
+
+    /* ==================== 3D SPATIAL WORLD CANVAS ==================== */
+    .viewport {
+      width: 100vw;
+      height: 100vh;
+      perspective: 1400px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .world {
+      position: absolute;
+      width: 6000px;
+      height: 4400px;
+      top: 50%;
+      left: 50%;
+      transform-origin: 0 0;
+      transform-style: preserve-3d;
+      transition: transform 1.15s cubic-bezier(0.22, 1, 0.36, 1);
+      background-color: #18263e;
+      background-image:
+        linear-gradient(var(--grid-major) 1.5px, transparent 1.5px),
+        linear-gradient(90deg, var(--grid-major) 1.5px, transparent 1.5px),
+        linear-gradient(var(--grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+      background-size: 200px 200px, 200px 200px, 40px 40px, 40px 40px;
+      box-shadow: inset 0 0 300px rgba(8, 15, 30, 0.9);
+    }
+
+    .world-circuits {
+      position: absolute;
+      inset: 0;
+      width: 6000px;
+      height: 4400px;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .circuit-line {
+      fill: none;
+      stroke: rgba(56, 189, 248, 0.28);
+      stroke-width: 6;
+    }
+    .circuit-pulse {
+      fill: none;
+      stroke: var(--neon-cyan);
+      stroke-width: 6;
+      stroke-dasharray: 40 180;
+      animation: flowPulse 3s linear infinite;
+      filter: drop-shadow(0 0 10px var(--cyan));
+    }
+    @keyframes flowPulse {
+      from { stroke-dashoffset: 220; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* ==================== STATION NODES (SLIDES) ==================== */
+    .station {
+      position: absolute;
+      width: 1320px;
+      height: 740px;
+      margin-left: -660px;
+      margin-top: -370px;
+      z-index: 10;
+      background: var(--panel-bg);
+      border: 2px solid var(--border-tech);
+      box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.65),
+        0 0 0 1px rgba(255,255,255,0.08) inset;
+      padding: 2.1rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transform-style: preserve-3d;
+      transition: opacity 0.6s ease, filter 0.6s ease, border-color 0.5s ease;
+      clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 28px 100%, 0 calc(100% - 28px));
+    }
+    .station::before {
+      content: attr(data-station-id);
+      position: absolute;
+      top: 0; right: 36px;
+      background: var(--cyan);
+      color: #0b1324;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+      font-size: 0.85rem;
+      padding: 0.25rem 0.9rem;
+      letter-spacing: 0.08em;
+    }
+    .station.inactive-node {
+      opacity: 0.32;
+      filter: blur(1px);
+    }
+    .world.overview-mode .station {
+      opacity: 1 !important;
+      filter: none !important;
+      cursor: pointer;
+      border-width: 4px;
+    }
+    .world.overview-mode .station:hover {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 60px rgba(52, 211, 153, 0.6);
+    }
+
+    /* Typography */
+    .tech-kicker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .tech-kicker::before {
+      content: "//";
+      color: var(--neon-green);
+    }
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 4.1rem;
+      font-weight: 700;
+      line-height: 1.04;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+    }
+    h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.75rem;
+      font-weight: 700;
+      line-height: 1.08;
+      color: #ffffff;
+    }
+    .lead {
+      font-size: 1.3rem;
+      color: var(--text-secondary);
+      margin-top: 0.3rem;
+      font-weight: 500;
+    }
+
+    /* Grids */
+    .split-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.6rem;
+      flex: 1;
+      margin-top: 1rem;
+      align-items: stretch;
+    }
+    .split-equal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.6rem;
+      flex: 1;
+      margin-top: 1rem;
+      align-items: stretch;
+    }
+    .split-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      flex: 1;
+      margin-top: 1rem;
+      align-items: stretch;
+    }
+
+    .tech-panel {
+      background: var(--panel-light);
+      border: 1.5px solid rgba(125, 211, 252, 0.32);
+      padding: 1.4rem 1.6rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .tech-panel::after {
+      content: "";
+      position: absolute;
+      top: -1.5px; left: -1.5px;
+      width: 16px; height: 16px;
+      border-top: 3px solid var(--accent, var(--cyan));
+      border-left: 3px solid var(--accent, var(--cyan));
+    }
+
+    .panel-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.55rem;
+      font-weight: 700;
+      margin-bottom: 0.7rem;
+      color: var(--accent, var(--cyan));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .spec-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+    .spec-list li {
+      font-size: 1.2rem;
+      line-height: 1.42;
+      color: #f1f5f9;
+      padding-left: 1.6rem;
+      position: relative;
+    }
+    .spec-list li::before {
+      content: "■";
+      position: absolute;
+      left: 0;
+      top: 0.1rem;
+      font-size: 0.85rem;
+      color: var(--accent, var(--cyan));
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(11, 19, 36, 0.75);
+      color: var(--neon-cyan);
+      padding: 0.12rem 0.45rem;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      font-size: 0.9em;
+    }
+
+    /* ==================== CLEAN, NON-OVERLAPPING 3D DIAGRAM STAGES ==================== */
+    .iso-stage {
+      background: rgba(12, 20, 38, 0.88);
+      border: 1.5px solid rgba(125, 211, 252, 0.35);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1rem 1.2rem;
+      background-image:
+        radial-gradient(rgba(56, 189, 248, 0.2) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .iso-header {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--cyan);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(125, 211, 252, 0.2);
+      padding-bottom: 0.45rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .iso-svg {
+      width: 100%;
+      flex: 1;
+      max-height: 320px;
+      overflow: visible;
+    }
+
+    .float-1 { animation: gentleFloat 3s ease-in-out infinite alternate; }
+    .float-2 { animation: gentleFloat 3s ease-in-out 0.8s infinite alternate; }
+    .float-3 { animation: gentleFloat 3s ease-in-out 1.6s infinite alternate; }
+    @keyframes gentleFloat {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-6px); }
+    }
+
+    .laser-line {
+      animation: scanTableY 2.5s ease-in-out infinite alternate;
+    }
+    @keyframes scanTableY {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(115px); }
+    }
+
+    .glow-active {
+      animation: emeraldPulse 1.6s ease-in-out infinite alternate;
+    }
+    @keyframes emeraldPulse {
+      0% { filter: drop-shadow(0 0 4px rgba(52, 211, 153, 0.4)); }
+      100% { filter: drop-shadow(0 0 16px rgba(52, 211, 153, 0.95)); }
+    }
+
+    /* Station 6 Table */
+    .blueprint-table {
+      width: 100%;
+      height: 100%;
+      border-collapse: collapse;
+      font-size: 1.22rem;
+      background: rgba(15, 25, 45, 0.88);
+      border: 2px solid var(--border-tech);
+    }
+    .blueprint-table th, .blueprint-table td {
+      padding: 0.9rem 1.35rem;
+      border: 1px solid rgba(125, 211, 252, 0.25);
+      text-align: left;
+    }
+    .blueprint-table th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.12rem;
+      text-transform: uppercase;
+      background: rgba(56, 189, 248, 0.18);
+      color: #fff;
+    }
+
+    /* Telemetry Bar */
+    .telemetry-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+      margin-top: 0.9rem;
+    }
+    .telemetry-box {
+      background: rgba(12, 20, 38, 0.9);
+      border-left: 5px solid var(--accent, var(--cyan));
+      border-top: 1px solid rgba(255,255,255,0.15);
+      border-right: 1px solid rgba(255,255,255,0.15);
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      padding: 0.8rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .tel-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: var(--accent, var(--cyan));
+    }
+    .tel-label {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HUD: NAVIGATION + LIVE 5-MINUTE TIMER -->
+  <div class="hud-top">
+    <div class="node-nav" id="nodeNav"></div>
+
+    <div class="timer-widget">
+      <button class="timer-btn" onclick="toggleOverview()" id="mapBtn">🗺️ Map (M)</button>
+      <div class="timer-display" id="timerDisplay" onclick="toggleTimer()" title="Click to Start/Pause Timer">00:00</div>
+      <button class="timer-btn" onclick="toggleTimer()" id="timerBtn">▶ Start</button>
+      <button class="timer-btn" onclick="resetTimer()">↺</button>
+    </div>
+  </div>
+
+  <!-- 3D SPATIAL WORLD VIEWPORT -->
+  <div class="viewport">
+    <div class="world" id="world">
+
+      <!-- SVG CIRCUIT PIPELINES CONNECTING ALL 7 NODES -->
+      <svg class="world-circuits" viewBox="0 0 6000 4400">
+        <path class="circuit-line" d="M 1000 900 L 2600 900 L 4300 900 L 4300 2200 L 2600 2200 L 1000 2200 L 2600 3500" />
+        <path class="circuit-pulse" d="M 1000 900 L 2600 900 L 4300 900 L 4300 2200 L 2600 2200 L 1000 2200 L 2600 3500" />
+      </svg>
+
+      <!-- ==================== NODE 01: TITLE & 3D VOLUME PILLARS (1000, 900) ==================== -->
+      <section class="station" data-station-id="01 // OVERVIEW" style="left: 1000px; top: 900px;">
+        <div>
+          <div class="tech-kicker">
+            <span>5-Minute Technical Defense</span>
+            <span style="color: rgba(125, 211, 252, 0.45);">|</span>
+            <span style="color: var(--neon-green);">Rositsa Racheva Kaloyanova</span>
+            <span style="color: rgba(125, 211, 252, 0.45);">|</span>
+            <span style="color: var(--text-primary);">November 5, 2026</span>
+          </div>
+          <h1>CSV vs. Avro vs. Parquet</h1>
+          <p class="lead">How Choosing the Right Big Data File Format Saves <strong style="color:var(--neon-green);">85% in Storage</strong> &amp; Accelerates Queries by <strong style="color:var(--cyan);">10×</strong></p>
+        </div>
+
+        <div class="split-2">
+          <!-- Left: 3 Format Cards -->
+          <div style="display:flex; flex-direction:column; gap:0.85rem; justify-content:center;">
+            <div class="tech-panel" style="--accent: var(--neon-coral); padding: 1rem 1.35rem;">
+              <div class="panel-title" style="font-size:1.35rem; margin-bottom:0.25rem;">
+                <span>01 // CSV (Plain Text)</span>
+                <span style="font-family:'JetBrains Mono',monospace; font-size:0.86rem;">ROW_TEXT</span>
+              </div>
+              <p style="font-size:1.14rem; color:var(--text-secondary);">Human-readable text without schema. Easy for Excel, expensive for Big Data engines.</p>
+            </div>
+
+            <div class="tech-panel" style="--accent: var(--neon-amber); padding: 1rem 1.35rem;">
+              <div class="panel-title" style="font-size:1.35rem; margin-bottom:0.25rem;">
+                <span>02 // Apache Avro</span>
+                <span style="font-family:'JetBrains Mono',monospace; font-size:0.86rem;">ROW_BINARY + JSON</span>
+              </div>
+              <p style="font-size:1.14rem; color:var(--text-secondary);">Fastest row-by-row writes &amp; best <strong>Schema Evolution</strong> for Kafka and Sqoop ingestion.</p>
+            </div>
+
+            <div class="tech-panel" style="--accent: var(--neon-green); padding: 1rem 1.35rem;">
+              <div class="panel-title" style="font-size:1.35rem; margin-bottom:0.25rem;">
+                <span>03 // Apache Parquet</span>
+                <span style="font-family:'JetBrains Mono',monospace; font-size:0.86rem;">COLUMNAR_BINARY</span>
+              </div>
+              <p style="font-size:1.14rem; color:var(--text-secondary);">Column-oriented analytics for Spark, Hive &amp; Impala with <strong>Column Pruning</strong> &amp; 85% compression.</p>
+            </div>
+          </div>
+
+          <!-- Right: Clean Spaced 3D Isometric Pillars -->
+          <div class="iso-stage">
+            <div class="iso-header">
+              <span>STORAGE VOLUME COMPARISON (100 GB DATASET)</span>
+              <span style="color:var(--neon-green);">3D ISOMETRIC SCALE</span>
+            </div>
+            <svg class="iso-svg" viewBox="0 0 560 280">
+              <!-- Base Grid Line -->
+              <line x1="20" y1="225" x2="540" y2="225" stroke="rgba(125,211,252,0.3)" stroke-width="2" stroke-dasharray="6 6"/>
+
+              <!-- PILLAR 1: CSV (Tall 100 GB Cube at x=35) -->
+              <g transform="translate(35, 35)">
+                <g class="float-1">
+                  <text x="65" y="-6" text-anchor="middle" fill="#fb7185" font-family="JetBrains Mono" font-weight="800" font-size="15">100 GB</text>
+                  <!-- Top Face -->
+                  <polygon points="65,8 130,36 65,64 0,36" fill="#fb7185"/>
+                  <!-- Left Face -->
+                  <polygon points="0,36 65,64 65,185 0,157" fill="#e11d48"/>
+                  <!-- Right Face -->
+                  <polygon points="65,64 130,36 130,157 65,185" fill="#be123c"/>
+                  <text x="65" y="41" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-weight="800" font-size="14">CSV</text>
+                  <text x="65" y="212" text-anchor="middle" fill="#f8fafc" font-family="JetBrains Mono" font-weight="700" font-size="13">PLAIN TEXT</text>
+                </g>
+              </g>
+
+              <!-- PILLAR 2: AVRO (Medium 48 GB Cube at x=215) -->
+              <g transform="translate(215, 85)">
+                <g class="float-2">
+                  <text x="65" y="-6" text-anchor="middle" fill="#fbbf24" font-family="JetBrains Mono" font-weight="800" font-size="15">48 GB</text>
+                  <!-- Top Face -->
+                  <polygon points="65,8 130,36 65,64 0,36" fill="#fbbf24"/>
+                  <!-- Left Face -->
+                  <polygon points="0,36 65,64 65,135 0,107" fill="#d97706"/>
+                  <!-- Right Face -->
+                  <polygon points="65,64 130,36 130,107 65,135" fill="#b45309"/>
+                  <text x="65" y="41" text-anchor="middle" fill="#0f172a" font-family="JetBrains Mono" font-weight="800" font-size="14">AVRO</text>
+                  <text x="65" y="162" text-anchor="middle" fill="#f8fafc" font-family="JetBrains Mono" font-weight="700" font-size="13">BINARY ROW</text>
+                </g>
+              </g>
+
+              <!-- PILLAR 3: PARQUET (Compact 15 GB Cube at x=395) -->
+              <g transform="translate(395, 130)">
+                <g class="float-3 glow-active">
+                  <text x="65" y="-6" text-anchor="middle" fill="#34d399" font-family="JetBrains Mono" font-weight="800" font-size="15">15 GB (-85%)</text>
+                  <!-- Top Face -->
+                  <polygon points="65,8 130,36 65,64 0,36" fill="#34d399"/>
+                  <!-- Left Face -->
+                  <polygon points="0,36 65,64 65,90 0,62" fill="#059669"/>
+                  <!-- Right Face -->
+                  <polygon points="65,64 130,36 130,62 65,90" fill="#047857"/>
+                  <text x="65" y="41" text-anchor="middle" fill="#052e16" font-family="JetBrains Mono" font-weight="800" font-size="13">PARQUET</text>
+                  <text x="65" y="117" text-anchor="middle" fill="#34d399" font-family="JetBrains Mono" font-weight="800" font-size="13">COLUMNAR</text>
+                </g>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="telemetry-bar">
+          <div class="telemetry-box" style="--accent: var(--neon-green);">
+            <span class="tel-label">STORAGE REDUCTION</span>
+            <span class="tel-val">-85%</span>
+          </div>
+          <div class="telemetry-box" style="--accent: var(--cyan);">
+            <span class="tel-label">ANALYTICAL SPEEDUP</span>
+            <span class="tel-val">10×–30×</span>
+          </div>
+          <div class="telemetry-box" style="--accent: var(--neon-amber);">
+            <span class="tel-label">SCHEMA EVOLUTION</span>
+            <span class="tel-val">SAFE</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== NODE 02: WHY CSV FAILS AT SCALE (2600, 900) ==================== -->
+      <section class="station" data-station-id="02 // CSV BOTTLENECK" style="left: 2600px; top: 900px;">
+        <div>
+          <div class="tech-kicker">1. The Business Problem</div>
+          <h2>Why Not Just Use CSV for Everything?</h2>
+          <p class="lead">CSV is great for humans and Excel, but terrible for distributed engines like Spark, Hive &amp; Impala.</p>
+        </div>
+
+        <div class="split-2">
+          <div class="tech-panel" style="--accent: var(--neon-coral);">
+            <div>
+              <div class="panel-title"><span>⚠️ 3 Fatal Flaws in Big Data</span></div>
+              <ul class="spec-list" style="gap: 1.15rem;">
+                <li>
+                  <strong>1. No Embedded Schema (Untyped Text):</strong><br/>
+                  Every value is plain text. Spark or Hive must parse and convert strings into numbers or dates on every read.
+                </li>
+                <li>
+                  <strong>2. Huge File Size &amp; Slow Parsing:</strong><br/>
+                  Plain text wastes disk space and CPU cycles splitting commas.
+                </li>
+                <li>
+                  <strong>3. Forced Full-Table Scans (100% I/O):</strong><br/>
+                  Because CSV stores data row-by-row, summing <strong>just 1 column out of 50</strong> forces the engine to scan the entire file!
+                </li>
+              </ul>
+            </div>
+            <div style="background:rgba(244,63,94,0.15); border:1px solid var(--neon-coral); padding:0.7rem 1rem; font-family:'JetBrains Mono',monospace; font-size:1rem; color:#fecdd3;">
+              ✓ Pros: Human-readable &amp; universal for small Landing Zone files.
+            </div>
+          </div>
+
+          <!-- Clean Non-Overlapping Full-Scan Laser Diagram -->
+          <div class="iso-stage">
+            <div class="iso-header">
+              <span>FULL TABLE SCAN BOTTLENECK</span>
+              <span style="color:var(--neon-coral);">QUERY: SELECT SUM(SPENT)</span>
+            </div>
+            <svg class="iso-svg" viewBox="0 0 520 270">
+              <!-- Column Headers -->
+              <g transform="translate(30, 10)" font-family="JetBrains Mono" font-size="13" font-weight="800" fill="#94a3b8">
+                <text x="50" y="15" text-anchor="middle">COL 1: ID</text>
+                <text x="165" y="15" text-anchor="middle">COL 2: CITY</text>
+                <text x="280" y="15" text-anchor="middle">COL 3: TYPE</text>
+                <text x="395" y="15" text-anchor="middle" fill="#34d399">COL 4: SPENT</text>
+              </g>
+
+              <!-- 3 Well-Spaced 3D Row Slabs -->
+              <g transform="translate(30, 38)">
+                <!-- Row 1 -->
+                <g transform="translate(0, 0)">
+                  <rect x="0" y="0" width="100" height="36" rx="4" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+                  <rect x="115" y="0" width="100" height="36" rx="4" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+                  <rect x="230" y="0" width="100" height="36" rx="4" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+                  <rect x="345" y="0" width="100" height="36" rx="4" fill="rgba(16,185,129,0.25)" stroke="#34d399" stroke-width="2"/>
+                  <text x="50" y="23" text-anchor="middle" fill="#e2e8f0" font-family="JetBrains Mono" font-size="14">"101"</text>
+                  <text x="165" y="23" text-anchor="middle" fill="#e2e8f0" font-family="JetBrains Mono" font-size="14">"London"</text>
+                  <text x="280" y="23" text-anchor="middle" fill="#e2e8f0" font-family="JetBrains Mono" font-size="14">"Card"</text>
+                  <text x="395" y="23" text-anchor="middle" fill="#34d399" font-family="JetBrains Mono" font-weight="800" font-size="14">"$50"</text>
+                </g>
+
+                <!-- Row 2 -->
+                <g transform="translate(0, 52)">
+                  <rect x="0" y="0" width="100" height="36" rx="4" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+                  <rect x="115" y="0" width="100" height="36" rx="4" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+                  <rect x="230" y="0" width="100" height="36" rx="4" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+                  <rect x="345" y="0" width="100" height="36" rx="4" fill="rgba(16,185,129,0.25)" stroke="#34d399" stroke-width="2"/>
+                  <text x="50" y="23" text-anchor="middle" fill="#e2e8f0" font-family="JetBrains Mono" font-size="14">"102"</text>
+                  <text x="165" y="23" text-anchor="middle" fill="#e2e8f0" font-family="JetBrains Mono" font-size="14">"Madrid"</text>
+                  <text x="280" y="23" text-anchor="middle" fill="#e2e8f0" font-family="JetBrains Mono" font-size="14">"Cash"</text>
+                  <text x="395" y="23" text-anchor="middle" fill="#34d399" font-family="JetBrains Mono" font-weight="800" font-size="14">"$80"</text>
+                </g>
+
+                <!-- Row 3 -->
+                <g transform="translate(0, 104)">
+                  <rect x="0" y="0" width="100" height="36" rx="4" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+                  <rect x="115" y="0" width="100" height="36" rx="4" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+                  <rect x="230" y="0" width="100" height="36" rx="4" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+                  <rect x="345" y="0" width="100" height="36" rx="4" fill="rgba(16,185,129,0.25)" stroke="#34d399" stroke-width="2"/>
+                  <text x="50" y="23" text-anchor="middle" fill="#e2e8f0" font-family="JetBrains Mono" font-size="14">"103"</text>
+                  <text x="165" y="23" text-anchor="middle" fill="#e2e8f0" font-family="JetBrains Mono" font-size="14">"Paris"</text>
+                  <text x="280" y="23" text-anchor="middle" fill="#e2e8f0" font-family="JetBrains Mono" font-size="14">"Card"</text>
+                  <text x="395" y="23" text-anchor="middle" fill="#34d399" font-family="JetBrains Mono" font-weight="800" font-size="14">"$30"</text>
+                </g>
+
+                <!-- Animated Red Full-Row Laser Bar -->
+                <g class="laser-line">
+                  <rect x="-8" y="0" width="461" height="34" rx="6" fill="rgba(244,63,94,0.28)" stroke="#fb7185" stroke-width="2.5"/>
+                </g>
+              </g>
+
+              <!-- Clean Footer Caption -->
+              <rect x="20" y="210" width="480" height="44" rx="6" fill="rgba(244,63,94,0.15)" stroke="#fb7185" stroke-width="1.5"/>
+              <text x="260" y="237" text-anchor="middle" fill="#fecdd3" font-family="JetBrains Mono" font-weight="800" font-size="13">
+                ! RED LASER IS FORCED TO SCAN ALL COLUMNS IN EVERY ROW
+              </text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== NODE 03: ROW VS COLUMNAR 3D BLOCKS (4300, 900) ==================== -->
+      <section class="station" data-station-id="03 // ROW VS COLUMNAR" style="left: 4300px; top: 900px;">
+        <div>
+          <div class="tech-kicker">2. Core Storage Architecture</div>
+          <h2>Row-Oriented vs. Column-Oriented Layout</h2>
+          <p class="lead">How physical disk organization changes everything for <code>SELECT SUM(Spent)</code></p>
+        </div>
+
+        <div class="split-equal">
+          <!-- Row-Oriented -->
+          <div class="tech-panel" style="--accent: var(--neon-amber);">
+            <div class="panel-title">
+              <span>📦 Row-Oriented (CSV &amp; Avro)</span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:0.86rem;">WRITE-OPTIMIZED</span>
+            </div>
+
+            <div class="iso-stage" style="height: 255px; margin-bottom: 0.9rem;">
+              <div class="iso-header">
+                <span>DISK LAYOUT: ROW BY ROW</span>
+                <span style="color:var(--neon-amber);">SCANS ALL BLOCKS</span>
+              </div>
+              <svg class="iso-svg" viewBox="0 0 480 185">
+                <!-- Row 1 Group -->
+                <g transform="translate(10, 22)">
+                  <text x="68" y="0" text-anchor="middle" fill="#fbbf24" font-family="JetBrains Mono" font-size="12" font-weight="800">ROW 1</text>
+                  <rect x="0" y="10" width="42" height="52" rx="4" fill="#0284c7" stroke="#fff" stroke-width="1.5"/>
+                  <rect x="46" y="10" width="48" height="52" rx="4" fill="#7c3aed" stroke="#fff" stroke-width="1.5"/>
+                  <rect x="98" y="10" width="42" height="52" rx="4" fill="#059669" stroke="#fff" stroke-width="1.5"/>
+                  <text x="21" y="41" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="12" font-weight="800">101</text>
+                  <text x="70" y="41" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="12" font-weight="700">LON</text>
+                  <text x="119" y="41" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="12" font-weight="800">$50</text>
+                </g>
+
+                <!-- Row 2 Group -->
+                <g transform="translate(170, 22)">
+                  <text x="68" y="0" text-anchor="middle" fill="#fbbf24" font-family="JetBrains Mono" font-size="12" font-weight="800">ROW 2</text>
+                  <rect x="0" y="10" width="42" height="52" rx="4" fill="#0284c7" stroke="#fff" stroke-width="1.5"/>
+                  <rect x="46" y="10" width="48" height="52" rx="4" fill="#7c3aed" stroke="#fff" stroke-width="1.5"/>
+                  <rect x="98" y="10" width="42" height="52" rx="4" fill="#059669" stroke="#fff" stroke-width="1.5"/>
+                  <text x="21" y="41" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="12" font-weight="800">102</text>
+                  <text x="70" y="41" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="12" font-weight="700">MAD</text>
+                  <text x="119" y="41" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="12" font-weight="800">$80</text>
+                </g>
+
+                <!-- Row 3 Group -->
+                <g transform="translate(330, 22)">
+                  <text x="68" y="0" text-anchor="middle" fill="#fbbf24" font-family="JetBrains Mono" font-size="12" font-weight="800">ROW 3</text>
+                  <rect x="0" y="10" width="42" height="52" rx="4" fill="#0284c7" stroke="#fff" stroke-width="1.5"/>
+                  <rect x="46" y="10" width="48" height="52" rx="4" fill="#7c3aed" stroke="#fff" stroke-width="1.5"/>
+                  <rect x="98" y="10" width="42" height="52" rx="4" fill="#059669" stroke="#fff" stroke-width="1.5"/>
+                  <text x="21" y="41" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="12" font-weight="800">103</text>
+                  <text x="70" y="41" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="12" font-weight="700">LON</text>
+                  <text x="119" y="41" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="12" font-weight="800">$30</text>
+                </g>
+
+                <!-- Jump Arcs -->
+                <path d="M 129 90 Q 205 125 289 90" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="5 4"/>
+                <path d="M 289 90 Q 365 125 449 90" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="5 4"/>
+                <text x="240" y="155" text-anchor="middle" fill="#fbbf24" font-family="JetBrains Mono" font-size="13" font-weight="800">
+                  Must jump over ID &amp; City in every single row!
+                </text>
+              </svg>
+            </div>
+
+            <ul class="spec-list">
+              <li><strong>Stores whole customer rows together</strong> sequentially.</li>
+              <li><strong>Fastest for Writes:</strong> Appending a new transaction is instant.</li>
+            </ul>
+          </div>
+
+          <!-- Column-Oriented -->
+          <div class="tech-panel" style="--accent: var(--neon-green);">
+            <div class="panel-title">
+              <span>📊 Column-Oriented (Parquet &amp; ORC)</span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:0.86rem;">READ-OPTIMIZED</span>
+            </div>
+
+            <div class="iso-stage" style="height: 255px; margin-bottom: 0.9rem;">
+              <div class="iso-header">
+                <span>DISK LAYOUT: GROUPED BY COLUMN</span>
+                <span style="color:var(--neon-green);">COLUMN PRUNING</span>
+              </div>
+              <svg class="iso-svg" viewBox="0 0 480 185">
+                <!-- Col 1: IDs (Dimmed) -->
+                <g opacity="0.28" transform="translate(10, 22)">
+                  <text x="68" y="0" text-anchor="middle" fill="#94a3b8" font-family="JetBrains Mono" font-size="12" font-weight="800">COL 1: ID (SKIP)</text>
+                  <rect x="0" y="10" width="136" height="52" rx="4" fill="#0284c7" stroke="#fff" stroke-width="1.5"/>
+                  <text x="68" y="41" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="13" font-weight="800">101 | 102 | 103</text>
+                </g>
+
+                <!-- Col 2: Cities (Dimmed) -->
+                <g opacity="0.28" transform="translate(170, 22)">
+                  <text x="68" y="0" text-anchor="middle" fill="#94a3b8" font-family="JetBrains Mono" font-size="12" font-weight="800">COL 2: CITY (SKIP)</text>
+                  <rect x="0" y="10" width="136" height="52" rx="4" fill="#7c3aed" stroke="#fff" stroke-width="1.5"/>
+                  <text x="68" y="41" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="13" font-weight="800">LON | MAD | LON</text>
+                </g>
+
+                <!-- Col 3: Spent (Glowing!) -->
+                <g class="glow-active" transform="translate(330, 22)">
+                  <text x="70" y="0" text-anchor="middle" fill="#34d399" font-family="JetBrains Mono" font-size="12" font-weight="800">✓ COL 3: SPENT</text>
+                  <rect x="0" y="10" width="140" height="56" rx="6" fill="#10b981" stroke="#fff" stroke-width="2.5"/>
+                  <text x="70" y="43" text-anchor="middle" fill="#052e16" font-family="JetBrains Mono" font-size="13" font-weight="800">$50 | $80 | $30</text>
+                </g>
+
+                <rect x="20" y="122" width="440" height="40" rx="6" fill="rgba(16,185,129,0.2)" stroke="#34d399" stroke-width="1.5"/>
+                <text x="240" y="147" text-anchor="middle" fill="#34d399" font-family="JetBrains Mono" font-size="13" font-weight="800">
+                  ✓ READS ONLY THE 'SPENT' BLOCK (SKIPS 67% OF DATA!)
+                </text>
+              </svg>
+            </div>
+
+            <ul class="spec-list">
+              <li><strong>Groups identical columns together</strong> continuously on disk.</li>
+              <li><strong>Fastest for Analytics:</strong> Skips unused columns &amp; compresses 85%.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== NODE 04: APACHE AVRO DEEP DIVE (4300, 2200) ==================== -->
+      <section class="station" data-station-id="04 // APACHE AVRO" style="left: 4300px; top: 2200px;">
+        <div>
+          <div class="tech-kicker">3. Deep Dive: Ingestion &amp; Streaming</div>
+          <h2>Apache Avro: Binary Rows + JSON Schema</h2>
+          <p class="lead">The #1 choice for Kafka event streaming and Sqoop Raw Data Lake ingestion.</p>
+        </div>
+
+        <div class="split-2">
+          <div class="tech-panel" style="--accent: var(--neon-amber);">
+            <div>
+              <div class="panel-title"><span>⚡ Why Data Engineers Love Avro</span></div>
+              <ul class="spec-list" style="gap: 1.15rem;">
+                <li>
+                  <strong>1. Self-Describing JSON Header (<code>.avsc</code>):</strong><br/>
+                  Every Avro file embeds its own JSON schema in the file header—data types are never lost.
+                </li>
+                <li>
+                  <strong>2. Champion of Schema Evolution:</strong><br/>
+                  If MySQL adds a new column next month, Avro reads both <strong>old files (v1)</strong> and <strong>new files (v2)</strong> seamlessly without breaking pipelines!
+                </li>
+                <li>
+                  <strong>3. Splittable Binary Blocks:</strong><br/>
+                  Sync markers let Spark &amp; MapReduce split large Avro files across parallel executors.
+                </li>
+              </ul>
+            </div>
+            <div style="background:rgba(245,158,11,0.15); border:1px solid var(--neon-amber); padding:0.7rem 1rem; font-family:'JetBrains Mono',monospace; font-size:1rem; color:#fde68a;">
+              Use Cases: Kafka Streaming • Sqoop (--as-avrodatafile)
+            </div>
+          </div>
+
+          <!-- Clean Non-Overlapping Avro Structure Diagram -->
+          <div class="iso-stage">
+            <div class="iso-header">
+              <span>INSIDE AN APACHE AVRO FILE (.AVRO)</span>
+              <span style="color:var(--neon-amber);">HEADER + BINARY BLOCKS</span>
+            </div>
+            <svg class="iso-svg" viewBox="0 0 520 270">
+              <!-- Top Section: 3 Connected 3D Modules -->
+              <g transform="translate(15, 20)">
+                <!-- Module 1: JSON Header -->
+                <rect x="0" y="0" width="185" height="135" rx="8" fill="rgba(245,158,11,0.2)" stroke="#fbbf24" stroke-width="2.5"/>
+                <text x="92" y="26" text-anchor="middle" fill="#fbbf24" font-family="JetBrains Mono" font-weight="800" font-size="13">1. JSON HEADER</text>
+                <text x="14" y="52" fill="#e2e8f0" font-family="JetBrains Mono" font-size="11">{"name": "Account",</text>
+                <text x="14" y="72" fill="#e2e8f0" font-family="JetBrains Mono" font-size="11"> "fields": [</text>
+                <text x="14" y="92" fill="#93c5fd" font-family="JetBrains Mono" font-size="11">  "id", "city",</text>
+                <text x="14" y="112" fill="#34d399" font-family="JetBrains Mono" font-weight="800" font-size="11">  "phone" (default:null)</text>
+
+                <!-- Arrow -->
+                <line x1="192" y1="67" x2="218" y2="67" stroke="#38bdf8" stroke-width="3"/>
+
+                <!-- Module 2: Row Block 1 -->
+                <rect x="222" y="0" width="125" height="135" rx="8" fill="rgba(56,189,248,0.18)" stroke="#38bdf8" stroke-width="2"/>
+                <text x="284" y="28" text-anchor="middle" fill="#38bdf8" font-family="JetBrains Mono" font-weight="800" font-size="13">BLOCK 1</text>
+                <rect x="236" y="45" width="97" height="30" rx="4" fill="#0284c7"/>
+                <text x="284" y="65" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="11" font-weight="700">Binary Rows</text>
+                <rect x="236" y="85" width="97" height="30" rx="4" fill="#0369a1"/>
+                <text x="284" y="105" text-anchor="middle" fill="#7dd3fc" font-family="JetBrains Mono" font-size="11">Sync Marker</text>
+
+                <!-- Arrow -->
+                <line x1="352" y1="67" x2="368" y2="67" stroke="#38bdf8" stroke-width="3"/>
+
+                <!-- Module 3: Row Block 2 -->
+                <rect x="372" y="0" width="120" height="135" rx="8" fill="rgba(56,189,248,0.18)" stroke="#38bdf8" stroke-width="2"/>
+                <text x="432" y="28" text-anchor="middle" fill="#38bdf8" font-family="JetBrains Mono" font-weight="800" font-size="13">BLOCK 2</text>
+                <rect x="385" y="45" width="94" height="30" rx="4" fill="#0284c7"/>
+                <text x="432" y="65" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="11" font-weight="700">Binary Rows</text>
+                <rect x="385" y="85" width="94" height="30" rx="4" fill="#0369a1"/>
+                <text x="432" y="105" text-anchor="middle" fill="#7dd3fc" font-family="JetBrains Mono" font-size="11">Sync Marker</text>
+              </g>
+
+              <!-- Bottom Schema Evolution Banner -->
+              <rect x="15" y="185" width="490" height="58" rx="8" fill="rgba(16,185,129,0.2)" stroke="#34d399" stroke-width="2"/>
+              <text x="260" y="210" text-anchor="middle" fill="#34d399" font-family="JetBrains Mono" font-weight="800" font-size="14">
+                ✓ SCHEMA EVOLUTION IN ACTION
+              </text>
+              <text x="260" y="231" text-anchor="middle" fill="#e2e8f0" font-family="JetBrains Mono" font-size="12">
+                Old Files (v1) + New Files (v2 with 'phone') read together with 0 errors!
+              </text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== NODE 05: APACHE PARQUET DEEP DIVE (2600, 2200) ==================== -->
+      <section class="station" data-station-id="05 // APACHE PARQUET" style="left: 2600px; top: 2200px;">
+        <div>
+          <div class="tech-kicker">4. Deep Dive: Analytical Engine</div>
+          <h2>Apache Parquet: Built for Spark, Impala &amp; Hive</h2>
+          <p class="lead">Two analytical superpowers that slash cloud query bills by up to 90%.</p>
+        </div>
+
+        <div class="split-2">
+          <div class="tech-panel" style="--accent: var(--neon-green);">
+            <div>
+              <div class="panel-title"><span>🚀 2 Superpowers of Parquet</span></div>
+              <ul class="spec-list" style="gap: 1.15rem;">
+                <li>
+                  <strong>1. Column Pruning (Skip Columns):</strong><br/>
+                  Only reads the exact columns requested in your <code>SELECT</code> statement.
+                </li>
+                <li>
+                  <strong>2. Predicate Pushdown (Skip Row Groups):</strong><br/>
+                  Parquet stores <code>min/max</code> statistics in the footer of every block. If you filter <code>WHERE year = 2026</code>, Parquet skips entire blocks that only contain 2020–2024!
+                </li>
+                <li>
+                  <strong>3. Homogeneous Compression (85% Smaller):</strong><br/>
+                  Storing identical data types together lets <strong>Snappy &amp; Dictionary Encoding</strong> shrink 100 GB down to 15 GB.
+                </li>
+              </ul>
+            </div>
+            <div style="background:rgba(16,185,129,0.18); border:1px solid var(--neon-green); padding:0.7rem 1rem; font-family:'JetBrains Mono',monospace; font-size:1rem; color:#a7f3d0;">
+              Cloud Savings: Less GB scanned = 90% cheaper BigQuery / Athena bills!
+            </div>
+          </div>
+
+          <!-- Clean Non-Overlapping Predicate Pushdown 3D Diagram -->
+          <div class="iso-stage">
+            <div class="iso-header">
+              <span>PREDICATE PUSHDOWN</span>
+              <span style="color:var(--neon-green);">FILTER: WHERE YEAR = 2026</span>
+            </div>
+            <svg class="iso-svg" viewBox="0 0 540 270">
+              <!-- Row Group 1 (Skipped) -->
+              <g opacity="0.38" transform="translate(20, 20)">
+                <polygon points="70,0 140,28 70,56 0,28" fill="#fb7185"/>
+                <polygon points="0,28 70,56 70,150 0,122" fill="#e11d48"/>
+                <polygon points="70,56 140,28 140,122 70,150" fill="#be123c"/>
+                <text x="70" y="33" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-weight="800" font-size="12">BLOCK 1</text>
+                <rect x="5" y="166" width="130" height="48" rx="6" fill="rgba(244,63,94,0.2)" stroke="#fb7185" stroke-width="1.5"/>
+                <text x="70" y="186" text-anchor="middle" fill="#fecdd3" font-family="JetBrains Mono" font-size="11" font-weight="700">min:2020 max:2021</text>
+                <text x="70" y="205" text-anchor="middle" fill="#fb7185" font-family="JetBrains Mono" font-size="13" font-weight="800">✗ SKIPPED</text>
+              </g>
+
+              <!-- Row Group 2 (Skipped) -->
+              <g opacity="0.38" transform="translate(200, 20)">
+                <polygon points="70,0 140,28 70,56 0,28" fill="#fb7185"/>
+                <polygon points="0,28 70,56 70,150 0,122" fill="#e11d48"/>
+                <polygon points="70,56 140,28 140,122 70,150" fill="#be123c"/>
+                <text x="70" y="33" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-weight="800" font-size="12">BLOCK 2</text>
+                <rect x="5" y="166" width="130" height="48" rx="6" fill="rgba(244,63,94,0.2)" stroke="#fb7185" stroke-width="1.5"/>
+                <text x="70" y="186" text-anchor="middle" fill="#fecdd3" font-family="JetBrains Mono" font-size="11" font-weight="700">min:2022 max:2024</text>
+                <text x="70" y="205" text-anchor="middle" fill="#fb7185" font-family="JetBrains Mono" font-size="13" font-weight="800">✗ SKIPPED</text>
+              </g>
+
+              <!-- Row Group 3 (Scanned & Glowing!) -->
+              <g class="glow-active" transform="translate(380, 20)">
+                <polygon points="70,0 140,28 70,56 0,28" fill="#34d399"/>
+                <polygon points="0,28 70,56 70,150 0,122" fill="#059669"/>
+                <polygon points="70,56 140,28 140,122 70,150" fill="#047857"/>
+                <text x="70" y="33" text-anchor="middle" fill="#052e16" font-family="JetBrains Mono" font-weight="800" font-size="12">BLOCK 3</text>
+                <rect x="0" y="166" width="140" height="48" rx="6" fill="rgba(16,185,129,0.28)" stroke="#34d399" stroke-width="2"/>
+                <text x="70" y="186" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="11" font-weight="700">min:2025 max:2026</text>
+                <text x="70" y="205" text-anchor="middle" fill="#34d399" font-family="JetBrains Mono" font-size="13" font-weight="800">✓ SCANNED!</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== NODE 06: HEAD-TO-HEAD SPECIFICATION MATRIX (1000, 2200) ==================== -->
+      <section class="station" data-station-id="06 // SPEC MATRIX" style="left: 1000px; top: 2200px;">
+        <div>
+          <div class="tech-kicker">5. Engineering Decision Matrix</div>
+          <h2>CSV vs. Avro vs. Parquet at a Glance</h2>
+          <p class="lead">How to answer the classic technical interview question: "Which format should we use?"</p>
+        </div>
+
+        <div style="flex: 1; margin-top: 0.9rem;">
+          <table class="blueprint-table">
+            <thead>
+              <tr>
+                <th>Specification</th>
+                <th style="color: var(--neon-coral);">📄 CSV</th>
+                <th style="color: var(--neon-amber);">⚡ Apache Avro</th>
+                <th style="color: var(--neon-green);">🚀 Apache Parquet</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Physical Layout</strong></td>
+                <td>Row-Oriented</td>
+                <td>Row-Oriented</td>
+                <td><strong style="color:var(--neon-green);">Column-Oriented (Columnar)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Encoding Format</strong></td>
+                <td>Plain Text (Human Readable)</td>
+                <td>Binary (Machine Optimized)</td>
+                <td>Binary (Machine Optimized)</td>
+              </tr>
+              <tr>
+                <td><strong>Embedded Schema?</strong></td>
+                <td>❌ No (Untyped text)</td>
+                <td>✅ Yes (JSON in File Header)</td>
+                <td>✅ Yes (Metadata in File Footer)</td>
+              </tr>
+              <tr>
+                <td><strong>Schema Evolution</strong></td>
+                <td>Poor (Manual parsing)</td>
+                <td><strong style="color:var(--neon-amber);">🏆 Best-in-Class (Full Evolution)</strong></td>
+                <td>Moderate (Append columns)</td>
+              </tr>
+              <tr>
+                <td><strong>Speed Sweet Spot</strong></td>
+                <td>Slow parsing at scale</td>
+                <td><strong style="color:var(--neon-amber);">⚡ Fastest Writes (Row-by-Row)</strong></td>
+                <td><strong style="color:var(--neon-green);">🚀 Fastest Analytical Reads</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Storage Footprint</strong></td>
+                <td>100% (Largest baseline)</td>
+                <td>~48% (Medium compression)</td>
+                <td><strong style="color:var(--neon-green);">~15% (85% Space Saved!)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Primary Use Case</strong></td>
+                <td>Small exports &amp; Excel</td>
+                <td>Kafka Streaming &amp; Raw Zone</td>
+                <td>Spark, Impala, Hive &amp; BI</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ==================== NODE 07: REAL DATA LAKE ARCHITECTURE (2600, 3500) ==================== -->
+      <section class="station" data-station-id="07 // DATA LAKE MAP" style="left: 2600px; top: 3500px;">
+        <div>
+          <div class="tech-kicker">6. Conclusion &amp; Production Pipeline</div>
+          <h2>How All Three Work Together in a Modern Data Lake</h2>
+          <p class="lead">In production, we don't pick just one—we assign each format to its ideal Data Lake zone!</p>
+        </div>
+
+        <div class="split-3" style="margin-bottom: 1rem;">
+          <div class="tech-panel" style="--accent: var(--neon-coral);">
+            <div>
+              <div class="panel-title"><span>ZONE 01 // LANDING</span></div>
+              <h3 style="font-size: 1.95rem; color: var(--neon-coral); margin-bottom: 0.5rem;">📄 CSV / JSON</h3>
+              <p style="font-size: 1.2rem; color: var(--text-secondary); line-height: 1.45;">
+                External vendors, stores, and APIs drop raw files <strong>exactly as delivered</strong> for initial arrival and audit.
+              </p>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace; color:var(--neon-coral); font-size:0.98rem; border-top:1px solid rgba(255,255,255,0.15); padding-top:0.65rem;">
+              ➔ Ingested via Sqoop / Kafka
+            </div>
+          </div>
+
+          <div class="tech-panel" style="--accent: var(--neon-amber);">
+            <div>
+              <div class="panel-title"><span>ZONE 02 // RAW (BRONZE)</span></div>
+              <h3 style="font-size: 1.95rem; color: var(--neon-amber); margin-bottom: 0.5rem;">⚡ Apache Avro</h3>
+              <p style="font-size: 1.2rem; color: var(--text-secondary); line-height: 1.45;">
+                Writes full rows rapidly with <strong>embedded JSON schemas</strong> and protects pipelines with <strong>Schema Evolution</strong>.
+              </p>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace; color:var(--neon-amber); font-size:0.98rem; border-top:1px solid rgba(255,255,255,0.15); padding-top:0.65rem;">
+              ➔ Transformed via Spark / Hive
+            </div>
+          </div>
+
+          <div class="tech-panel" style="--accent: var(--neon-green);">
+            <div>
+              <div class="panel-title"><span>ZONE 03 // CURATED (GOLD)</span></div>
+              <h3 style="font-size: 1.95rem; color: var(--neon-green); margin-bottom: 0.5rem;">🚀 Apache Parquet</h3>
+              <p style="font-size: 1.2rem; color: var(--text-secondary); line-height: 1.45;">
+                <strong>Spark, Impala &amp; BI Dashboards</strong> query clean columnar tables with Column Pruning &amp; Predicate Pushdown!
+              </p>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace; color:var(--neon-green); font-size:0.98rem; border-top:1px solid rgba(255,255,255,0.15); padding-top:0.65rem;">
+              ✓ Ready for Analytics &amp; ML
+            </div>
+          </div>
+        </div>
+
+        <div style="background: linear-gradient(90deg, rgba(6,95,70,0.9), rgba(30,58,138,0.9)); border: 2.5px solid var(--neon-green); padding: 1.1rem 2rem; text-align: center;">
+          <div style="font-family:'Space Grotesk',sans-serif; font-size: 1.7rem; font-weight: 700; color: #fff;">
+            🏆 GOLDEN RULE: <span style="color:var(--neon-amber);">Write &amp; Stream in Row Format (Avro)</span> &nbsp;//&nbsp; <span style="color:var(--neon-green);">Read &amp; Analyze in Columnar Format (Parquet)</span>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size: 1.05rem; color: var(--cyan); margin-top: 0.25rem; font-weight: 700;">
+            THANK YOU! READY FOR QUESTIONS &nbsp;—&nbsp; <span style="color:var(--neon-green);">ROSITSA RACHEVA KALOYANOVA</span> &nbsp;|&nbsp; <span style="color:#fff;">05 NOV 2026</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- CLEAN BOTTOM BAR (NO RIGHT BUTTONS) -->
+  <div class="hud-bottom">
+    <div>
+      <span>KEYS: <code>←</code> <code>→</code> CHANGE SLIDE &nbsp;|&nbsp; <code>M</code> 3D MAP OVERVIEW &nbsp;|&nbsp; <code>T</code> START/PAUSE TIMER &nbsp;|&nbsp; <code>F</code> FULLSCREEN</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1.5rem;">
+      <span style="color: var(--text-primary); font-weight: 600;">Rositsa Racheva Kaloyanova &nbsp;•&nbsp; <span style="color: var(--neon-green);">November 5, 2026</span></span>
+      <span style="color: var(--cyan); font-weight: 700;">SLIDE <span id="hudNodeNum">01</span> OF 07</span>
+    </div>
+  </div>
+
+  <script>
+    const world = document.getElementById('world');
+    const stations = document.querySelectorAll('.station');
+    const nodeNav = document.getElementById('nodeNav');
+    const hudNodeNum = document.getElementById('hudNodeNum');
+    const mapBtn = document.getElementById('mapBtn');
+
+    const syncChannel = new BroadcastChannel('jam_session_v3_sync');
+
+    const nodes = [
+      { x: 1000, y: 900,  rotX: 2,  rotZ: 0,  label: '01.INTRO' },
+      { x: 2600, y: 900,  rotX: 3,  rotZ: -1, label: '02.CSV' },
+      { x: 4300, y: 900,  rotX: 3,  rotZ: 1,  label: '03.ROW_COL' },
+      { x: 4300, y: 2200, rotX: 2,  rotZ: -1, label: '04.AVRO' },
+      { x: 2600, y: 2200, rotX: 3,  rotZ: 1,  label: '05.PARQUET' },
+      { x: 1000, y: 2200, rotX: 2,  rotZ: 0,  label: '06.MATRIX' },
+      { x: 2600, y: 3500, rotX: 3,  rotZ: 0,  label: '07.DATALAKE' }
+    ];
+
+    let current = 0;
+    let isOverview = false;
+
+    nodes.forEach((n, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'node-btn' + (idx === 0 ? ' active' : '');
+      btn.textContent = n.label;
+      btn.onclick = () => { isOverview = false; current = idx; updateCamera(true); };
+      nodeNav.appendChild(btn);
+    });
+    const navBtns = document.querySelectorAll('.node-btn');
+
+    stations.forEach((st, idx) => {
+      st.addEventListener('click', () => {
+        if (isOverview) {
+          isOverview = false;
+          current = idx;
+          updateCamera(true);
+        }
+      });
+    });
+
+    function computeScale() {
+      const availW = window.innerWidth - 65;
+      const availH = window.innerHeight - 125;
+      const scaleW = availW / 1320;
+      const scaleH = availH / 740;
+      return Math.min(scaleW, scaleH, 1.25);
+    }
+
+    function updateCamera(broadcast = true) {
+      world.classList.toggle('overview-mode', isOverview);
+      navBtns.forEach((b, i) => b.classList.toggle('active', !isOverview && i === current));
+      stations.forEach((s, i) => s.classList.toggle('inactive-node', !isOverview && i !== current));
+      hudNodeNum.textContent = String(current + 1).padStart(2, '0');
+
+      if (isOverview) {
+        const overviewScale = Math.min(window.innerWidth / 4900, window.innerHeight / 3500) * 0.92;
+        world.style.transform = `scale(${overviewScale.toFixed(3)}) rotateX(24deg) rotateZ(-4deg) translate3d(-2650px, -2150px, 0px)`;
+        mapBtn.textContent = '🔍 Zoom In (M)';
+      } else {
+        const target = nodes[current];
+        const scale = computeScale();
+        const tx = -target.x;
+        const ty = -target.y;
+        world.style.transform = `scale(${scale.toFixed(3)}) rotateX(${target.rotX}deg) rotateZ(${target.rotZ}deg) translate3d(${tx}px, ${ty}px, 0px)`;
+        mapBtn.textContent = '🗺️ Map (M)';
+      }
+
+      if (broadcast) {
+        syncChannel.postMessage({ type: 'SLIDE_CHANGE', slideIndex: current });
+      }
+    }
+
+    function nextNode() {
+      isOverview = false;
+      if (current < nodes.length - 1) { current++; updateCamera(true); }
+    }
+    function prevNode() {
+      isOverview = false;
+      if (current > 0) { current--; updateCamera(true); }
+    }
+    function toggleOverview() {
+      isOverview = !isOverview;
+      updateCamera(false);
+    }
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // 5-Minute Presentation Timer
+    let seconds = 0;
+    let interval = null;
+    function toggleTimer() {
+      const btn = document.getElementById('timerBtn');
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+        btn.textContent = '▶ Resume';
+      } else {
+        interval = setInterval(() => {
+          seconds++;
+          const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+          const s = String(seconds % 60).padStart(2, '0');
+          const disp = document.getElementById('timerDisplay');
+          disp.textContent = `${m}:${s}`;
+          if (seconds >= 300) {
+            disp.style.color = '#fb7185';
+            disp.style.borderColor = '#fb7185';
+          }
+        }, 1000);
+        btn.textContent = '⏸ Pause';
+      }
+    }
+    function resetTimer() {
+      clearInterval(interval);
+      interval = null;
+      seconds = 0;
+      const disp = document.getElementById('timerDisplay');
+      disp.textContent = '00:00';
+      disp.style.color = '#34d399';
+      disp.style.borderColor = '#34d399';
+      document.getElementById('timerBtn').textContent = '▶ Start';
+    }
+
+    syncChannel.onmessage = (event) => {
+      if (event.data && event.data.type === 'SLIDE_CHANGE') {
+        isOverview = false;
+        current = event.data.slideIndex;
+        updateCamera(false);
+      }
+    };
+
+    window.addEventListener('resize', () => updateCamera(false));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextNode(); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); prevNode(); }
+      if (e.key.toLowerCase() === 'm') toggleOverview();
+      if (e.key.toLowerCase() === 't') toggleTimer();
+      if (e.key.toLowerCase() === 'f') toggleFullScreen();
+    });
+
+    updateCamera(true);
+  </script>
+</body>
+</html>
