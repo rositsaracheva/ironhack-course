@@ -1,0 +1,95 @@
+================================================================================
+WEEK 05 - DAY 05: CLASS EXERCISE — SPARK RDD WORD COUNT & READING LOCAL TEXT FILES
+================================================================================
+
+--------------------------------------------------------------------------------
+PART 1: WORD COUNT (FROM BOARD) + TERMINAL EXECUTION & OUTPUT
+--------------------------------------------------------------------------------
+
+# Scala (Board Notes)
+val file1=sc.parallelize("good sentence, good day , good boy)
+val file_split = file1.flatMap(s=>s.split(" ")
+val file_kv = file_split.map(w=>(w,1))
+val file_wc = file_kv.reduceByKey( a,b => (a+b))
+
+# --- Scala Terminal Execution & Output (spark-shell) ---
+scala> val file1 = sc.parallelize(Seq("good sentence, good day , good boy"))
+val file1: org.apache.spark.rdd.RDD[String] = ParallelCollectionRDD[0] at parallelize at <console>:1
+
+scala> val file_split = file1.flatMap(s => s.split(" "))
+val file_split: org.apache.spark.rdd.RDD[String] = MapPartitionsRDD[1] at flatMap at <console>:1
+
+scala> val file_kv = file_split.map(w => (w, 1))
+val file_kv: org.apache.spark.rdd.RDD[(String, Int)] = MapPartitionsRDD[2] at map at <console>:1
+
+scala> val file_wc = file_kv.reduceByKey((a, b) => (a + b))
+val file_wc: org.apache.spark.rdd.RDD[(String, Int)] = ShuffledRDD[3] at reduceByKey at <console>:1
+
+scala> file_wc.collect()
+val res0: Array[(String, Int)] = Array((sentence,,1), (day,1), (boy,1), (,,1), (good,3))
+
+
+--------------------------------------------------------------------------------
+
+# Python / PySpark (Board Notes)
+file1=sc.parallelize("good sentence, good day , good boy)
+file_split = file1.flatMap(lambda s:split(" ")
+file_kv = file_split.map(lambda w:(w,1))
+file_wc = file_kv.reduceByKey( lambda a,b :(a+b))
+
+# --- PySpark Terminal Execution & Output (pyspark) ---
+>>> file1 = sc.parallelize(["good sentence, good day , good boy"])
+>>> file_split = file1.flatMap(lambda s: s.split(" "))
+>>> file_kv = file_split.map(lambda w: (w, 1))
+>>> file_wc = file_kv.reduceByKey(lambda a, b: (a + b))
+>>> file_wc.collect()
+[('good', 3), ('day', 1), (',', 1), ('boy', 1), ('sentence,', 1)]
+
+
+================================================================================
+PART 2: 1. FIND HOW TO READ A TEXTFILE FROM LOCAL IN BOTH PYSPARK AND SCALA
+================================================================================
+* Tip: Use `"sample.txt"` (or `"/full/path/sample.txt"`) in `local[*]` mode, or prefix
+  with `"file:///full/path/sample.txt"` to explicitly force local filesystem reading.
+
+--------------------------------------------------------------------------------
+1. SCALA (`spark-shell`)
+--------------------------------------------------------------------------------
+# Method A: As an RDD (sc.textFile)
+scala> val file1 = sc.textFile("sample.txt")
+val file1: org.apache.spark.rdd.RDD[String] = sample.txt MapPartitionsRDD[1] at textFile at <console>:1
+
+scala> file1.collect()
+val res0: Array[String] = Array(good sentence, good day , good boy, spark is fast and spark is easy)
+
+# Method B: As a DataFrame (spark.read.text)
+scala> val df = spark.read.text("sample.txt")
+val df: org.apache.spark.sql.DataFrame = [value: string]
+
+scala> df.show(truncate = false)
++----------------------------------+
+|value                             |
++----------------------------------+
+|good sentence, good day , good boy|
+|spark is fast and spark is easy   |
++----------------------------------+
+
+
+--------------------------------------------------------------------------------
+2. PYSPARK (`pyspark`)
+--------------------------------------------------------------------------------
+# Method A: As an RDD (sc.textFile)
+>>> file1 = sc.textFile("sample.txt")
+>>> file1.collect()
+['good sentence, good day , good boy', 'spark is fast and spark is easy']
+
+# Method B: As a DataFrame (spark.read.text)
+>>> df = spark.read.text("sample.txt")
+>>> df.show(truncate=False)
++----------------------------------+
+|value                             |
++----------------------------------+
+|good sentence, good day , good boy|
+|spark is fast and spark is easy   |
++----------------------------------+
+================================================================================
