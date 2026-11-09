@@ -1,1 +1,0 @@
-/Users/rosi/Documents/IronHack Course /Week 05/Day 05 - LAB - PySpark DataFrame Transformations/rocky_word_count.py
