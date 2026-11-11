@@ -1,0 +1,30 @@
+DATA DICTIONARY
+
+customers.csv
+- customer_id: unique customer key
+- customer_name: generated customer name
+- email: example email address
+- city, region: customer geography
+- signup_date: customer registration date
+- customer_segment: Consumer, Corporate, or Small Business
+
+products.csv
+- product_id: unique product key
+- product_name: product description
+- category: Electronics, Furniture, Stationery, Accessories
+- unit_cost: illustrative cost per unit
+- list_price: illustrative selling price per unit
+
+orders.csv
+- order_id: unique order key
+- order_date: order date
+- customer_id: customer foreign key
+- product_id: product foreign key
+- quantity: units ordered
+- unit_price: selling price per unit
+- discount_pct: discount fraction (e.g. 0.10 = 10%); some values are null
+- order_status: Delivered, Shipped, Pending, Cancelled, Returned
+- shipping_date: ship date; some values are null
+- payment_method: payment channel
+
+NOTE: All records and names are synthetic and intended for learning only.
