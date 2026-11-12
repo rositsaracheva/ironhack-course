@@ -3,47 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cloud Data Platforms Master Guide — Databricks, Spark, File Formats & Snowflake</title>
+  <title>Cloud Data Platforms Interactive Academy — Databricks, Spark & Snowflake</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --bg-soft: #1e293b;
+      --bg: #0b1120;
+      --bg-elevated: #111827;
       --card: #1e293b;
       --card-hover: #26354d;
       --border: #334155;
-      --text: #f1f5f9;
+      --text: #f8fafc;
       --muted: #94a3b8;
-      --snowflake: #29b5e8;
-      --snowflake-bg: rgba(41, 181, 232, 0.12);
-      --databricks: #ff3621;
-      --databricks-bg: rgba(255, 54, 33, 0.12);
+      --sf: #29b5e8;
+      --sf-glow: rgba(41, 181, 232, 0.18);
+      --dbx: #ff3621;
+      --dbx-glow: rgba(255, 54, 33, 0.18);
       --spark: #f59e0b;
-      --spark-bg: rgba(245, 158, 11, 0.12);
+      --spark-glow: rgba(245, 158, 11, 0.18);
       --green: #10b981;
-      --green-bg: rgba(16, 185, 129, 0.12);
+      --green-glow: rgba(16, 185, 129, 0.18);
       --purple: #a855f7;
-      --purple-bg: rgba(168, 85, 247, 0.12);
+      --purple-glow: rgba(168, 85, 247, 0.18);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: var(--bg);
       color: var(--text);
-      line-height: 1.65;
+      line-height: 1.6;
       padding-bottom: 80px;
     }
 
-    /* Header / Hero */
+    /* Hero Header */
     header {
-      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0c4a6e 100%);
+      background: radial-gradient(circle at top right, #1e1b4b 0%, #0f172a 45%, #082f49 100%);
       border-bottom: 1px solid var(--border);
-      padding: 48px 24px 36px;
+      padding: 40px 24px 30px;
       text-align: center;
     }
 
@@ -52,361 +48,534 @@
       justify-content: center;
       gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .pill {
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      padding: 5px 12px;
+      padding: 4px 12px;
       border-radius: 999px;
       border: 1px solid transparent;
+      display: inline-block;
     }
-    .pill-dbx { background: var(--databricks-bg); color: #ff6b5b; border-color: rgba(255,54,33,0.3); }
-    .pill-sf { background: var(--snowflake-bg); color: var(--snowflake); border-color: rgba(41,181,232,0.3); }
-    .pill-spark { background: var(--spark-bg); color: #fbbf24; border-color: rgba(245,158,11,0.3); }
-    .pill-int { background: var(--purple-bg); color: #c084fc; border-color: rgba(168,85,247,0.3); }
+    .pill-dbx { background: var(--dbx-glow); color: #ff7a6b; border-color: rgba(255,54,33,0.35); }
+    .pill-sf { background: var(--sf-glow); color: #5fd0f5; border-color: rgba(41,181,232,0.35); }
+    .pill-spark { background: var(--spark-glow); color: #fcd34d; border-color: rgba(245,158,11,0.35); }
+    .pill-purple { background: var(--purple-glow); color: #d8b4fe; border-color: rgba(168,85,247,0.35); }
+    .pill-green { background: var(--green-glow); color: #6ee7b7; border-color: rgba(16,185,129,0.35); }
 
     header h1 {
-      font-size: 2.3rem;
+      font-size: 2.2rem;
       font-weight: 800;
-      margin-bottom: 12px;
       letter-spacing: -0.02em;
+      margin-bottom: 10px;
     }
 
     header p {
       max-width: 780px;
       margin: 0 auto;
       color: var(--muted);
-      font-size: 1.08rem;
+      font-size: 1.02rem;
     }
 
-    /* Sticky Navigation */
-    nav.sticky-nav {
+    /* Main Mode Switcher Tabs */
+    .mode-nav {
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(15, 23, 42, 0.92);
-      backdrop-filter: blur(10px);
+      background: rgba(11, 17, 32, 0.92);
+      backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
-      padding: 12px 20px;
+      padding: 12px 16px;
       display: flex;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
-    nav.sticky-nav a {
-      color: var(--text);
-      text-decoration: none;
-      font-size: 0.88rem;
-      font-weight: 600;
-      padding: 7px 14px;
-      border-radius: 8px;
-      background: var(--bg-soft);
+    .mode-btn {
+      background: var(--card);
+      color: var(--muted);
       border: 1px solid var(--border);
-      transition: all 0.15s ease;
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: flex;
+      align-items: center;
+      gap: 7px;
     }
 
-    nav.sticky-nav a:hover {
-      border-color: var(--snowflake);
-      color: var(--snowflake);
+    .mode-btn:hover {
+      color: var(--text);
+      border-color: #64748b;
       transform: translateY(-1px);
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, rgba(41,181,232,0.22), rgba(168,85,247,0.22));
+      color: #fff;
+      border-color: var(--sf);
+      box-shadow: 0 0 18px rgba(41, 181, 232, 0.25);
     }
 
     .container {
       max-width: 1180px;
       margin: 0 auto;
-      padding: 0 24px;
+      padding: 28px 20px;
     }
 
-    section {
-      margin-top: 56px;
-      scroll-margin-top: 75px;
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+    .tab-pane.active {
+      display: block;
     }
 
-    .section-title {
-      font-size: 1.7rem;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      margin-bottom: 24px;
+    }
+    .section-header h2 {
+      font-size: 1.65rem;
       font-weight: 800;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
+    }
+    .section-header p {
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    /* Interactive Stepper / Real-World Case Study */
+    .case-banner {
+      background: linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95));
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--sf);
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+
+    .pipeline-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .step-node {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+      position: relative;
+    }
+
+    .step-node:hover {
+      border-color: #64748b;
+      transform: translateY(-2px);
+    }
+
+    .step-node.active {
+      border-color: var(--sf);
+      background: linear-gradient(180deg, rgba(41,181,232,0.14), rgba(30,41,59,0.95));
+      box-shadow: 0 6px 20px rgba(41, 181, 232, 0.18);
+    }
+
+    .step-num {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--sf);
+      letter-spacing: 0.06em;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .step-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .step-tech {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .step-detail-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    /* Click-to-Reveal Visual Architecture Map */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 860px) {
+      .arch-grid { grid-template-columns: 1fr; }
+    }
+
+    .visual-stack {
       display: flex;
-      align-items: center;
+      flex-direction: column;
       gap: 12px;
     }
 
-    .section-subtitle {
-      color: var(--muted);
-      margin-bottom: 24px;
-      font-size: 1rem;
+    .visual-block {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    /* Cards & Grids */
+    .visual-block:hover {
+      border-color: #64748b;
+      background: var(--card-hover);
+    }
+
+    .visual-block.selected {
+      border-color: var(--sf);
+      background: rgba(41, 181, 232, 0.12);
+    }
+
+    .inspector-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      position: sticky;
+      top: 76px;
+    }
+
+    /* Expandable Cards Grid */
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-      gap: 20px;
+      gap: 16px;
     }
 
     .grid-3 {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-      gap: 20px;
-    }
-
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 16px;
     }
 
-    .card {
+    details.click-card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 22px;
+      border-radius: 12px;
+      overflow: hidden;
       transition: border-color 0.2s ease;
     }
 
-    .card:hover {
-      border-color: #475569;
+    details.click-card:hover {
+      border-color: #64748b;
     }
 
-    .card h3 {
-      font-size: 1.18rem;
-      margin-bottom: 10px;
+    details.click-card[open] {
+      border-color: var(--sf);
+    }
+
+    details.click-card summary {
+      padding: 16px 18px;
+      cursor: pointer;
+      list-style: none;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1rem;
     }
 
-    .card p {
+    details.click-card summary::-webkit-details-marker { display: none; }
+
+    .expand-icon {
+      font-size: 0.78rem;
+      color: var(--sf);
+      background: var(--sf-glow);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    details.click-card[open] .expand-icon {
+      background: var(--sf);
+      color: #0b1120;
+    }
+
+    .card-content {
+      padding: 0 18px 18px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 14px;
       color: #cbd5e1;
-      font-size: 0.95rem;
-      margin-bottom: 10px;
+      font-size: 0.93rem;
     }
 
-    .card ul {
+    .card-content ul {
       padding-left: 18px;
-      color: #cbd5e1;
-      font-size: 0.92rem;
+      margin-top: 8px;
     }
+    .card-content li { margin-bottom: 6px; }
 
-    .card ul li {
-      margin-bottom: 6px;
-    }
-
-    .analogy-box {
-      background: rgba(245, 158, 11, 0.08);
-      border-left: 4px solid var(--spark);
-      padding: 12px 16px;
-      border-radius: 6px;
-      margin-top: 12px;
-      font-size: 0.9rem;
-      color: #fde68a;
-    }
-
-    .interview-tip {
-      background: rgba(16, 185, 129, 0.09);
+    .callout-real {
+      background: rgba(16, 185, 129, 0.1);
       border-left: 4px solid var(--green);
-      padding: 12px 16px;
+      padding: 10px 14px;
       border-radius: 6px;
       margin-top: 12px;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       color: #a7f3d0;
     }
 
-    /* Tables */
+    .callout-warn {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 4px solid var(--spark);
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin-top: 12px;
+      font-size: 0.88rem;
+      color: #fde68a;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+      background: rgba(11, 17, 32, 0.8);
+      color: #38bdf8;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    pre {
+      background: #070b14;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      overflow-x: auto;
+      margin-top: 10px;
+      font-size: 0.83rem;
+    }
+    pre code { background: none; padding: 0; color: #e2e8f0; }
+
+    /* 3D FLIP FLASHCARDS */
+    .flashcard-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .progress-pill {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .flashcard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 18px;
+    }
+
+    .flip-card {
+      background-color: transparent;
+      height: 250px;
+      perspective: 1000px;
+      cursor: pointer;
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: left;
+      transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flip-front, .flip-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid var(--border);
+    }
+
+    .flip-front {
+      background: linear-gradient(145deg, #1e293b, #151e2e);
+    }
+
+    .flip-front:hover {
+      border-color: var(--sf);
+    }
+
+    .flip-back {
+      background: linear-gradient(145deg, #0f2942, #1e1b4b);
+      border-color: var(--sf);
+      transform: rotateY(180deg);
+      overflow-y: auto;
+    }
+
+    .flip-card.mastered .flip-front {
+      border-color: var(--green);
+      background: linear-gradient(145deg, rgba(16,185,129,0.12), #151e2e);
+    }
+
+    .master-btn {
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+      border: 1px solid var(--green);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .master-btn:hover {
+      background: var(--green);
+      color: #0b1120;
+    }
+
+    /* INTERACTIVE GAME / SCENARIO SIMULATOR */
+    .game-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+
+    .score-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .scenario-prompt {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--purple);
+      padding: 18px 20px;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      margin-bottom: 20px;
+    }
+
+    .options-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .option-btn {
+      background: #131c2e;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      text-align: left;
+      font-size: 0.96rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--sf);
+      background: rgba(41, 181, 232, 0.08);
+    }
+
+    .option-btn.correct {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: var(--green);
+      color: #a7f3d0;
+    }
+
+    .option-btn.wrong {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #fca5a5;
+    }
+
+    .feedback-panel {
+      display: none;
+      padding: 16px 18px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      font-size: 0.94rem;
+    }
+
+    .next-btn {
+      background: var(--sf);
+      color: #0b1120;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+
+    /* Table styling */
     .table-wrap {
       overflow-x: auto;
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      margin-top: 16px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 0.93rem;
-    }
-
-    th, td {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
-      vertical-align: top;
-    }
-
-    th {
-      background: rgba(15, 23, 42, 0.6);
-      color: #e2e8f0;
-      font-weight: 700;
-      text-transform: uppercase;
-      font-size: 0.78rem;
-      letter-spacing: 0.05em;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    code {
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-      background: rgba(15, 23, 42, 0.75);
-      color: #38bdf8;
-      padding: 2px 6px;
-      border-radius: 5px;
-      font-size: 0.86em;
-    }
-
-    pre {
-      background: #090d16;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px;
-      overflow-x: auto;
-      margin-top: 10px;
-      font-size: 0.85rem;
-      line-height: 1.5;
-    }
-
-    pre code {
-      background: none;
-      padding: 0;
-      color: #e2e8f0;
-    }
-
-    /* Search Bar for Glossary */
-    .search-bar {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .search-input {
-      flex: 1;
-      min-width: 260px;
-      padding: 12px 16px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--text);
-      font-size: 1rem;
-      outline: none;
-    }
-
-    .search-input:focus {
-      border-color: var(--snowflake);
-    }
-
-    .filter-btn {
-      padding: 10px 16px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--muted);
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.88rem;
-    }
-
-    .filter-btn.active, .filter-btn:hover {
-      background: var(--snowflake-bg);
-      color: var(--snowflake);
-      border-color: var(--snowflake);
-    }
-
-    /* Architecture Diagram Boxes */
-    .arch-diagram {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      background: #0b1120;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 24px;
-      margin: 20px 0;
-    }
-
-    .arch-layer {
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px 20px;
-      background: var(--card);
-    }
-
-    .arch-layer h4 {
-      font-size: 1.05rem;
-      margin-bottom: 6px;
-    }
-
-    .arrow-down {
-      text-align: center;
-      color: var(--muted);
-      font-size: 1.2rem;
-      line-height: 1;
-    }
-
-    /* Accordion for Interview Q&A */
-    details.qa-item {
-      background: var(--card);
-      border: 1px solid var(--border);
       border-radius: 12px;
-      margin-bottom: 12px;
-      overflow: hidden;
+      margin-top: 14px;
     }
-
-    details.qa-item summary {
-      padding: 16px 20px;
-      font-weight: 700;
-      font-size: 1.02rem;
-      cursor: pointer;
-      list-style: none;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
-
-    details.qa-item summary::-webkit-details-marker {
-      display: none;
-    }
-
-    details.qa-item summary::after {
-      content: "+";
-      font-size: 1.3rem;
-      color: var(--snowflake);
-      font-weight: 800;
-    }
-
-    details.qa-item[open] summary::after {
-      content: "−";
-    }
-
-    details.qa-item[open] summary {
-      border-bottom: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    .qa-body {
-      padding: 18px 20px;
-      color: #cbd5e1;
-      font-size: 0.96rem;
-    }
-
-    .hierarchy-box {
-      font-family: monospace;
-      background: #090d16;
-      padding: 16px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      line-height: 1.8;
-      font-size: 0.92rem;
-    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left; }
+    th, td { padding: 12px 15px; border-bottom: 1px solid var(--border); }
+    th { background: rgba(11,17,32,0.6); color: var(--muted); text-transform: uppercase; font-size: 0.76rem; }
   </style>
 </head>
 <body>
@@ -414,771 +583,856 @@
   <header>
     <div class="badge-row">
       <span class="pill pill-dbx">Databricks &amp; Delta Lake</span>
-      <span class="pill pill-spark">PySpark &amp; File Formats</span>
-      <span class="pill pill-sf">Snowflake (Day 1 &amp; Day 2)</span>
-      <span class="pill pill-int">Interview Prep Guide</span>
+      <span class="pill pill-spark">Apache Spark &amp; File Formats</span>
+      <span class="pill pill-sf">Snowflake Architecture</span>
+      <span class="pill pill-purple">Interactive Simulator &amp; Games</span>
     </div>
-    <h1>Cloud Data Platforms Master Study Guide</h1>
+    <h1>Cloud Data Platforms Interactive Guide</h1>
     <p>
-      A comprehensive guide to <strong>Databricks</strong>, <strong>Apache Spark</strong>, <strong>Parquet / Avro / Delta Lake</strong>, and <strong>Snowflake</strong>: architecture, core concepts (Clusters, Nodes, Volumes, Stages, Warehouses), platform comparisons, and technical interview preparation.
+      Click through a real-world enterprise case study, explore visual architectures, flip 3D vocabulary flashcards, and test yourself with the **Architect Decision Game** for technical interviews.
     </p>
   </header>
 
-  <nav class="sticky-nav">
-    <a href="#big-picture">1. The Big Picture</a>
-    <a href="#vocabulary">2. A–Z Vocabulary (Cluster, Node, Volume...)</a>
-    <a href="#file-formats">3. File Formats (CSV vs Parquet vs Avro vs Delta)</a>
-    <a href="#databricks">4. Databricks &amp; Lakehouse</a>
-    <a href="#snowflake">5. Snowflake Deep Dive (Day 1 &amp; 2)</a>
-    <a href="#comparison">6. Databricks vs Snowflake Cheat Sheet</a>
-    <a href="#interview">7. Top 20 Interview Q&amp;A</a>
+  <!-- TOP NAVIGATION TABS -->
+  <nav class="mode-nav">
+    <button class="mode-btn active" onclick="switchTab('tab-case', this)">🏢 1. Real-World Case Study</button>
+    <button class="mode-btn" onclick="switchTab('tab-arch', this)">🗺️ 2. Visual Architecture Explorer</button>
+    <button class="mode-btn" onclick="switchTab('tab-deep', this)">📂 3. Click-to-Expand Deep Dives</button>
+    <button class="mode-btn" onclick="switchTab('tab-cards', this)">🃏 4. 3D Flip Flashcards (20 Terms)</button>
+    <button class="mode-btn" onclick="switchTab('tab-game', this)">🎮 5. Interview Decision Game</button>
   </nav>
 
   <div class="container">
 
     <!-- ================================================================== -->
-    <!-- SECTION 1: THE BIG PICTURE                                         -->
+    <!-- TAB 1: REAL-WORLD END-TO-END CASE STUDY                            -->
     <!-- ================================================================== -->
-    <section id="big-picture">
-      <h2 class="section-title">1. The Big Picture: Why Do All These Tools Exist?</h2>
-      <p class="section-subtitle">
-        If your head is spinning with names like Spark, Databricks, Parquet, Avro, Delta Lake, and Snowflake, start right here. Every single tool fits into one of <strong>4 simple jobs</strong>.
-      </p>
-
-      <div class="card" style="margin-bottom: 24px;">
-        <h3>🏠 The Restaurant Analogy (Understand Everything in 60 Seconds)</h3>
-        <p>Imagine running a giant restaurant that serves millions of meals (queries &amp; reports):</p>
-        <ul>
-          <li><strong>Cloud Storage (AWS S3 / Azure Blob / Google Cloud Storage):</strong> The <em>Giant Warehouse Fridge</em> where all ingredients (raw data files) are stored cheaply.</li>
-          <li><strong>File Formats (CSV, JSON, Parquet, Avro, Delta Lake):</strong> The <em>Tupperware Containers</em> inside the fridge. A CSV is a messy plastic bag; <strong>Parquet</strong> is a neatly labeled vacuum-sealed container; <strong>Delta Lake</strong> is a smart container with a barcode log tracking every change.</li>
-          <li><strong>Compute Engine (Apache Spark / Snowflake Virtual Warehouse):</strong> The <em>Kitchen &amp; Chefs</em>. Storage just sits there doing nothing! To cook (filter, join, aggregate, or train AI), you need chefs (<strong>Nodes / Clusters / Virtual Warehouses</strong>) with CPU and RAM.</li>
-          <li><strong>The Platform (Databricks vs. Snowflake):</strong> The <em>Complete Restaurant Management System</em> that gives you the workspace, security guards, notebooks/worksheets, and automatic chef scheduling in one browser tab.</li>
-        </ul>
+    <div id="tab-case" class="tab-pane active">
+      <div class="section-header">
+        <h2>🏢 Real-World Case Study: How a Company Uses All These Tools Together</h2>
+        <p>In job interviews, they don't just ask definitions — they ask <strong>"How would you design a data pipeline for our company?"</strong> Click each stage from <strong>1 to 6</strong> below to follow data from a user's phone all the way to executive dashboards.</p>
       </div>
 
-      <div class="grid-3">
-        <div class="card">
-          <h3>1️⃣ Data Lake <span class="pill pill-spark">Storage First</span></h3>
-          <p><strong>What it is:</strong> A massive folder in the cloud (like AWS S3) storing raw files of any type: CSVs, Parquet, Avro, JSON, PDFs, audio, images.</p>
-          <ul>
-            <li><strong>Pros:</strong> Extremely cheap; holds any data type (structured, semi-structured, unstructured); great for Data Science &amp; ML.</li>
-            <li><strong>Cons:</strong> Can turn into a "Data Swamp" — no ACID transactions, no <code>UPDATE</code>/<code>DELETE</code>, no Time Travel on plain files.</li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <h3>2️⃣ Data Warehouse <span class="pill pill-sf">Snowflake</span></h3>
-          <p><strong>What it is:</strong> A centralized SQL database built specifically for fast Business Intelligence (BI), analytics, and reporting (<strong>OLAP</strong>).</p>
-          <ul>
-            <li><strong>Pros:</strong> Super clean, fast SQL, ACID transactions, Time Travel, role-based security, zero maintenance.</li>
-            <li><strong>Cons:</strong> Built primarily for structured &amp; semi-structured tables (SQL analytics), not raw unstructured files like video/audio.</li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <h3>3️⃣ Data Lakehouse <span class="pill pill-dbx">Databricks</span></h3>
-          <p><strong>What it is:</strong> Combines the cheap, flexible file storage of a <strong>Data Lake</strong> with the reliability and SQL features of a <strong>Data Warehouse</strong>.</p>
-          <ul>
-            <li><strong>How it works:</strong> Uses <strong>Delta Lake</strong> on top of Parquet files so you get ACID transactions, <code>UPDATE</code>/<code>DELETE</code>, and Time Travel directly on your Data Lake!</li>
-            <li><strong>Best for:</strong> Big Data ETL in PySpark, Machine Learning / AI, AND SQL analytics in one place.</li>
-          </ul>
-        </div>
+      <div class="case-banner">
+        <strong>🎯 The Company Scenario — "EuroTravel &amp; Stream":</strong>
+        Your company runs a travel booking platform (like Booking.com) and a streaming app. Every day, you receive <strong>50 million app clicks</strong> (JSON/Avro), <strong>100,000 bookings</strong> (CSV/Parquet), and <strong>200 business analysts</strong> querying revenue dashboards at 9:00 AM.
       </div>
 
-      <div class="interview-tip">
-        <strong>💡 Key Concept — OLTP vs. OLAP (Very Common in Interviews!):</strong><br/>
-        • <strong>OLTP (Online Transaction Processing):</strong> Databases that run the live app/website (e.g., PostgreSQL, MySQL). Fast at inserting/updating 1 single order at a time (<em>Row-oriented</em>).<br/>
-        • <strong>OLAP (Online Analytical Processing):</strong> Data Warehouses &amp; Lakehouses (e.g., <strong>Snowflake, Databricks</strong>). Built for scanning millions of historical rows to calculate total revenue or trends (<em>Column-oriented</em>).
-      </div>
-    </section>
-
-    <!-- ================================================================== -->
-    <!-- SECTION 2: CORE VOCABULARY & ARCHITECTURE TERMS                    -->
-    <!-- ================================================================== -->
-    <section id="vocabulary">
-      <h2 class="section-title">2. Essential Vocabulary Dictionary (Clusters, Nodes, Volumes, Stages...)</h2>
-      <p class="section-subtitle">
-        Type any word below (e.g., <code>cluster</code>, <code>node</code>, <code>volume</code>, <code>stage</code>, <code>warehouse</code>, <code>partition</code>) or filter by category.
-      </p>
-
-      <div class="search-bar">
-        <input type="text" id="vocabSearch" class="search-input" placeholder="🔍 Search vocabulary (e.g., cluster, node, volume, stage, snowpipe, micro-partition)..." onkeyup="filterVocab()" />
-        <button class="filter-btn active" onclick="setCategory('all', this)">All Terms</button>
-        <button class="filter-btn" onclick="setCategory('compute', this)">Compute (Cluster / Node)</button>
-        <button class="filter-btn" onclick="setCategory('storage', this)">Storage (Volume / Stage)</button>
-        <button class="filter-btn" onclick="setCategory('snowflake', this)">Snowflake Specific</button>
-        <button class="filter-btn" onclick="setCategory('databricks', this)">Databricks &amp; Spark</button>
-      </div>
-
-      <div class="grid-2" id="vocabGrid">
-
-        <div class="card vocab-card" data-cat="compute databricks snowflake">
-          <h3>Node <span class="pill pill-spark">Compute</span></h3>
-          <p><strong>Plain English:</strong> A single computer (virtual server) in the cloud with its own CPU (processor) and RAM (memory).</p>
-          <p>When data is huge, 1 computer is too slow. So cloud platforms rent multiple computers (<strong>nodes</strong>) and connect them together.</p>
-          <div class="analogy-box"><strong>Analogy:</strong> 1 Node = 1 Chef working in the kitchen.</div>
+      <!-- 6 Clickable Pipeline Stages -->
+      <div class="pipeline-steps">
+        <div class="step-node active" onclick="showStep(0, this)">
+          <span class="step-num">Stage 1 • Ingestion</span>
+          <div class="step-title">📥 Raw Data Landing</div>
+          <div class="step-tech">S3 • Volumes • Stages • Avro/CSV</div>
         </div>
-
-        <div class="card vocab-card" data-cat="compute databricks">
-          <h3>Cluster <span class="pill pill-dbx">Compute</span></h3>
-          <p><strong>Plain English:</strong> A team of <strong>Nodes</strong> (computers) connected together that work in parallel as if they were one giant supercomputer.</p>
-          <ul>
-            <li>In <strong>Databricks / Spark</strong>, a Cluster has 1 <strong>Driver Node</strong> (the boss) + multiple <strong>Worker Nodes</strong> (the helpers).</li>
-            <li>When your code finishes, the cluster turns off so you stop paying for the computers!</li>
-          </ul>
-          <div class="analogy-box"><strong>Analogy:</strong> 1 Cluster = A full Kitchen Team (1 Head Chef + 8 Line Cooks).</div>
+        <div class="step-node" onclick="showStep(1, this)">
+          <span class="step-num">Stage 2 • Lakehouse</span>
+          <div class="step-title">🔥 Spark &amp; Delta Lake</div>
+          <div class="step-tech">Cluster • Nodes • Bronze/Silver/Gold</div>
         </div>
-
-        <div class="card vocab-card" data-cat="compute databricks">
-          <h3>Driver Node vs. Worker Node <span class="pill pill-dbx">Databricks / Spark</span></h3>
-          <p>Inside a Spark / Databricks Cluster, nodes have two roles:</p>
-          <ul>
-            <li><strong>Driver Node (1 per cluster):</strong> The "Brain / Boss". It reads your Python/SQL notebook, breaks the job into small tasks, and assigns them to Worker Nodes.</li>
-            <li><strong>Worker Nodes (1 to 100s):</strong> The "Muscle". Each Worker Node holds <strong>Executors</strong> that actually read the data slices (partitions), filter/join them in parallel, and send the result back.</li>
-          </ul>
+        <div class="step-node" onclick="showStep(2, this)">
+          <span class="step-num">Stage 3 • Warehouse</span>
+          <div class="step-title">❄️ Snowflake Loading</div>
+          <div class="step-tech">COPY INTO vs Snowpipe • Parquet</div>
         </div>
-
-        <div class="card vocab-card" data-cat="compute snowflake">
-          <h3>Virtual Warehouse <span class="pill pill-sf">Snowflake Compute</span></h3>
-          <p><strong>Plain English:</strong> Snowflake's name for a <strong>Compute Cluster</strong>! Despite the word "Warehouse", a Virtual Warehouse stores <strong>ZERO permanent data</strong> — it is 100% CPU + RAM used to run SQL queries and load data.</p>
-          <ul>
-            <li>Sized like T-shirts: <code>X-Small</code> (1 node/credit), <code>Small</code> (2), <code>Medium</code> (4), up to <code>6X-Large</code>. Each step up <strong>doubles</strong> compute power &amp; cost.</li>
-            <li><code>AUTO_SUSPEND = 60</code> turns it off after 60 seconds of inactivity to save money.</li>
-            <li><code>AUTO_RESUME = TRUE</code> wakes it up in 1 second as soon as you press Play on a query.</li>
-          </ul>
+        <div class="step-node" onclick="showStep(3, this)">
+          <span class="step-num">Stage 4 • Rush Hour</span>
+          <div class="step-title">⚡ Compute Scaling</div>
+          <div class="step-tech">Virtual Warehouses • Scale Up/Out</div>
         </div>
-
-        <div class="card vocab-card" data-cat="storage databricks">
-          <h3>Volume (Unity Catalog Volume) <span class="pill pill-dbx">Databricks Storage</span></h3>
-          <p><strong>Plain English:</strong> A governed <strong>folder for raw files</strong> inside Databricks Unity Catalog.</p>
-          <ul>
-            <li>Tables only hold structured rows &amp; columns. Where do you put raw <code>.csv</code>, <code>.parquet</code>, <code>.avro</code>, <code>.json</code>, or <code>.pdf</code> files before turning them into tables? Inside a <strong>Volume</strong>!</li>
-            <li>Path format: <code>/Volumes/&lt;catalog&gt;/&lt;schema&gt;/&lt;volume_name&gt;/file.csv</code></li>
-            <li>Replaces the old legacy <code>DBFS (dbfs:/FileStore/...)</code> in modern Databricks.</li>
-          </ul>
-          <div class="analogy-box"><strong>Analogy:</strong> A Volume in Databricks is the exact equivalent of an <strong>Internal Stage</strong> in Snowflake!</div>
+        <div class="step-node" onclick="showStep(4, this)">
+          <span class="step-num">Stage 5 • Oops! Mistake</span>
+          <div class="step-title">⏪ Recovery &amp; Cloning</div>
+          <div class="step-tech">Time Travel • Fail-safe • Zero-Copy</div>
         </div>
-
-        <div class="card vocab-card" data-cat="storage snowflake">
-          <h3>Stage (`@stage_name`) <span class="pill pill-sf">Snowflake Storage</span></h3>
-          <p><strong>Plain English:</strong> The "Loading Dock / Waiting Room" folder where raw files (like <code>uk_travel_bookings.csv</code>) sit before you load them into a Snowflake table with <code>COPY INTO</code>.</p>
-          <ul>
-            <li><strong>Internal Stage:</strong> Folder inside Snowflake itself (Named Stage <code>@my_stage</code>, User Stage <code>@~</code>, or Table Stage <code>@%my_table</code>).</li>
-            <li><strong>External Stage:</strong> Points to your company's own cloud bucket (<code>s3://my-bucket/</code>, Azure, or GCP) using a secure <strong>Storage Integration</strong> (no hardcoded passwords!).</li>
-          </ul>
-        </div>
-
-        <div class="card vocab-card" data-cat="storage databricks">
-          <h3>Unity Catalog <span class="pill pill-dbx">Databricks Governance</span></h3>
-          <p><strong>Plain English:</strong> The central security, governance, and organization system in Databricks that organizes all data in a <strong>3-level hierarchy</strong>:</p>
-          <p><code>Catalog.Schema.Table_or_Volume</code> (e.g., <code>workspace.default.netflix_titles</code>)</p>
-          <ul>
-            <li>Controls who can read/write which tables, volumes, and AI models across all workspaces.</li>
-          </ul>
-        </div>
-
-        <div class="card vocab-card" data-cat="storage snowflake">
-          <h3>Micro-partitions &amp; Clustering Keys <span class="pill pill-sf">Snowflake Storage</span></h3>
-          <p><strong>Plain English:</strong> Whenever you load data into a Snowflake table, Snowflake automatically chops it into tiny, immutable, compressed columnar files called <strong>Micro-partitions</strong> (50–500 MB uncompressed).</p>
-          <ul>
-            <li>Snowflake stores the <code>MIN</code> and <code>MAX</code> values of every column in each micro-partition.</li>
-            <li><strong>Query Pruning:</strong> If you search <code>WHERE booking_date = '2026-08-20'</code>, Snowflake skips 99% of micro-partitions without even opening them!</li>
-            <li><strong>Clustering Key:</strong> For huge multi-terabyte tables, you can tell Snowflake <code>CLUSTER BY (order_date)</code> to keep micro-partitions sorted.</li>
-          </ul>
-        </div>
-
-        <div class="card vocab-card" data-cat="snowflake">
-          <h3>COPY INTO vs. Snowpipe <span class="pill pill-sf">Snowflake Ingestion</span></h3>
-          <p>How do files get from a <strong>Stage</strong> into a <strong>Table</strong>?</p>
-          <ul>
-            <li><strong><code>COPY INTO</code> (Bulk Batch):</strong> You run it manually or on a schedule. Uses your Virtual Warehouse. Great for loading large historical batches or transforming columns during load.</li>
-            <li><strong><code>Snowpipe</code> (Continuous Serverless):</strong> Event-driven (`AUTO_INGEST = TRUE`). As soon as a new file lands in AWS S3, S3 sends an notification (SQS) and Snowpipe loads it automatically within minutes using serverless compute!</li>
-          </ul>
-        </div>
-
-        <div class="card vocab-card" data-cat="snowflake">
-          <h3>Streams &amp; Tasks <span class="pill pill-sf">Snowflake Pipelines</span></h3>
-          <p>How Snowflake automates continuous data pipelines:</p>
-          <ul>
-            <li><strong>Table Stream (CDC - Change Data Capture):</strong> Like a bookmark/security camera on a table that records only <em>newly inserted, updated, or deleted rows</em> since the last time you checked.</li>
-            <li><strong>Task:</strong> A built-in scheduler (cron job) inside Snowflake that runs a SQL statement or Stored Procedure automatically (e.g., every hour) to process new rows from a Stream.</li>
-          </ul>
-        </div>
-
-        <div class="card vocab-card" data-cat="databricks spark">
-          <h3>Lazy Evaluation (Transformations vs. Actions) <span class="pill pill-spark">PySpark</span></h3>
-          <p>In PySpark, when you write <code>df.filter(...)</code> or <code>df.select(...)</code>, Spark <strong>does not execute anything yet</strong>!</p>
-          <ul>
-            <li><strong>Transformations (Lazy):</strong> <code>select()</code>, <code>filter()</code>, <code>withColumn()</code>, <code>groupBy()</code>, <code>join()</code>. They only build an execution plan (recipe).</li>
-            <li><strong>Actions (Eager):</strong> <code>show()</code>, <code>display()</code>, <code>count()</code>, <code>collect()</code>, <code>write</code>. They trigger the cluster to actually process the data!</li>
-          </ul>
-        </div>
-
-        <div class="card vocab-card" data-cat="compute snowflake">
-          <h3>Scaling Up vs. Scaling Out <span class="pill pill-sf">High-Frequency Interview Term</span></h3>
-          <p>Two ways to add compute power in Snowflake:</p>
-          <ul>
-            <li><strong>Scale Up (Vertical — Resize Warehouse):</strong> Change <code>X-Small</code> $\rightarrow$ <code>Large</code> (bigger engine). Best when <strong>1 complex, heavy query</strong> is running slowly.</li>
-            <li><strong>Scale Out (Horizontal — Multi-Cluster Warehouse):</strong> Add more clusters (`MIN_CLUSTER_COUNT = 1, MAX_CLUSTER_COUNT = 4`). Best when <strong>100 analysts run queries at the exact same time</strong> (prevents queuing!).</li>
-          </ul>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ================================================================== -->
-    <!-- SECTION 3: FILE FORMATS                                            -->
-    <!-- ================================================================== -->
-    <section id="file-formats">
-      <h2 class="section-title">3. File Formats Compared: CSV vs. JSON vs. Avro vs. Parquet vs. Delta Lake</h2>
-      <p class="section-subtitle">
-        Why did we spend a whole day learning <strong>Parquet</strong> and <strong>Avro</strong> instead of just using CSVs? Because how data is organized on disk changes speed and cost by <strong>10x</strong>!
-      </p>
-
-      <div class="grid-2" style="margin-bottom: 20px;">
-        <div class="card">
-          <h3>Row-Based Storage (CSV, Avro)</h3>
-          <p>Stores data <strong>row by row</strong> on disk:</p>
-          <pre><code>[2001, Oliver, Spain, £320] [2002, Amelia, Portugal, £450]</code></pre>
-          <ul>
-            <li><strong>Fast at WRITING</strong> new full records (e.g., logging a new tweet or order event).</li>
-            <li><strong>Slow at ANALYTICS</strong>: If you only want <code>SUM(price)</code>, the computer still has to read every single column (name, city, country) of every row!</li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <h3>Columnar Storage (Parquet, ORC, Delta, Snowflake)</h3>
-          <p>Stores data <strong>column by column</strong> on disk:</p>
-          <pre><code>IDs: [2001, 2002] | Countries: [Spain, Portugal] | Prices: [£320, £450]</code></pre>
-          <ul>
-            <li><strong>Fast at READING / ANALYTICS (OLAP):</strong> If you query <code>SUM(price)</code>, it reads <em>only</em> the <code>Prices</code> block and skips all other columns!</li>
-            <li><strong>Huge Compression (3–5x smaller):</strong> Since all values in a column have the same data type (e.g., `"Spain", "Spain", "Spain"`), compression (Snappy, ZSTD) shrinks files dramatically.</li>
-          </ul>
+        <div class="step-node" onclick="showStep(5, this)">
+          <span class="step-num">Stage 6 • Governance</span>
+          <div class="step-title">🔐 GDPR &amp; BI Views</div>
+          <div class="step-tech">RBAC • Masking • Materialized Views</div>
         </div>
       </div>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Format</th>
-              <th>Orientation</th>
-              <th>Human Readable?</th>
-              <th>Stores Data Types (Schema)?</th>
-              <th>Best Use Case</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>CSV / TSV</strong></td>
-              <td>Row-based</td>
-              <td>✅ Yes (Plain text)</td>
-              <td>❌ No (Everything is text unless parsed)</td>
-              <td>Small datasets, Excel exports, quick manual inspection.</td>
-            </tr>
-            <tr>
-              <td><strong>JSON</strong></td>
-              <td>Semi-structured</td>
-              <td>✅ Yes (Text)</td>
-              <td>⚠️ Basic JSON types</td>
-              <td>Web APIs, nested events, clickstreams (loaded into Snowflake <code>VARIANT</code>).</td>
-            </tr>
-            <tr>
-              <td><strong>Apache Avro</strong> (<code>.avro</code>)</td>
-              <td><strong>Row-based</strong> (Binary)</td>
-              <td>❌ No (Binary + JSON header)</td>
-              <td>✅ Yes (Embedded JSON schema header)</td>
-              <td><strong>Streaming &amp; Kafka</strong>, write-heavy pipelines, and strong <em>Schema Evolution</em> (like your Twitter Avro lab!).</td>
-            </tr>
-            <tr>
-              <td><strong>Apache Parquet</strong> (<code>.parquet</code>)</td>
-              <td><strong>Columnar</strong> (Binary)</td>
-              <td>❌ No (Binary + footer metadata)</td>
-              <td>✅ Yes (Stored in file footer with min/max stats)</td>
-              <td><strong>Big Data Analytics (Spark, Snowflake staging)</strong>. 3–5x faster &amp; smaller than CSV. Read-only (immutable).</td>
-            </tr>
-            <tr>
-              <td><strong>Delta Lake</strong> (<code>delta</code>)</td>
-              <td><strong>Columnar</strong> (Parquet + <code>_delta_log</code>)</td>
-              <td>❌ No (Parquet + JSON log)</td>
-              <td>✅ Yes + Enforced automatically</td>
-              <td><strong>Databricks default format</strong>. Adds ACID transactions, <code>UPDATE</code>/<code>DELETE</code>/<code>MERGE</code>, and Time Travel to Parquet!</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+      <!-- Dynamic Stage Detail Display -->
+      <div id="stepDetail" class="step-detail-box"></div>
+    </div>
 
     <!-- ================================================================== -->
-    <!-- SECTION 4: DATABRICKS & DELTA LAKE                                 -->
+    <!-- TAB 2: INTERACTIVE VISUAL ARCHITECTURE EXPLORER                    -->
     <!-- ================================================================== -->
-    <section id="databricks">
-      <h2 class="section-title">4. Databricks, PySpark &amp; Delta Lake</h2>
-      <p class="section-subtitle">
-        How all the pieces inside your Databricks workspace fit together.
-      </p>
+    <div id="tab-arch" class="tab-pane">
+      <div class="section-header">
+        <h2>🗺️ Interactive Architecture Explorer (Click Any Layer to Inspect)</h2>
+        <p>Click on any component on the left to see what happens inside it, how it is billed, and the exact interview keywords to use.</p>
+      </div>
+
+      <div class="arch-grid">
+        <div class="visual-stack">
+          <div style="font-size:0.8rem; font-weight:800; color:var(--sf); text-transform:uppercase; letter-spacing:0.06em;">❄️ Snowflake 3-Layer Hybrid Architecture</div>
+
+          <div class="visual-block selected" onclick="inspectLayer('sf-brain', this)">
+            <div>
+              <div style="font-weight:800; font-size:1.03rem;">🧠 1. Cloud Services Layer ("The Brain")</div>
+              <div style="font-size:0.84rem; color:var(--muted);">Auth, RBAC, Optimizer, Metadata, ACID Transactions</div>
+            </div>
+            <span class="pill pill-purple">Click to inspect →</span>
+          </div>
+
+          <div class="visual-block" onclick="inspectLayer('sf-compute', this)">
+            <div>
+              <div style="font-weight:800; font-size:1.03rem;">⚡ 2. Query Processing Layer (Virtual Warehouses)</div>
+              <div style="font-size:0.84rem; color:var(--muted);">Independent MPP Compute Clusters (X-Small to 6X-Large)</div>
+            </div>
+            <span class="pill pill-sf">Click to inspect →</span>
+          </div>
+
+          <div class="visual-block" onclick="inspectLayer('sf-storage', this)">
+            <div>
+              <div style="font-weight:800; font-size:1.03rem;">💾 3. Database Storage Layer (Micro-partitions)</div>
+              <div style="font-size:0.84rem; color:var(--muted);">Compressed Columnar Files (50–500 MB) in S3/Azure/GCP</div>
+            </div>
+            <span class="pill pill-green">Click to inspect →</span>
+          </div>
+
+          <div style="font-size:0.8rem; font-weight:800; color:var(--dbx); text-transform:uppercase; letter-spacing:0.06em; margin-top:14px;">🔥 Databricks &amp; Apache Spark Cluster Architecture</div>
+
+          <div class="visual-block" onclick="inspectLayer('dbx-cluster', this)">
+            <div>
+              <div style="font-weight:800; font-size:1.03rem;">🖥️ 4. Spark Cluster: Driver Node vs. Worker Nodes</div>
+              <div style="font-size:0.84rem; color:var(--muted);">1 Coordinator Boss + Many Parallel Executor Nodes</div>
+            </div>
+            <span class="pill pill-dbx">Click to inspect →</span>
+          </div>
+
+          <div class="visual-block" onclick="inspectLayer('dbx-delta', this)">
+            <div>
+              <div style="font-weight:800; font-size:1.03rem;">🔺 5. Unity Catalog &amp; Delta Lake Storage</div>
+              <div style="font-size:0.84rem; color:var(--muted);">Catalog.Schema.Table/Volume • Parquet + _delta_log</div>
+            </div>
+            <span class="pill pill-spark">Click to inspect →</span>
+          </div>
+        </div>
+
+        <!-- Inspector Output Panel -->
+        <div id="inspectorBox" class="inspector-panel"></div>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- TAB 3: CLICK-TO-EXPAND DEEP DIVES (PROGRESSIVE DISCLOSURE)         -->
+    <!-- ================================================================== -->
+    <div id="tab-deep" class="tab-pane">
+      <div class="section-header">
+        <h2>📂 Click-to-Expand Topic Deep Dives</h2>
+        <p>Everything stays compact until you click a card to unfold the exact comparison, SQL code, and interview tips.</p>
+      </div>
 
       <div class="grid-2">
-        <div class="card">
-          <h3>📂 How Databricks Organizes Data (Unity Catalog)</h3>
-          <p>Whenever you look at the <strong>Catalog Explorer</strong> in Databricks, it follows a strict 3-level hierarchy:</p>
-          <div class="hierarchy-box">
-            📦 <strong>Catalog</strong> (e.g., <code>workspace</code> or <code>main</code>)<br/>
-            &nbsp;&nbsp;└── 📁 <strong>Schema / Database</strong> (e.g., <code>default</code> or <code>sales</code>)<br/>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── 📊 <strong>Tables</strong> (Delta tables queried with SQL / PySpark)<br/>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── 👁️ <strong>Views</strong> (Saved SQL queries)<br/>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── 🗂️ <strong>Volumes</strong> (Folders holding raw files: CSV, Parquet, Avro, PDF)
-          </div>
-        </div>
 
-        <div class="card">
-          <h3>🔺 Delta Lake &amp; The Medallion Architecture</h3>
-          <p>In Databricks projects (and interviews!), data flows through <strong>3 layers of Delta tables</strong> called the <strong>Medallion Architecture</strong>:</p>
-          <ul>
-            <li>🥉 <strong>Bronze Layer (Raw):</strong> Raw data ingested straight from Volumes/S3 (exact copy of source CSV/JSON/Avro, nothing lost).</li>
-            <li>🥈 <strong>Silver Layer (Cleaned &amp; Filtered):</strong> Nulls handled, duplicates removed, data types fixed, tables joined.</li>
-            <li>🥇 <strong>Gold Layer (Business-Ready Aggregations):</strong> Final KPIs, revenue per month, customer rankings ready for dashboards &amp; BI!</li>
-          </ul>
-        </div>
+        <details class="click-card">
+          <summary>
+            <span>📊 File Formats: CSV vs. JSON vs. Avro vs. Parquet vs. Delta</span>
+            <span class="expand-icon">Click to open</span>
+          </summary>
+          <div class="card-content">
+            <p><strong>Row-based (CSV, Avro)</strong> writes entire rows together (fast for writing/streaming). <strong>Columnar (Parquet, ORC, Delta)</strong> groups each column together (3–5x smaller &amp; up to 10x faster for analytical queries because it only reads the columns you ask for!).</p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Format</th><th>Type</th><th>When to Use in Real Life</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>CSV</strong></td><td>Row (Text)</td><td>Small manual files; slow &amp; has no data type metadata.</td></tr>
+                  <tr><td><strong>JSON</strong></td><td>Semi-structured</td><td>Web APIs &amp; clickstreams; query in Snowflake using <code>VARIANT</code> + <code>LATERAL FLATTEN</code>.</td></tr>
+                  <tr><td><strong>Avro</strong></td><td>Row (Binary)</td><td><strong>Kafka streaming &amp; write-heavy pipelines</strong>; best schema evolution.</td></tr>
+                  <tr><td><strong>Parquet</strong></td><td>Columnar (Binary)</td><td><strong>Big Data analytics</strong>; compressed with Snappy/ZSTD; read-only.</td></tr>
+                  <tr><td><strong>Delta Lake</strong></td><td>Parquet + Log</td><td><strong>Databricks default</strong>; adds ACID, <code>UPDATE</code>/<code>DELETE</code>, and Time Travel to Parquet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+
+        <details class="click-card">
+          <summary>
+            <span>❄️ Snowflake Table Types: Permanent vs. Transient vs. Temporary</span>
+            <span class="expand-icon">Click to open</span>
+          </summary>
+          <div class="card-content">
+            <ul>
+              <li><strong>Permanent Table (Default):</strong> Lives until dropped. Has <strong>Time Travel (1–90 days) + 7-day Fail-safe</strong>. Best for final production business data.</li>
+              <li><strong>Transient Table (<code>CREATE TRANSIENT TABLE</code>):</strong> Lives until dropped, but has <strong>NO Fail-safe</strong> (and 0–1 day Time Travel). Saves 30–50% on storage overhead! Best for staging / intermediate ETL tables.</li>
+              <li><strong>Temporary Table (<code>CREATE TEMPORARY TABLE</code>):</strong> Lives <strong>only inside your current worksheet session</strong>. Automatically deleted when your session closes. Best for scratch calculations.</li>
+            </ul>
+            <div class="callout-real">
+              <strong>Real-World Interview Question:</strong> "How do you reduce storage costs on staging tables that get reloaded every night?" → <em>"Make them Transient tables so you don't pay for 7 days of Fail-safe storage on temporary ETL data."</em>
+            </div>
+          </div>
+        </details>
+
+        <details class="click-card">
+          <summary>
+            <span>👁️ Views: Standard View vs. Materialized View vs. Secure View</span>
+            <span class="expand-icon">Click to open</span>
+          </summary>
+          <div class="card-content">
+            <ul>
+              <li><strong>Standard View:</strong> Just a saved SQL query. Uses <strong>0 storage</strong>; re-runs every time you query it. Good for hiding columns or simplifying joins.</li>
+              <li><strong>Materialized View:</strong> Pre-computes and <strong>physically saves</strong> the result table, automatically updating in the background when the base table changes. Costs storage, but makes heavy BI dashboards 10x faster!</li>
+              <li><strong>Secure View:</strong> Hides the underlying SQL code and prevents query-optimizer tricks from leaking hidden rows. Required when sharing data externally.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="click-card">
+          <summary>
+            <span>📦 Stages (Snowflake) vs. Volumes (Databricks)</span>
+            <span class="expand-icon">Click to open</span>
+          </summary>
+          <div class="card-content">
+            <p>Before raw files (<code>.csv</code>, <code>.parquet</code>, <code>.avro</code>) become SQL tables, they need a governed "landing folder":</p>
+            <ul>
+              <li><strong>In Databricks — Unity Catalog Volume:</strong> Accessed like a folder path: <code>/Volumes/catalog/schema/volume_name/file.csv</code>.</li>
+              <li><strong>In Snowflake — Stage:</strong>
+                <ul>
+                  <li><strong>User Stage (<code>@~</code>):</strong> Private to your user.</li>
+                  <li><strong>Table Stage (<code>@%table</code>):</strong> Tied to one table.</li>
+                  <li><strong>Named Internal Stage (<code>@my_stage</code>):</strong> Shared folder inside Snowflake.</li>
+                  <li><strong>External Stage:</strong> Points to AWS S3 / Azure / GCP via a secure <code>STORAGE INTEGRATION</code> (no hardcoded keys!).</li>
+                </ul>
+              </li>
+            </ul>
+            <div class="callout-warn">
+              <strong>Best Practice:</strong> Stage compressed files (ZSTD/GZIP Parquet or CSV) sized <strong>100–250 MB</strong> so all nodes in your Virtual Warehouse load them in parallel!
+            </div>
+          </div>
+        </details>
+
+        <details class="click-card">
+          <summary>
+            <span>🚚 Data Ingestion: COPY INTO (Batch) vs. Snowpipe (Continuous)</span>
+            <span class="expand-icon">Click to open</span>
+          </summary>
+          <div class="card-content">
+            <ul>
+              <li><strong><code>COPY INTO</code> (Bulk Batch):</strong> Uses your own Virtual Warehouse. Best for scheduled loads (hourly/nightly), large historical backfills, or transforming columns on the fly during load.</li>
+              <li><strong><code>Snowpipe</code> (Continuous Serverless):</strong> Created with <code>CREATE PIPE ... AUTO_INGEST = TRUE</code>. Uses S3 event notifications (SQS) to load small files automatically within minutes of arrival using <strong>serverless compute</strong>.</li>
+            </ul>
+            <p style="margin-top:8px;"><em>(In Databricks, the equivalent of Snowpipe is <strong>Auto Loader</strong> <code>cloudFiles</code>).</em></p>
+          </div>
+        </details>
+
+        <details class="click-card">
+          <summary>
+            <span>⏪ Time Travel, Fail-safe, Undrop &amp; Zero-Copy Cloning</span>
+            <span class="expand-icon">Click to open</span>
+          </summary>
+          <div class="card-content">
+            <ul>
+              <li><strong>Time Travel (Self-Service SQL):</strong> Query or restore past versions!
+                <br/>• Snowflake: <code>SELECT * FROM tbl AT(OFFSET => -300);</code> or <code>UNDROP TABLE tbl;</code>
+                <br/>• Databricks: <code>SELECT * FROM tbl VERSION AS OF 2;</code> or <code>RESTORE TABLE tbl TO VERSION AS OF 2;</code>
+              </li>
+              <li><strong>Fail-safe (Snowflake Only):</strong> 7-day emergency window <em>after</em> Time Travel expires. Users <strong>cannot</strong> query it — only Snowflake Support can recover it.</li>
+              <li><strong>Zero-Copy Cloning:</strong> <code>CREATE TABLE bookings_dev CLONE bookings;</code> Creates an instant copy with <strong>$0 extra storage</strong> by copying only metadata pointers to the existing micro-partitions!</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="click-card">
+          <summary>
+            <span>🔄 Continuous Pipelines: Streams &amp; Tasks (Snowflake) vs. Medallion (Databricks)</span>
+            <span class="expand-icon">Click to open</span>
+          </summary>
+          <div class="card-content">
+            <ul>
+              <li><strong>Snowflake Streams &amp; Tasks:</strong>
+                <br/>• <strong>Stream:</strong> Tracks only new/changed rows on a table (Change Data Capture / CDC).
+                <br/>• <strong>Task:</strong> Runs a scheduled SQL query or Stored Procedure (e.g., every 15 mins) to move new rows from the Stream into your final table.
+              </li>
+              <li><strong>Databricks Medallion Architecture:</strong>
+                <br/>• 🥉 <strong>Bronze:</strong> Raw ingested data.
+                <br/>• 🥈 <strong>Silver:</strong> Cleaned, deduplicated, joined data.
+                <br/>• 🥇 <strong>Gold:</strong> Business KPIs &amp; aggregated tables ready for BI.
+              </li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="click-card">
+          <summary>
+            <span>⚡ Side-by-Side Cheat Sheet: Databricks vs. Snowflake</span>
+            <span class="expand-icon">Click to open</span>
+          </summary>
+          <div class="card-content">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Feature</th><th>🔥 Databricks</th><th>❄️ Snowflake</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>Core Strength</strong></td><td>Big Data Spark ETL, Python, ML/AI + Lakehouse SQL</td><td>Cloud Data Warehouse, BI SQL Analytics, SaaS</td></tr>
+                  <tr><td><strong>Compute Unit</strong></td><td>Cluster (Driver + Workers) / SQL Warehouse</td><td>Virtual Warehouse (X-Small to 6X-Large)</td></tr>
+                  <tr><td><strong>Raw File Folder</strong></td><td>Unity Catalog <strong>Volume</strong></td><td>Internal / External <strong>Stage</strong></td></tr>
+                  <tr><td><strong>Storage Format</strong></td><td><strong>Delta Lake</strong> (Parquet + <code>_delta_log</code>)</td><td>Proprietary <strong>Micro-partitions</strong></td></tr>
+                  <tr><td><strong>Auto-Ingestion</strong></td><td><strong>Auto Loader</strong></td><td><strong>Snowpipe</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- TAB 4: 3D FLIP FLASHCARDS (ACTIVE RECALL)                          -->
+    <!-- ================================================================== -->
+    <div id="tab-cards" class="tab-pane">
+      <div class="section-header">
+        <h2>🃏 Interactive 3D Flip Flashcards (Click Any Card to Flip!)</h2>
+        <p>Test your memory before interviews! Try to explain the term out loud, click the card to flip it, and mark it <strong>"✅ Got It"</strong> as you master each concept.</p>
       </div>
 
-      <div class="card" style="margin-top: 20px;">
-        <h3>⏱️ Databricks Essential Commands (PySpark &amp; Delta Time Travel)</h3>
-        <div class="grid-2">
+      <div class="flashcard-controls">
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="mode-btn active" onclick="filterCards('all', this)">All (20)</button>
+          <button class="mode-btn" onclick="filterCards('compute', this)">Compute &amp; Clusters</button>
+          <button class="mode-btn" onclick="filterCards('storage', this)">Storage &amp; Formats</button>
+          <button class="mode-btn" onclick="filterCards('snowflake', this)">Snowflake Features</button>
+        </div>
+        <div class="progress-pill" id="masteryCounter">🏆 Mastered: 0 / 20</div>
+      </div>
+
+      <div class="flashcard-grid" id="flashcardContainer"></div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- TAB 5: INTERACTIVE ARCHITECT DECISION GAME                         -->
+    <!-- ================================================================== -->
+    <div id="tab-game" class="tab-pane">
+      <div class="section-header" style="text-align:center;">
+        <h2>🎮 "You Are the Data Architect" — Interview Scenario Game</h2>
+        <p>Can you solve these 12 real-world company problems that interviewers love to ask? Pick the best architectural decision for each scenario!</p>
+      </div>
+
+      <div class="game-box">
+        <div class="score-bar">
           <div>
-            <p><strong>Reading &amp; Writing Files in PySpark:</strong></p>
-            <pre><code># Read CSV from a Unity Catalog Volume
-df = spark.read.option("header", True).option("inferSchema", True) \
-    .csv("/Volumes/workspace/default/my_volume/customers.csv")
-
-# Write as Parquet or Delta
-df.write.mode("overwrite").parquet("/Volumes/.../output_parquet")
-df.write.mode("overwrite").saveAsTable("workspace.default.customers")</code></pre>
+            <span class="pill pill-purple" id="qCounter">Scenario 1 of 12</span>
+            <span class="pill pill-sf" id="qTopic" style="margin-left:6px;">Architecture</span>
           </div>
-          <div>
-            <p><strong>Delta Lake Time Travel in SQL:</strong></p>
-            <pre><code>-- 1. Check version history (0, 1, 2...)
-DESCRIBE HISTORY customers;
-
--- 2. Query an older version
-SELECT * FROM customers VERSION AS OF 0;
-
--- 3. Roll back the table to an older version
-RESTORE TABLE customers TO VERSION AS OF 0;</code></pre>
+          <div style="font-weight:800; font-size:1rem;">
+            Score: <span id="gameScore" style="color:var(--green);">0</span> &nbsp;|&nbsp; 🔥 Streak: <span id="gameStreak" style="color:var(--spark);">0</span>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- ================================================================== -->
-    <!-- SECTION 5: SNOWFLAKE DEEP DIVE (DAY 1 & DAY 2 PPTX)                -->
-    <!-- ================================================================== -->
-    <section id="snowflake">
-      <h2 class="section-title">5. Snowflake Deep Dive (Everything from Day 1 &amp; Day 2 Slides)</h2>
-      <p class="section-subtitle">
-        Snowflake is a 100% Cloud-Native Data Warehouse delivered as SaaS (Software-as-a-Service) that runs on AWS, Azure, or GCP. Its #1 innovation is <strong>separating Storage, Compute, and Cloud Services into 3 independent layers</strong>.
-      </p>
+        <div id="scenarioText" class="scenario-prompt"></div>
+        <div id="optionsContainer" class="options-list"></div>
+        <div id="feedbackBox" class="feedback-panel"></div>
 
-      <!-- 3-Layer Architecture -->
-      <div class="arch-diagram">
-        <div class="arch-layer" style="border-left: 5px solid var(--purple);">
-          <h4>🧠 Layer 1: Cloud Services Layer ("The Brain")</h4>
-          <p style="color:#cbd5e1; font-size:0.93rem;">
-            Handles <strong>Authentication &amp; Access Control (RBAC)</strong>, <strong>Query Parsing &amp; Optimization</strong>, <strong>Metadata Management</strong> (micro-partition min/max stats, Time Travel pointers), and <strong>ACID Transaction Coordination</strong>. Fully managed by Snowflake.
-          </p>
-        </div>
-        <div class="arrow-down">⬇️ Dispatches optimized execution plan ⬇️</div>
-        <div class="arch-layer" style="border-left: 5px solid var(--snowflake);">
-          <h4>⚡ Layer 2: Query Processing Layer (Compute — Virtual Warehouses)</h4>
-          <p style="color:#cbd5e1; font-size:0.93rem;">
-            Independent <strong>MPP (Massively Parallel Processing) compute clusters</strong> made of cloud nodes (CPU + RAM + local SSD cache). You can run multiple Virtual Warehouses at the same time (e.g., <code>ETL_WH</code> for loading data and <code>BI_WH</code> for analysts) on the exact same data <strong>without slowing each other down</strong>! Billed per second when running.
-          </p>
-        </div>
-        <div class="arrow-down">⬇️ Reads &amp; writes compressed columnar data ⬇️</div>
-        <div class="arch-layer" style="border-left: 5px solid var(--green);">
-          <h4>💾 Layer 3: Database Storage Layer (Centralized Cloud Storage)</h4>
-          <p style="color:#cbd5e1; font-size:0.93rem;">
-            Stores all data in cloud object storage (AWS S3 / Azure Blob / GCS), automatically converted into compressed, encrypted, columnar <strong>Micro-partitions (50–500 MB)</strong>. Billed separately per Terabyte/month.
-          </p>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <button class="mode-btn" onclick="restartGame()">🔄 Restart Game</button>
+          <button id="nextQBtn" class="next-btn" style="display:none;" onclick="nextQuestion()">Next Scenario →</button>
         </div>
       </div>
-
-      <div class="interview-tip" style="margin-bottom: 24px;">
-        <strong>💡 Why is Snowflake called a "Hybrid" Architecture? (Day 1 Slide 19–21):</strong><br/>
-        • It combines <strong>Shared-Disk</strong> (one central cloud storage layer accessible to all compute clusters) with <strong>Shared-Nothing</strong> (each Virtual Warehouse is an independent MPP cluster where nodes process data in parallel with their own local CPU/RAM/cache).
-      </div>
-
-      <!-- Day 2 Core Concepts Grid -->
-      <div class="grid-3">
-        <div class="card">
-          <h3>📋 3 Table Types in Snowflake</h3>
-          <ul>
-            <li><strong>Permanent Table (Default):</strong> Persists until dropped. Has Time Travel (1 to 90 days) + <strong>7-day Fail-safe</strong>. Best for production business data.</li>
-            <li><strong>Transient Table:</strong> Persists until dropped, <strong>NO Fail-safe</strong> (0–1 day Time Travel). 30–50% lower storage overhead. Best for staging / intermediate ETL tables (<code>CREATE TRANSIENT TABLE...</code>).</li>
-            <li><strong>Temporary Table:</strong> Exists <strong>only during your current session</strong>; disappears automatically when you close the session (<code>CREATE TEMPORARY TABLE...</code>).</li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <h3>👁️ 3 View Types in Snowflake</h3>
-          <ul>
-            <li><strong>Standard View:</strong> A saved SQL query executed on-demand. Uses <strong>0 storage</strong>. Simplifies complex joins or hides columns.</li>
-            <li><strong>Materialized View:</strong> Pre-computes and <strong>physically stores</strong> the query result, automatically refreshing when the base table changes. Consumes storage, but makes heavy BI dashboard aggregations super fast!</li>
-            <li><strong>Secure View:</strong> Hides the underlying SQL definition and prevents query-optimizer data leaks. Used for <strong>Secure Data Sharing</strong> &amp; privacy.</li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <h3>🛡️ Time Travel, Fail-safe &amp; Cloning</h3>
-          <ul>
-            <li><strong>Time Travel:</strong> Query or restore past data via SQL using <code>AT(OFFSET => ...)</code>, <code>BEFORE(STATEMENT => ...)</code>, or <code>UNDROP TABLE</code> (1 day Standard, up to 90 days Enterprise).</li>
-            <li><strong>Fail-safe:</strong> 7-day period <em>after</em> Time Travel ends. <strong>Users cannot query it</strong> — only Snowflake Support can recover it in emergencies.</li>
-            <li><strong>Zero-Copy Cloning:</strong> <code>CREATE TABLE dev_t CLONE prod_t;</code> Instant copy with <strong>$0 extra storage</strong> because it only copies metadata pointers to the original micro-partitions!</li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <h3>📦 4 Types of Snowflake Stages</h3>
-          <ul>
-            <li><strong>1. User Stage (<code>@~</code>):</strong> Automatic private folder for your user.</li>
-            <li><strong>2. Table Stage (<code>@%table_name</code>):</strong> Automatic folder attached to a single table.</li>
-            <li><strong>3. Named Internal Stage (<code>@my_stage</code>):</strong> Shared folder inside Snowflake (what we used in class!).</li>
-            <li><strong>4. External Stage:</strong> Points to AWS S3 / Azure / GCS using a <code>STORAGE INTEGRATION</code> (best for enterprise production).</li>
-          </ul>
-          <p style="margin-top:8px; font-size:0.88rem; color:var(--muted);"><strong>Golden Rule for Loading:</strong> Aim for compressed files (<strong>Parquet or ZSTD/GZIP CSV</strong>) sized <strong>100–250 MB</strong> so Virtual Warehouse nodes load them in parallel!</p>
-        </div>
-
-        <div class="card">
-          <h3>🔐 Role-Based Access Control (RBAC)</h3>
-          <p>Snowflake never grants permissions directly to users — permissions are granted to <strong>Roles</strong>, and Roles are granted to Users:</p>
-          <ul>
-            <li><code>ACCOUNTADMIN</code>: Top-level boss (billing, security, everything). Never use for daily analyst work!</li>
-            <li><code>SECURITYADMIN</code>: Creates users, roles, and grants privileges.</li>
-            <li><code>SYSADMIN</code>: Creates and manages databases, schemas, and warehouses.</li>
-            <li><code>PUBLIC</code>: Automatically granted to every user.</li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <h3>🧩 Semi-Structured Data (`VARIANT`)</h3>
-          <p>Snowflake stores JSON, Avro, ORC, Parquet, and XML directly inside a <strong><code>VARIANT</code></strong> column (up to 16 MB per row) without needing upfront schemas:</p>
-          <pre><code>SELECT
-  event:booking_id::INT,
-  f.value:name::STRING
-FROM booking_events,
-LATERAL FLATTEN(input => event:extras) f;</code></pre>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================================================================== -->
-    <!-- SECTION 6: DATABRICKS VS SNOWFLAKE CHEAT SHEET                     -->
-    <!-- ================================================================== -->
-    <section id="comparison">
-      <h2 class="section-title">6. Side-by-Side Translation: Databricks vs. Snowflake</h2>
-      <p class="section-subtitle">
-        Both platforms solve similar problems using different names! Use this table to translate concepts instantly between the two.
-      </p>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Concept</th>
-              <th>🔥 Databricks (Lakehouse)</th>
-              <th>❄️ Snowflake (Cloud Data Warehouse)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong> origins &amp; DNA</strong></td>
-              <td>Born from <strong>Apache Spark</strong> (Big Data engineering, Python/PySpark, Data Science, ML/AI + SQL).</td>
-              <td>Born as a <strong>Cloud Data Warehouse</strong> (SQL-first analytics, BI dashboards, zero-management SaaS).</td>
-            </tr>
-            <tr>
-              <td><strong>Compute Engine Name</strong></td>
-              <td><strong>All-Purpose Cluster / Job Cluster / SQL Warehouse</strong> (Driver + Worker Nodes).</td>
-              <td><strong>Virtual Warehouse</strong> (MPP cluster sized <code>X-Small</code> to <code>6X-Large</code>).</td>
-            </tr>
-            <tr>
-              <td><strong>Object Hierarchy</strong></td>
-              <td><code>Catalog</code> $\rightarrow$ <code>Schema</code> $\rightarrow$ <code>Table / Volume</code> (Unity Catalog).</td>
-              <td><code>Database</code> $\rightarrow$ <code>Schema</code> $\rightarrow$ <code>Table / View / Stage</code>.</td>
-            </tr>
-            <tr>
-              <td><strong>Where Raw Files Live Before Loading</strong></td>
-              <td><strong>Unity Catalog Volume</strong> (<code>/Volumes/cat/sch/vol/</code>).</td>
-              <td><strong>Stage</strong> (Internal <code>@my_stage</code> or External S3 Stage).</td>
-            </tr>
-            <tr>
-              <td><strong>Default Table Storage Format</strong></td>
-              <td><strong>Delta Lake</strong> (Open-source Parquet files + <code>_delta_log</code> JSON).</td>
-              <td><strong>Proprietary Micro-partitions</strong> (50–500 MB compressed columnar files).</td>
-            </tr>
-            <tr>
-              <td><strong>Batch File Loading</strong></td>
-              <td><code>spark.read.csv(...)</code> or SQL <code>COPY INTO</code>.</td>
-              <td><code>COPY INTO my_table FROM @my_stage</code>.</td>
-            </tr>
-            <tr>
-              <td><strong>Continuous Auto-Ingestion</strong></td>
-              <td><strong>Auto Loader</strong> (<code>cloudFiles</code> in Spark Structured Streaming).</td>
-              <td><strong>Snowpipe</strong> (<code>CREATE PIPE ... AUTO_INGEST = TRUE</code>).</td>
-            </tr>
-            <tr>
-              <td><strong>Time Travel Syntax</strong></td>
-              <td><code>SELECT * FROM tbl VERSION AS OF 2;</code><br/><code>RESTORE TABLE tbl TO VERSION AS OF 2;</code></td>
-              <td><code>SELECT * FROM tbl AT(OFFSET => -300);</code><br/><code>SELECT * FROM tbl BEFORE(STATEMENT => '...');</code><br/><code>UNDROP TABLE tbl;</code></td>
-            </tr>
-            <tr>
-              <td><strong>Languages Supported</strong></td>
-              <td>Python (PySpark), SQL, Scala, R (First-class notebooks).</td>
-              <td>SQL (primary), plus Snowpark (Python, Java, Scala) &amp; JS/SQL Stored Procedures.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ================================================================== -->
-    <!-- SECTION 7: TOP 20 INTERVIEW QUESTIONS & ANSWERS                    -->
-    <!-- ================================================================== -->
-    <section id="interview">
-      <h2 class="section-title">7. Top 20 Job Interview Questions &amp; Model Answers</h2>
-      <p class="section-subtitle">
-        Click on any question below to reveal the clear, structured answer you can give in a Data Analyst / Data Engineer interview.
-      </p>
-
-      <details class="qa-item" open>
-        <summary>1. What is the difference between a Data Lake, a Data Warehouse, and a Data Lakehouse?</summary>
-        <div class="qa-body">
-          <ul>
-            <li><strong>Data Lake:</strong> Stores raw data in any format (CSV, Parquet, JSON, images) on cheap cloud object storage (like S3). Flexible, but lacks ACID transactions and SQL governance on its own.</li>
-            <li><strong>Data Warehouse (e.g., Snowflake):</strong> Stores structured and semi-structured data optimized for fast SQL analytics and BI reporting, with full ACID transactions and governance.</li>
-            <li><strong>Data Lakehouse (e.g., Databricks with Delta Lake):</strong> Combines both by adding a transactional metadata layer (<strong>Delta Lake</strong>) directly on top of open Parquet files in a Data Lake, supporting both BI SQL analytics and Machine Learning in one platform.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>2. Explain Snowflake's 3-Layer Architecture and why separating Storage and Compute matters.</summary>
-        <div class="qa-body">
-          <p>Snowflake separates its architecture into three independent layers:</p>
-          <ol style="padding-left:20px; margin: 8px 0;">
-            <li><strong>Database Storage Layer:</strong> Stores data in compressed, columnar micro-partitions in cloud object storage.</li>
-            <li><strong>Query Processing Layer (Compute):</strong> Independent Virtual Warehouses (MPP clusters) that execute queries.</li>
-            <li><strong>Cloud Services Layer:</strong> The "brain" handling authentication, metadata, query optimization, and ACID transactions.</li>
-          </ol>
-          <p><strong>Why it matters:</strong> In traditional databases, storage and compute are tied together. In Snowflake, they scale independently — you can store petabytes cheaply with compute turned off (<code>AUTO_SUSPEND</code>), or spin up multiple Virtual Warehouses for different teams (ETL vs. BI) querying the same data simultaneously with zero resource contention.</p>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>3. What is a Cluster and a Node in Databricks / Apache Spark?</summary>
-        <div class="qa-body">
-          <p>A <strong>Node</strong> is a single virtual machine (server with CPU and RAM). A <strong>Cluster</strong> is a group of nodes working together in parallel:</p>
-          <ul>
-            <li><strong>Driver Node (1 per cluster):</strong> Coordinates the job, parses your PySpark/SQL code, creates the execution plan, and distributes tasks.</li>
-            <li><strong>Worker Nodes (Many):</strong> Execute the actual tasks in parallel on partitions of data using <strong>Executors</strong> and return results.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>4. Why is Parquet preferred over CSV for Big Data analytics?</summary>
-        <div class="qa-body">
-          <ol style="padding-left:20px;">
-            <li><strong>Columnar Format:</strong> Parquet stores data by column rather than by row. Analytical queries that only select 3 out of 50 columns only read those 3 columns from disk (<strong>Column Pruning</strong>).</li>
-            <li><strong>Higher Compression:</strong> Because similar data types sit together in each column, Parquet compresses 3–5x smaller than CSV.</li>
-            <li><strong>Embedded Schema &amp; Statistics:</strong> Parquet stores column data types and min/max statistics in its footer, allowing engines like Spark and Snowflake to skip irrelevant row groups (<strong>Predicate Pushdown</strong>).</li>
-          </ol>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>5. When would you choose Avro over Parquet?</summary>
-        <div class="qa-body">
-          <p><strong>Avro</strong> is a <strong>row-based</strong> binary format, whereas <strong>Parquet</strong> is <strong>column-based</strong>.</p>
-          <ul>
-            <li>Choose <strong>Avro</strong> for <strong>write-heavy workloads, Kafka event streaming, and landing raw records</strong> where entire rows are written at once and schemas evolve frequently.</li>
-            <li>Choose <strong>Parquet (or Delta Lake)</strong> for <strong>read-heavy analytical queries (OLAP)</strong> where you aggregate and filter specific columns across millions of rows.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>6. What is Delta Lake and how does it improve upon plain Parquet?</summary>
-        <div class="qa-body">
-          <p><strong>Delta Lake</strong> is an open-source storage format used by default in Databricks. Under the hood, it consists of <strong>Parquet data files + a JSON transaction log folder (<code>_delta_log</code>)</strong>.</p>
-          <p>Plain Parquet files are immutable and lack transactions. Delta Lake adds:</p>
-          <ul>
-            <li><strong>ACID Transactions</strong> (atomic, crash-safe writes).</li>
-            <li><strong>DML Support:</strong> Ability to run <code>UPDATE</code>, <code>DELETE</code>, and <code>MERGE</code> (upserts).</li>
-            <li><strong>Time Travel:</strong> Query or restore any previous version (<code>VERSION AS OF</code>).</li>
-            <li><strong>Schema Enforcement &amp; Evolution:</strong> Prevents bad data types from corrupting tables.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>7. What is the difference between a Unity Catalog Volume (Databricks) and a Stage (Snowflake)?</summary>
-        <div class="qa-body">
-          <p>They solve the exact same problem on their respective platforms: providing a governed location to store <strong>raw files</strong> (CSV, Parquet, Avro, JSON) before loading them into tables.</p>
-          <ul>
-            <li>In <strong>Databricks</strong>, a <strong>Volume</strong> is a Unity Catalog object accessed like a folder path (<code>/Volumes/catalog/schema/volume/file.csv</code>).</li>
-            <li>In <strong>Snowflake</strong>, a <strong>Stage</strong> (Internal <code>@stage</code> or External pointing to S3) holds files that you load into tables via <code>COPY INTO</code> or <code>Snowpipe</code>.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>8. In Snowflake, what is the difference between Scaling Up and Scaling Out a Virtual Warehouse?</summary>
-        <div class="qa-body">
-          <ul>
-            <li><strong>Scaling Up (Resizing, e.g., X-Small to Large):</strong> Doubles the compute nodes inside a single cluster. Use this to speed up <strong>slow, complex, heavy queries</strong> or large data loads.</li>
-            <li><strong>Scaling Out (Multi-Cluster Warehouse, e.g., Min 1 to Max 4 clusters):</strong> Automatically spins up additional clusters of the same size when queries start queuing. Use this for <strong>high concurrency</strong> (e.g., 200 business users opening dashboards at 9:00 AM).</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>9. What is the difference between Permanent, Transient, and Temporary tables in Snowflake?</summary>
-        <div class="qa-body">
-          <ul>
-            <li><strong>Permanent (Default):</strong> Persists until dropped; supports Time Travel (up to 90 days on Enterprise) + 7-day Fail-safe. Used for production tables.</li>
-            <li><strong>Transient:</strong> Persists until dropped; has 0–1 day Time Travel and <strong>no Fail-safe</strong>, reducing storage costs. Ideal for staging/ETL tables.</li>
-            <li><strong>Temporary:</strong> Exists only within the current user session and is automatically dropped when the session ends. Ideal for scratch work.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>10. What is the difference between Time Travel and Fail-safe in Snowflake?</summary>
-        <div class="qa-body">
-          <ul>
-            <li><strong>Time Travel (1 to 90 days):</strong> Self-service feature allowing users to query historical data (<code>AT</code> / <code>BEFORE</code>), clone past snapshots, and <code>UNDROP</code> tables directly via SQL.</li>
-            <li><strong>Fail-safe (7 days):</strong> Begins immediately <em>after</em> the Time Travel retention period ends. It is a non-configurable disaster recovery period accessible <strong>only by contacting Snowflake Support</strong> (not queryable by users).</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>11. How does Zero-Copy Cloning work in Snowflake, and why is it almost free at creation?</summary>
-        <div class="qa-body">
-          <p>When you run <code>CREATE TABLE orders_dev CLONE orders;</code>, Snowflake does <strong>not</strong> duplicate the physical micro-partitions. Instead, it creates new metadata pointers in the Cloud Services layer pointing to the exact same underlying micro-partitions.</p>
-          <p>Because no data is copied, it finishes in seconds and costs <strong>$0 in extra storage</strong> at creation time. You only pay for additional storage if you modify (`INSERT`/`UPDATE`/`DELETE`) rows in the clone, which creates new micro-partitions for just those changes.</p>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>12. When should you use `COPY INTO` vs. `Snowpipe` in Snowflake?</summary>
-        <div class="qa-body">
-          <ul>
-            <li><strong>Use <code>COPY INTO</code> (Batch):</strong> When loading large volumes of files on a scheduled batch (hourly/daily), when you want explicit control over the Virtual Warehouse size, or when performing complex transformations during load.</li>
-            <li><strong>Use <code>Snowpipe</code> (Continuous Serverless):</strong> When small files arrive continuously in cloud storage (like S3) and you want event-driven, near real-time ingestion (within minutes) using serverless compute without managing a running warehouse.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>13. What is the ideal file size and format when staging files for Snowflake?</summary>
-        <div class="qa-body">
-          <p>Snowflake recommends staging <strong>compressed files between 100 MB and 250 MB</strong> (or using <strong>Parquet with ZSTD compression</strong>).</p>
-          <p><strong>Why?</strong> If you upload one single 50 GB file, only 1 compute thread can read it while the rest of the Virtual Warehouse sits idle. Splitting data into 100–250 MB files allows all compute nodes in the Virtual Warehouse to load files in parallel.</p>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>14. What is the difference between a Standard View, a Materialized View, and a Secure View?</summary>
-        <div class="qa-body">
-          <ul>
-            <li><strong>Standard View:</strong> Saves the SQL query text only; re-runs the query against the base table every time. Zero storage cost.</li>
-            <li><strong>Materialized View:</strong> Pre-computes and physically stores the result set, automatically refreshing in the background when the base table changes. Costs storage/compute, but makes repetitive aggregations much faster.</li>
-            <li><strong>Secure View:</strong> Hides the view's SQL definition from unauthorized users and prevents query optimizer workarounds that could expose filtered rows. Essential for external Data Sharing.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>15. How do you handle JSON / Semi-structured data in Snowflake?</summary>
-        <div class="qa-body">
-          <p>Load the JSON into a column of type <strong><code>VARIANT</code></strong> (using <code>PARSE_JSON</code> or a JSON file format). Snowflake automatically extracts columnar metadata for fast querying. You can query nested fields using colon/dot notation (<code>event:customer.name::STRING</code>) and unnest arrays into rows using <strong><code>LATERAL FLATTEN(input => event:items)</code></strong>.</p>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>16. What is the `QUALIFY` clause in Snowflake and Databricks SQL?</summary>
-        <div class="qa-body">
-          <p>Just like <code>WHERE</code> filters raw rows and <code>HAVING</code> filters <code>GROUP BY</code> aggregations, <strong><code>QUALIFY</code> filters the results of Window Functions</strong> (like <code>ROW_NUMBER()</code>, <code>RANK()</code>, or <code>LAG()</code>) directly without needing a subquery or CTE!</p>
-          <pre><code>SELECT package_type, destination_city, SUM(travellers * price_per_person_gbp) AS rev
-FROM bookings
-GROUP BY package_type, destination_city
-QUALIFY ROW_NUMBER() OVER (PARTITION BY package_type ORDER BY rev DESC) <= 2;</code></pre>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>17. What are Micro-partitions and Query Pruning in Snowflake?</summary>
-        <div class="qa-body">
-          <p>Snowflake automatically stores all table data in immutable 50–500 MB columnar units called <strong>Micro-partitions</strong>, recording metadata (such as min/max range, null count, and distinct values) for every column in the Cloud Services layer.</p>
-          <p>When a query has a <code>WHERE</code> filter, <strong>Query Pruning</strong> checks that metadata first and skips reading any micro-partition whose min/max range doesn't match the filter, scanning only a tiny fraction of the table.</p>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>18. What are Streams and Tasks in Snowflake?</summary>
-        <div class="qa-body">
-          <ul>
-            <li><strong>Streams:</strong> Implement Change Data Capture (CDC) by tracking inserts, updates, and deletes on a table so you can process only new/changed rows.</li>
-            <li><strong>Tasks:</strong> Schedule SQL statements or Stored Procedures to run on a timer (cron schedule) or when a Stream has new data, forming an automated end-to-end ELT pipeline.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>19. Why does `AUTO_SUSPEND` matter so much in Snowflake and Databricks?</summary>
-        <div class="qa-body">
-          <p>Compute clusters (Snowflake Virtual Warehouses and Databricks Clusters) are billed for the time they are <strong>running</strong>, even if no queries are executing. Setting <code>AUTO_SUSPEND = 60</code> (1 minute in Snowflake) or auto-termination in Databricks ensures idle clusters shut down automatically so you never pay for unused compute.</p>
-        </div>
-      </details>
-
-      <details class="qa-item">
-        <summary>20. How do Role-Based Access Control (RBAC) and Dynamic Data Masking help with GDPR?</summary>
-        <div class="qa-body">
-          <ul>
-            <li><strong>RBAC:</strong> Enforces least-privilege access by granting database/schema/table permissions to functional roles (e.g., <code>ANALYST</code>, <code>MARKETING</code>) rather than giving everyone <code>ACCOUNTADMIN</code>.</li>
-            <li><strong>Dynamic Data Masking:</strong> Attaches a masking policy to sensitive PII columns (like customer name or email) so non-privileged roles automatically see <code>*** MASKED ***</code> while authorized roles see the real value — without duplicating the table.</li>
-          </ul>
-        </div>
-      </details>
-
-    </section>
+    </div>
 
   </div>
 
   <script>
-    let currentCategory = 'all';
-
-    function setCategory(cat, btn) {
-      currentCategory = cat;
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    // =========================================================================
+    // TAB SWITCHING
+    // =========================================================================
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      document.querySelectorAll('.mode-nav .mode-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      filterVocab();
     }
 
-    function filterVocab() {
-      const q = document.getElementById('vocabSearch').value.toLowerCase();
-      const cards = document.querySelectorAll('.vocab-card');
-      cards.forEach(card => {
-        const text = card.innerText.toLowerCase();
-        const cats = card.getAttribute('data-cat');
-        const matchesCat = (currentCategory === 'all') || cats.includes(currentCategory);
-        const matchesSearch = text.includes(q);
-        card.style.display = (matchesCat && matchesSearch) ? 'block' : 'none';
-      });
+    // =========================================================================
+    // TAB 1: REAL-WORLD 6-STAGE PIPELINE DATA
+    // =========================================================================
+    const pipelineStages = [
+      {
+        badge: "Stage 1 of 6 • Raw Data Landing",
+        title: "📥 Where Do Raw Files Land Before Becoming Tables?",
+        story: "Every minute, EuroTravel's mobile app generates thousands of click events and partner hotels send daily booking CSV files. You can't dump raw unvalidated files straight into final BI tables — first they land in cloud object storage.",
+        bullets: [
+          "<strong>Cloud Object Storage (AWS S3 / Azure Blob / GCS):</strong> The cheap central hard drive of the cloud.",
+          "<strong>In Databricks → Unity Catalog Volume (<code>/Volumes/travel/raw/landing/</code>):</strong> A governed folder inside Unity Catalog where raw <code>.csv</code>, <code>.avro</code>, <code>.parquet</code>, or <code>.pdf</code> files sit before processing.",
+          "<strong>In Snowflake → Stage (<code>@bookings_stage</code>):</strong> The loading dock pointer! Can be an <strong>Internal Stage</strong> (inside Snowflake) or an <strong>External Stage</strong> pointing to S3 via a secure <code>STORAGE INTEGRATION</code>.",
+          "<strong>Why Avro here?</strong> Streaming events from Kafka often land as <strong>Avro</strong> because Avro is <em>row-based</em> (fast to write 1 event at a time) and carries its JSON schema inside the file."
+        ],
+        interview: "💬 <strong>How to say it in an interview:</strong> \"We land raw source files in an S3 bucket governed by a Databricks Unity Catalog Volume or a Snowflake External Stage using a Storage Integration so we never hardcode AWS credentials.\""
+      },
+      {
+        badge: "Stage 2 of 6 • Big Data Processing & Lakehouse",
+        title: "🔥 Cleaning & Transforming Big Data in Databricks (PySpark + Delta Lake)",
+        story: "Now we have 50 million messy clickstream records and booking logs. We use a Databricks Cluster running Apache Spark to clean, deduplicate, and join them into Delta Lake tables.",
+        bullets: [
+          "<strong>What is the Cluster doing?</strong> Your <strong>Driver Node</strong> (the boss) reads your PySpark code, waits for an <strong>Action</strong> (like <code>write</code> or <code>display()</code> — thanks to <em>Lazy Evaluation</em>), and splits the work across 8 <strong>Worker Nodes</strong>.",
+          "<strong>Why save as Delta Lake instead of plain Parquet?</strong> Plain Parquet files are read-only and corrupt if a job crashes midway. <strong>Delta Lake</strong> = <code>Parquet files + _delta_log (JSON transaction log)</code>, giving us ACID transactions, <code>UPDATE</code>/<code>DELETE</code>/<code>MERGE</code>, and Time Travel!",
+          "<strong>The Medallion Architecture:</strong><br/>🥉 <strong>Bronze Table:</strong> Raw ingested rows.<br/>🥈 <strong>Silver Table:</strong> Cleaned, nulls fixed, deduplicated.<br/>🥇 <strong>Gold Table:</strong> Final revenue aggregations per city &amp; month."
+        ],
+        interview: "💬 <strong>How to say it in an interview:</strong> \"We process raw data in PySpark using the Medallion Architecture (Bronze → Silver → Gold) stored in Delta Lake format, which gives us ACID transactions and schema enforcement on top of columnar Parquet files.\""
+      },
+      {
+        badge: "Stage 3 of 6 • Loading into Snowflake",
+        title: "❄️ Loading Data into Snowflake: COPY INTO vs. Snowpipe",
+        story: "Our BI & Finance teams use Snowflake for company-wide SQL reporting. We have two kinds of data arriving in our Snowflake Stage: (1) a nightly batch of hotel invoices, and (2) live booking events arriving every 30 seconds in S3.",
+        bullets: [
+          "<strong>For the Nightly Batch → <code>COPY INTO</code>:</strong> Runs on a scheduled Virtual Warehouse. Loads large batches in parallel and supports inline transformations (<code>ON_ERROR = 'CONTINUE'</code>).",
+          "<strong>For Live 24/7 Files → <code>Snowpipe</code> (<code>AUTO_INGEST = TRUE</code>):</strong> Triggered automatically by AWS S3 SQS event notifications. Uses <strong>serverless compute</strong> to load new micro-batches within 1–2 minutes!",
+          "<strong>File Size Golden Rule:</strong> We compress files (<strong>Parquet or ZSTD CSV</strong>) to <strong>100–250 MB each</strong> so all nodes in our Virtual Warehouse load files in parallel.",
+          "<strong>What Snowflake does automatically:</strong> Converts loaded data into proprietary, compressed columnar <strong>Micro-partitions (50–500 MB)</strong> and records min/max metadata in the Cloud Services layer for fast <em>Query Pruning</em>."
+        ],
+        interview: "💬 <strong>How to say it in an interview:</strong> \"For scheduled bulk loads we use COPY INTO with a sized Virtual Warehouse and 100–250 MB ZSTD-compressed Parquet files. For near real-time event files arriving in S3, we use serverless Snowpipe with AUTO_INGEST.\""
+      },
+      {
+        badge: "Stage 4 of 6 • Monday 9:00 AM Rush Hour",
+        title: "⚡ Compute Scaling: Why Separation of Storage & Compute Saves the Day",
+        story: "It's Monday at 9:00 AM during EuroTravel's Summer Sale! At the exact same time: (1) the Data Engineering team is running a heavy 500GB load, and (2) 200 analysts open Tableau dashboards.",
+        bullets: [
+          "<strong>Workload Isolation:</strong> Because Snowflake separates Storage and Compute, we create separate <strong>Virtual Warehouses</strong>: <code>ETL_WH</code> for engineers and <code>BI_WH</code> for analysts. Both read the exact same storage layer with <strong>zero resource contention</strong>!",
+          "<strong>Scaling Up (Resize: <code>X-Small</code> → <code>Large</code>):</strong> Doubles the nodes/CPU inside 1 cluster. We do this on <code>ETL_WH</code> to make <strong>1 heavy, complex transformation query</strong> run faster.",
+          "<strong>Scaling Out (Multi-Cluster Warehouse: <code>Min 1, Max 4</code>):</strong> Automatically spins up extra clusters when 200 analysts query <code>BI_WH</code> at the same time, eliminating queuing!",
+          "<strong>Cost Control (<code>AUTO_SUSPEND = 60</code>):</strong> As soon as the rush ends and warehouses sit idle for 60 seconds, they suspend automatically so we pay $0 for compute."
+        ],
+        interview: "💬 <strong>How to say it in an interview:</strong> \"We scale UP (bigger warehouse size) for complex, heavy queries, and we scale OUT (Multi-Cluster Warehouse) for high concurrency when many users query simultaneously.\""
+      },
+      {
+        badge: "Stage 5 of 6 • Disaster Recovery & Dev Testing",
+        title: "⏪ Oops! Someone Deleted Production Rows + We Need a Dev Environment",
+        story: "At 3:15 PM, a developer accidentally runs `DELETE FROM bookings WHERE status = 'Completed';` in production! And tomorrow, the team wants to test a new discount formula on the 10TB `bookings` table without paying for another 10TB of storage.",
+        bullets: [
+          "<strong>Instant Recovery with Time Travel:</strong> Instead of rebuilding the table from scratch (which would take hours), we restore it in 2 seconds:<br/>• Snowflake: <code>INSERT INTO bookings SELECT * FROM bookings BEFORE(STATEMENT => '&lt;query_id&gt;');</code> (or <code>UNDROP TABLE</code> if dropped).<br/>• Databricks: <code>RESTORE TABLE bookings TO VERSION AS OF 14;</code>",
+          "<strong>What is Fail-safe?</strong> In Snowflake, after Time Travel expires (1–90 days), Permanent tables have a <strong>7-day Fail-safe</strong> window recoverable only by Snowflake Support.",
+          "<strong>Zero-Copy Cloning for Dev/Test:</strong> We run <code>CREATE TABLE bookings_dev CLONE bookings;</code>. It finishes in 2 seconds and costs <strong>$0 extra storage</strong> because it only copies metadata pointers to the existing micro-partitions!"
+        ],
+        interview: "💬 <strong>How to say it in an interview:</strong> \"Zero-copy cloning lets us create instant dev/test copies of multi-terabyte production tables without duplicating physical storage, since it only clones metadata pointers to the immutable micro-partitions.\""
+      },
+      {
+        badge: "Stage 6 of 6 • Governance, GDPR & Fast BI",
+        title: "🔐 Protecting Customer PII (GDPR) & Speeding Up Executive Dashboards",
+        story: "The Marketing team needs access to the `bookings` table, but under GDPR they must NOT see customer names or emails. Meanwhile, the CEO's daily revenue summary query joins 5 huge tables and runs 500 times a day.",
+        bullets: [
+          "<strong>Role-Based Access Control (RBAC):</strong> We never give users <code>ACCOUNTADMIN</code>. We create a functional role (<code>MARKETING_ANALYST</code>) and grant <code>USAGE</code> on the database/schema and <code>SELECT</code> on specific tables/views.",
+          "<strong>Dynamic Data Masking:</strong> We attach a <code>MASKING POLICY</code> to <code>customer_name</code> so <code>ACCOUNTADMIN</code> sees <code>'Oliver Smith'</code> while <code>MARKETING_ANALYST</code> automatically sees <code>'*** MASKED ***'</code> on the exact same table!",
+          "<strong>Materialized View vs. Standard View vs. Secure View:</strong><br/>• For the CEO's expensive aggregation that runs 500 times/day → <strong>Materialized View</strong> (pre-computed &amp; auto-refreshed).<br/>• For sharing data with external hotel partners → <strong>Secure View</strong> (hides SQL logic &amp; prevents optimizer leaks)."
+        ],
+        interview: "💬 <strong>How to say it in an interview:</strong> \"We enforce GDPR using RBAC functional roles combined with column-level Dynamic Data Masking policies, and we use Materialized Views for expensive aggregations queried repeatedly by BI dashboards.\""
+      }
+    ];
+
+    function showStep(idx, el) {
+      document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
+      if (el) el.classList.add('active');
+      const s = pipelineStages[idx];
+      document.getElementById('stepDetail').innerHTML = `
+        <span class="pill pill-sf" style="margin-bottom:10px;">${s.badge}</span>
+        <h3 style="font-size:1.35rem; margin-bottom:10px;">${s.title}</h3>
+        <p style="color:#cbd5e1; margin-bottom:16px; font-size:0.98rem;"><em>${s.story}</em></p>
+        <ul style="padding-left:20px; color:#e2e8f0; font-size:0.94rem; line-height:1.75;">
+          ${s.bullets.map(b => `<li style="margin-bottom:8px;">${b}</li>`).join('')}
+        </ul>
+        <div class="callout-real" style="margin-top:16px;">${s.interview}</div>
+      `;
     }
+
+    // =========================================================================
+    // TAB 2: ARCHITECTURE INSPECTOR DATA
+    // =========================================================================
+    const archLayers = {
+      "sf-brain": {
+        tag: "Snowflake Layer 1 • Cloud Services",
+        title: "🧠 Cloud Services Layer (\"The Brain of Snowflake\")",
+        desc: "Every login, SQL query, and security check passes through this layer first before touching any compute warehouse or storage file.",
+        points: [
+          "<strong>Authentication &amp; Access Control:</strong> Verifies users and Role-Based Access Control (<code>ACCOUNTADMIN</code>, <code>SYSADMIN</code>, custom roles).",
+          "<strong>Query Optimizer &amp; Compiler:</strong> Parses your SQL and checks <strong>Metadata</strong> to figure out which micro-partitions can be skipped (<em>Query Pruning</em>).",
+          "<strong>Metadata &amp; Time Travel Manager:</strong> Tracks micro-partition min/max values, Zero-Copy Clone pointers, and Time Travel versions.",
+          "<strong>ACID Transaction Coordinator:</strong> Ensures multiple warehouses can read/write without corrupting data."
+        ],
+        tip: "💡 <strong>Billing Note:</strong> Managed automatically by Snowflake (free up to 10% of your daily compute credits)."
+      },
+      "sf-compute": {
+        tag: "Snowflake Layer 2 • Query Processing",
+        title: "⚡ Query Processing Layer (Virtual Warehouses)",
+        desc: "The muscle that actually executes SQL queries and loads files. Each Virtual Warehouse is an independent MPP (Massively Parallel Processing) cluster of nodes with CPU, RAM, and local SSD cache.",
+        points: [
+          "<strong>Zero Storage Inside:</strong> A Virtual Warehouse stores no permanent tables — only temporary SSD cache while running.",
+          "<strong>T-Shirt Sizing:</strong> <code>X-Small</code> (1 credit/hr), <code>Small</code> (2), <code>Medium</code> (4), <code>Large</code> (8)... doubling power &amp; cost each step.",
+          "<strong>Workload Isolation:</strong> Create separate warehouses for <code>ETL_WH</code>, <code>ANALYST_WH</code>, and <code>DATA_SCIENCE_WH</code> so they never slow each other down.",
+          "<strong>Per-Second Billing:</strong> Billed per second (60-second minimum on start) + <code>AUTO_SUSPEND</code> stops billing when idle."
+        ],
+        tip: "💡 <strong>Interview Classic:</strong> \"If 1 query is slow → Resize UP. If 100 users are waiting in a queue → Scale OUT with Multi-Cluster.\""
+      },
+      "sf-storage": {
+        tag: "Snowflake Layer 3 • Database Storage",
+        title: "💾 Database Storage Layer (Micro-partitions)",
+        desc: "All data loaded into Snowflake is automatically reorganized into Snowflake's proprietary, encrypted, compressed columnar files stored in cloud object storage (S3 / Azure / GCP).",
+        points: [
+          "<strong>Micro-partitions (50–500 MB uncompressed):</strong> Immutable columnar blocks. You never have to create indexes or vacuum manually!",
+          "<strong>Automatic Query Pruning:</strong> Snowflake knows the exact <code>MIN</code> and <code>MAX</code> date/ID inside every micro-partition, skipping 95%+ of files during filtered queries.",
+          "<strong>Clustering Keys (<code>CLUSTER BY</code>):</strong> Optional setting for huge multi-terabyte tables to keep micro-partitions sorted on frequently filtered columns."
+        ],
+        tip: "💡 <strong>Billing Note:</strong> Charged flat monthly rate per Terabyte (approx. $23/TB/month compressed)."
+      },
+      "dbx-cluster": {
+        tag: "Databricks & Spark Compute",
+        title: "🖥️ Spark Cluster: Driver Node + Worker Nodes",
+        desc: "When you attach a notebook to a Cluster in Databricks, you are renting a team of cloud virtual machines (Nodes) working together.",
+        points: [
+          "<strong>Node:</strong> A single virtual computer with CPU cores and RAM.",
+          "<strong>Driver Node (1 per cluster):</strong> Runs your notebook session, interprets Python/PySpark commands, builds the logical/physical plan, and assigns tasks.",
+          "<strong>Worker Nodes (1 to many):</strong> Hold <strong>Executors</strong> that process slices (partitions) of your DataFrame in parallel and return results.",
+          "<strong>All-Purpose vs. Job Cluster:</strong> All-Purpose is for interactive notebook coding; Job Clusters spin up automatically to run a scheduled pipeline and terminate immediately after (much cheaper!)."
+        ],
+        tip: "💡 <strong>Interview Classic:</strong> \"Transformations (filter, select, join) are lazy on the Driver; Actions (count, show, write) trigger actual execution across the Worker Nodes.\""
+      },
+      "dbx-delta": {
+        tag: "Databricks Storage & Governance",
+        title: "🔺 Unity Catalog &amp; Delta Lake (Parquet + _delta_log)",
+        desc: "How Databricks turns cheap cloud object storage into a governed, transactional Data Lakehouse.",
+        points: [
+          "<strong>Unity Catalog Hierarchy:</strong> <code>Catalog</code> → <code>Schema</code> → <code>Table / View / Volume</code>.",
+          "<strong>Volume vs. Table:</strong> A <strong>Volume</strong> holds raw files (CSV, Parquet, Avro, PDF); a <strong>Table</strong> holds structured Delta rows.",
+          "<strong>Delta Lake Formula:</strong> <code>Delta Table = Columnar Parquet Files + _delta_log/ (JSON transaction log)</code>.",
+          "<strong>Why Delta Wins:</strong> Gives you ACID transactions, <code>UPDATE</code>/<code>DELETE</code>/<code>MERGE</code>, Schema Enforcement, and <code>VERSION AS OF</code> Time Travel directly on open Parquet files."
+        ],
+        tip: "💡 <strong>Interview Classic:</strong> \"Every table created in Databricks is a Delta table by default.\""
+      }
+    };
+
+    function inspectLayer(key, el) {
+      document.querySelectorAll('.visual-block').forEach(b => b.classList.remove('selected'));
+      if (el) el.classList.add('selected');
+      const d = archLayers[key];
+      document.getElementById('inspectorBox').innerHTML = `
+        <span class="pill pill-sf" style="margin-bottom:10px;">${d.tag}</span>
+        <h3 style="font-size:1.3rem; margin-bottom:10px;">${d.title}</h3>
+        <p style="color:#cbd5e1; font-size:0.95rem; margin-bottom:14px;">${d.desc}</p>
+        <ul style="padding-left:18px; color:#e2e8f0; font-size:0.92rem; line-height:1.7;">
+          ${d.points.map(p => `<li style="margin-bottom:8px;">${p}</li>`).join('')}
+        </ul>
+        <div class="callout-real" style="margin-top:14px;">${d.tip}</div>
+      `;
+    }
+
+    // =========================================================================
+    // TAB 4: 3D FLIP FLASHCARDS (20 CARDS)
+    // =========================================================================
+    const flashcardsData = [
+      { cat: "compute", term: "Node vs. Cluster", hint: "Hardware / Cloud Infrastructure", back: "<strong>Node:</strong> 1 single virtual computer (CPU + RAM) in the cloud.<br/><br/><strong>Cluster:</strong> A team of nodes connected together to process big data in parallel." },
+      { cat: "compute", term: "Driver Node vs. Worker Node", hint: "Apache Spark / Databricks", back: "<strong>Driver Node (1):</strong> The boss that reads your code, builds the execution plan, and assigns tasks.<br/><br/><strong>Worker Nodes (Many):</strong> Run Executors that process data partitions in parallel." },
+      { cat: "compute", term: "Virtual Warehouse", hint: "Snowflake Compute", back: "Snowflake's compute cluster (CPU + RAM + SSD cache). Stores <strong>0 permanent data</strong>! Sized X-Small to 6X-Large, billed per second, with <code>AUTO_SUSPEND</code>." },
+      { cat: "compute", term: "Scaling Up vs. Scaling Out", hint: "Snowflake Performance", back: "<strong>Scale Up (Resize X-Small → Large):</strong> Bigger cluster for slow, complex queries.<br/><br/><strong>Scale Out (Multi-Cluster):</strong> More clusters spun up automatically for many concurrent users." },
+      { cat: "storage", term: "Unity Catalog Volume", hint: "Databricks Storage", back: "A governed folder inside Databricks Unity Catalog (<code>/Volumes/catalog/schema/volume/</code>) used to store raw files (CSV, Parquet, Avro, PDF) before loading into tables." },
+      { cat: "storage", term: "Snowflake Stage (@stage)", hint: "Snowflake Storage", back: "The intermediate landing location where files sit before <code>COPY INTO</code> loads them into a table. Types: User (<code>@~</code>), Table (<code>@%t</code>), Named Internal (<code>@stage</code>), and External (S3/Azure/GCP)." },
+      { cat: "storage", term: "Parquet vs. Avro", hint: "Big Data File Formats", back: "<strong>Parquet:</strong> Columnar binary format — best for fast analytical reads (OLAP) &amp; high compression.<br/><br/><strong>Avro:</strong> Row-based binary format with JSON schema — best for Kafka streaming &amp; write-heavy pipelines." },
+      { cat: "storage", term: "Delta Lake", hint: "Databricks Storage Layer", back: "<strong>Parquet files + <code>_delta_log</code> (JSON transaction log)</strong>. Upgrades plain Parquet with ACID transactions, <code>UPDATE/DELETE/MERGE</code>, Time Travel, and Schema Enforcement." },
+      { cat: "storage", term: "Micro-partitions", hint: "Snowflake Internal Storage", back: "Snowflake automatically chops tables into immutable, compressed columnar files (50–500 MB uncompressed) and tracks min/max metadata per column for automatic <strong>Query Pruning</strong>." },
+      { cat: "snowflake", term: "COPY INTO vs. Snowpipe", hint: "Snowflake Data Loading", back: "<strong>COPY INTO:</strong> Bulk batch load using your Virtual Warehouse.<br/><br/><strong>Snowpipe:</strong> Serverless, event-driven continuous micro-batch load triggered automatically by S3 notifications (<code>AUTO_INGEST = TRUE</code>)." },
+      { cat: "snowflake", term: "Permanent vs. Transient vs. Temporary Table", hint: "Snowflake Table Types", back: "<strong>Permanent:</strong> Has Time Travel (1–90d) + 7d Fail-safe.<br/><strong>Transient:</strong> Persists, NO Fail-safe (cheaper for staging/ETL).<br/><strong>Temporary:</strong> Dropped automatically when session ends." },
+      { cat: "snowflake", term: "Time Travel vs. Fail-safe", hint: "Snowflake Data Recovery", back: "<strong>Time Travel (1–90d):</strong> User self-service SQL recovery (<code>AT</code>, <code>BEFORE</code>, <code>UNDROP</code>).<br/><br/><strong>Fail-safe (7d after Time Travel):</strong> Emergency recovery accessible <em>only</em> via Snowflake Support." },
+      { cat: "snowflake", term: "Zero-Copy Cloning", hint: "CREATE TABLE ... CLONE ...", back: "Creates an instant copy of a table, schema, or database with <strong>$0 extra storage</strong> at creation time by copying only the metadata pointers to existing micro-partitions." },
+      { cat: "snowflake", term: "Standard vs. Materialized vs. Secure View", hint: "Snowflake Views", back: "<strong>Standard:</strong> Saved query (0 storage).<br/><strong>Materialized:</strong> Pre-computed &amp; physically stored for fast BI aggregations.<br/><strong>Secure:</strong> Hides SQL definition &amp; prevents data leaks for Data Sharing." },
+      { cat: "snowflake", term: "VARIANT & LATERAL FLATTEN", hint: "Semi-Structured JSON in Snowflake", back: "<strong>VARIANT:</strong> Column type storing JSON/Avro/XML (up to 16MB).<br/><br/><strong>LATERAL FLATTEN:</strong> Unnests JSON arrays into relational rows so you can query them with SQL." },
+      { cat: "snowflake", term: "QUALIFY Clause", hint: "Snowflake & Databricks SQL", back: "Filters the results of <strong>Window Functions</strong> (like <code>ROW_NUMBER()</code>, <code>RANK()</code>, <code>LAG()</code>) directly in the query without needing a subquery or CTE!" },
+      { cat: "snowflake", term: "Streams & Tasks", hint: "Snowflake Continuous Pipelines", back: "<strong>Stream:</strong> Tracks new/changed rows (Change Data Capture / CDC).<br/><br/><strong>Task:</strong> Scheduler that runs SQL or Stored Procedures on a cron timer to process Stream changes." },
+      { cat: "compute", term: "Lazy Evaluation", hint: "PySpark Execution Model", back: "Spark does not execute <strong>Transformations</strong> (<code>select</code>, <code>filter</code>, <code>join</code>) immediately — it builds an optimized DAG plan and only runs when an <strong>Action</strong> (<code>show</code>, <code>count</code>, <code>write</code>) is called." },
+      { cat: "storage", term: "Medallion Architecture", hint: "Bronze → Silver → Gold", back: "<strong>Bronze:</strong> Raw ingested data.<br/><strong>Silver:</strong> Cleaned, filtered, joined data.<br/><strong>Gold:</strong> Business-level aggregates &amp; KPIs ready for BI dashboards." },
+      { cat: "snowflake", term: "RBAC & Dynamic Data Masking", hint: "Security & GDPR", back: "<strong>RBAC:</strong> Permissions are granted to Roles (<code>SYSADMIN</code>, <code>ANALYST</code>), never directly to users.<br/><strong>Masking Policy:</strong> Masks PII columns (e.g. <code>*** MASKED ***</code>) dynamically at query time based on the user's role." }
+    ];
+
+    const masteredSet = new Set();
+    let currentCardFilter = 'all';
+
+    function renderFlashcards() {
+      const container = document.getElementById('flashcardContainer');
+      const filtered = flashcardsData.filter(c => currentCardFilter === 'all' || c.cat === currentCardFilter);
+      container.innerHTML = filtered.map((c, i) => {
+        const isMastered = masteredSet.has(c.term);
+        return `
+          <div class="flip-card ${isMastered ? 'mastered' : ''}" onclick="this.classList.toggle('flipped')">
+            <div class="flip-card-inner">
+              <div class="flip-front">
+                <div>
+                  <span class="pill pill-sf">${c.hint}</span>
+                  <h3 style="font-size:1.22rem; margin-top:14px;">${c.term}</h3>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:0.82rem;">
+                  <span>👆 Click to flip answer</span>
+                  ${isMastered ? '<span style="color:var(--green); font-weight:700;">✅ Mastered</span>' : ''}
+                </div>
+              </div>
+              <div class="flip-back">
+                <div style="font-size:0.9rem; color:#f1f5f9; line-height:1.55;">
+                  <div style="font-weight:800; color:var(--sf); margin-bottom:6px;">${c.term}</div>
+                  ${c.back}
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                  <span style="font-size:0.75rem; color:var(--muted);">Click to flip back</span>
+                  <button class="master-btn" onclick="toggleMastered(event, '${c.term.replace(/'/g, "\\'")}')">
+                    ${isMastered ? 'Undo ✅' : '✅ Got It!'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('masteryCounter').innerText = `🏆 Mastered: ${masteredSet.size} / ${flashcardsData.length}`;
+    }
+
+    function toggleMastered(e, term) {
+      e.stopPropagation();
+      if (masteredSet.has(term)) masteredSet.delete(term);
+      else masteredSet.add(term);
+      renderFlashcards();
+    }
+
+    function filterCards(cat, btn) {
+      currentCardFilter = cat;
+      btn.parentElement.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderFlashcards();
+    }
+
+    // =========================================================================
+    // TAB 5: ARCHITECT DECISION GAME (12 INTERVIEW SCENARIOS)
+    // =========================================================================
+    const gameQuestions = [
+      {
+        topic: "Snowflake Scaling",
+        q: "Monday 9:00 AM: 180 business analysts open the company's sales dashboard at the exact same time. Individual queries are simple, but users complain their queries are stuck 'Queued' waiting to run. What is the best fix?",
+        options: [
+          "Resize the Virtual Warehouse from Small to 4X-Large (Scale Up)",
+          "Enable a Multi-Cluster Warehouse (Scale Out, e.g., Min 1 to Max 4 clusters)",
+          "Recreate the table as a Temporary Table",
+          "Move the data from Parquet to CSV"
+        ],
+        correct: 1,
+        explain: "✅ Correct! When the problem is HIGH CONCURRENCY (many users queuing at once on simple queries), you Scale OUT using a Multi-Cluster Warehouse. Scaling UP (4X-Large) is for making 1 heavy complex query run faster."
+      },
+      {
+        topic: "Databricks & Delta Lake",
+        q: "Your team stores 5TB of plain Parquet files in AWS S3. Now your manager wants to run SQL `UPDATE` and `DELETE` statements for GDPR compliance and roll back if a job crashes. What should you convert the Parquet table to?",
+        options: [
+          "Apache Avro files",
+          "Delta Lake table (Parquet + _delta_log)",
+          "Plain CSV files with GZIP compression",
+          "A Snowflake Temporary Stage"
+        ],
+        correct: 1,
+        explain: "✅ Correct! Delta Lake adds a JSON transaction log (_delta_log) on top of Parquet files, giving you ACID transactions, UPDATE/DELETE/MERGE, and Time Travel!"
+      },
+      {
+        topic: "Snowflake Ingestion",
+        q: "IoT sensors drop small 5MB files into an AWS S3 bucket every 30 seconds, 24/7. You need the data available in Snowflake within 2 minutes without paying to keep a Virtual Warehouse running all day. What do you use?",
+        options: [
+          "Snowpipe with AUTO_INGEST = TRUE (Serverless)",
+          "Manual COPY INTO run once a week on a 3X-Large warehouse",
+          "Snowflake Fail-safe",
+          "Put files in a User Stage (@~) manually"
+        ],
+        correct: 0,
+        explain: "✅ Correct! Snowpipe is Snowflake's serverless, event-driven continuous ingestion service triggered automatically by S3 SQS notifications."
+      },
+      {
+        topic: "Dev Testing & Cost",
+        q: "Your engineering team needs a full copy of your 20 Terabyte production `orders` table in Snowflake right now to test a new SQL script, without paying for an extra 20 TB of storage. What command do you run?",
+        options: [
+          "COPY INTO orders_dev FROM @orders_stage;",
+          "CREATE TABLE orders_dev AS SELECT * FROM orders;",
+          "CREATE TABLE orders_dev CLONE orders; (Zero-Copy Clone)",
+          "UNDROP TABLE orders;"
+        ],
+        correct: 2,
+        explain: "✅ Correct! Zero-Copy Cloning (`CLONE`) creates an instant dev copy in seconds with $0 extra storage at creation because it only copies metadata pointers to the original micro-partitions."
+      },
+      {
+        topic: "Storage Cost Optimization",
+        q: "You have 50 large staging tables in Snowflake that are truncated and reloaded every night during ETL. They don't need 7-day disaster recovery after Time Travel. Which table type saves 30–50% in storage overhead?",
+        options: [
+          "Permanent Table",
+          "Transient Table (CREATE TRANSIENT TABLE)",
+          "Materialized View",
+          "Secure View"
+        ],
+        correct: 1,
+        explain: "✅ Correct! Transient tables persist across sessions until dropped, but have NO 7-day Fail-safe period, making them ideal for ETL staging tables."
+      },
+      {
+        topic: "File Formats",
+        q: "You are designing a real-time Kafka streaming pipeline where millions of full event records are written one by one every second, and the schema changes frequently. Which binary row-based format is best for the stream?",
+        options: [
+          "Apache Avro (.avro)",
+          "Plain uncompressed CSV",
+          "Excel (.xlsx)",
+          "Snowflake Materialized View"
+        ],
+        correct: 0,
+        explain: "✅ Correct! Avro is row-based binary with an embedded JSON schema header, making it super fast for writing full streaming records and handling schema evolution."
+      },
+      {
+        topic: "Databricks Governance",
+        q: "In modern Databricks with Unity Catalog (`Catalog.Schema.Object`), where should you upload raw `.csv`, `.parquet`, and `.pdf` files before parsing them into tables?",
+        options: [
+          "Inside a Unity Catalog Volume (/Volumes/catalog/schema/volume_name/)",
+          "Inside a Driver Node RAM cache only",
+          "Inside a Snowflake Pipe",
+          "Inside a Materialized View"
+        ],
+        correct: 0,
+        explain: "✅ Correct! Unity Catalog Volumes are the governed equivalent of Snowflake Stages for storing raw non-tabular files in Databricks."
+      },
+      {
+        topic: "Disaster Recovery",
+        q: "A junior analyst accidentally ran `DROP TABLE customers;` in Snowflake 5 minutes ago! What is the fastest 1-line SQL command to bring the table back immediately?",
+        options: [
+          "Call Snowflake Support to use Fail-safe",
+          "UNDROP TABLE customers;",
+          "Re-upload all CSV files from 2021",
+          "ALTER WAREHOUSE SET SIZE = 'XLARGE';"
+        ],
+        correct: 1,
+        explain: "✅ Correct! Within the Time Travel retention window, `UNDROP TABLE customers;` restores a dropped table instantaneously."
+      },
+      {
+        topic: "Spark Architecture",
+        q: "In PySpark, you write 5 lines of `.filter()`, `.select()`, and `.withColumn()`, and it finishes in 0.01 seconds without scanning any data. Why didn't Spark read the file yet?",
+        options: [
+          "Because the cluster is broken",
+          "Because Transformations in Spark use Lazy Evaluation and wait for an Action (like .show(), .count(), or .write)",
+          "Because Parquet files cannot be filtered",
+          "Because Driver Nodes don't support Python"
+        ],
+        correct: 1,
+        explain: "✅ Correct! Spark transformations are lazy — Spark builds an optimized execution plan first and only executes it across Worker Nodes when an Action is called."
+      },
+      {
+        topic: "Semi-Structured Data",
+        q: "You loaded nested JSON clickstream logs into a `VARIANT` column in Snowflake, and each row contains an array `event:items` with multiple products. Which function unpacks that array into separate rows?",
+        options: [
+          "LATERAL FLATTEN(input => event:items)",
+          "DATE_TRUNC('month', event)",
+          "CLUSTER BY (event)",
+          "AUTO_SUSPEND = 60"
+        ],
+        correct: 0,
+        explain: "✅ Correct! `LATERAL FLATTEN` unnests arrays inside a `VARIANT` JSON column into individual relational rows."
+      },
+      {
+        topic: "Views & Performance",
+        q: "An executive dashboard runs the exact same heavy `SUM(revenue) GROUP BY country, month` query 1,000 times a day on a 500-million-row table. Which view type pre-computes and stores the result for instant dashboard loading?",
+        options: [
+          "Standard View",
+          "Materialized View",
+          "Temporary Stage",
+          "File Format"
+        ],
+        correct: 1,
+        explain: "✅ Correct! A Materialized View physically stores the pre-computed aggregation and automatically refreshes incrementally when the base table changes."
+      },
+      {
+        topic: "GDPR & Security",
+        q: "Under GDPR, both `ACCOUNTADMIN` and `MARKETING_ANALYST` query the same `customers` table, but `MARKETING_ANALYST` must see `'*** MASKED ***'` in the `email` column. What Snowflake feature achieves this without duplicating the table?",
+        options: [
+          "Dynamic Data Masking Policy (CREATE MASKING POLICY)",
+          "Zero-Copy Cloning",
+          "Snowpipe",
+          "Multi-Cluster Warehouse"
+        ],
+        correct: 0,
+        explain: "✅ Correct! Dynamic Data Masking applies role-based masking rules at query time on sensitive PII columns."
+      }
+    ];
+
+    let curQ = 0;
+    let score = 0;
+    let streak = 0;
+
+    function renderQuestion() {
+      const qObj = gameQuestions[curQ];
+      document.getElementById('qCounter').innerText = `Scenario ${curQ + 1} of ${gameQuestions.length}`;
+      document.getElementById('qTopic').innerText = qObj.topic;
+      document.getElementById('scenarioText').innerText = qObj.q;
+      document.getElementById('feedbackBox').style.display = 'none';
+      document.getElementById('nextQBtn').style.display = 'none';
+
+      const optsDiv = document.getElementById('optionsContainer');
+      optsDiv.innerHTML = qObj.options.map((opt, idx) => `
+        <button class="option-btn" onclick="selectAnswer(${idx}, this)">${String.fromCharCode(65 + idx)}. ${opt}</button>
+      `).join('');
+    }
+
+    function selectAnswer(idx, btn) {
+      const qObj = gameQuestions[curQ];
+      const allBtns = document.querySelectorAll('#optionsContainer .option-btn');
+      allBtns.forEach(b => b.disabled = true);
+
+      const fb = document.getElementById('feedbackBox');
+      fb.style.display = 'block';
+
+      if (idx === qObj.correct) {
+        btn.classList.add('correct');
+        score++;
+        streak++;
+        fb.style.background = 'rgba(16, 185, 129, 0.14)';
+        fb.style.borderLeft = '4px solid var(--green)';
+        fb.style.color = '#a7f3d0';
+        fb.innerHTML = qObj.explain;
+      } else {
+        btn.classList.add('wrong');
+        allBtns[qObj.correct].classList.add('correct');
+        streak = 0;
+        fb.style.background = 'rgba(239, 68, 68, 0.14)';
+        fb.style.borderLeft = '4px solid #ef4444';
+        fb.style.color = '#fca5a5';
+        fb.innerHTML = `<strong>Not quite!</strong> ${qObj.explain}`;
+      }
+
+      document.getElementById('gameScore').innerText = score;
+      document.getElementById('gameStreak').innerText = streak;
+
+      const nextBtn = document.getElementById('nextQBtn');
+      nextBtn.style.display = 'inline-block';
+      nextBtn.innerText = (curQ < gameQuestions.length - 1) ? 'Next Scenario →' : 'See Final Score 🏆';
+    }
+
+    function nextQuestion() {
+      if (curQ < gameQuestions.length - 1) {
+        curQ++;
+        renderQuestion();
+      } else {
+        const pct = Math.round((score / gameQuestions.length) * 100);
+        document.getElementById('scenarioText').innerHTML = `
+          <h3 style="font-size:1.4rem; margin-bottom:8px;">🎉 Game Complete! Your Interview Readiness: ${pct}% (${score} / ${gameQuestions.length})</h3>
+          <p style="color:var(--muted);">You've practiced the 12 most common real-world Data Engineering &amp; Cloud Analytics interview scenarios!</p>
+        `;
+        document.getElementById('optionsContainer').innerHTML = '';
+        document.getElementById('feedbackBox').style.display = 'none';
+        document.getElementById('nextQBtn').style.display = 'none';
+      }
+    }
+
+    function restartGame() {
+      curQ = 0;
+      score = 0;
+      streak = 0;
+      document.getElementById('gameScore').innerText = '0';
+      document.getElementById('gameStreak').innerText = '0';
+      renderQuestion();
+    }
+
+    // Initialize all views on load
+    showStep(0, document.querySelector('.step-node'));
+    inspectLayer('sf-brain', document.querySelector('.visual-block'));
+    renderFlashcards();
+    renderQuestion();
   </script>
 
 </body>
 </html>
-
