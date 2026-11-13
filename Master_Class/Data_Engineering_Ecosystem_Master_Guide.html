@@ -151,7 +151,7 @@ th{background:#0d1428;color:var(--mut);text-transform:uppercase;font-size:.72rem
 <section class="pane" id="p-cards">
   <h2 class="t">🃏 Flashcards — all 39 topics</h2>
   <p class="sub">Say the answer out loud, then click the card to flip it. Mark the ones you know.</p>
-  <div class="toolbar"><button class="btn pri" data-cf="all">All</button><button class="btn" data-cf="A">Part A · Foundations</button><button class="btn" data-cf="B">Part B · Hadoop</button><button class="btn" data-cf="C">Part C · Ecosystem</button><button class="btn" id="cshuf">🔀 Shuffle</button><span class="badge g" id="cscore"></span></div>
+  <div class="toolbar"><button class="btn pri" data-cf="all">All</button><button class="btn" data-cf="foundations">1 · Foundations</button><button class="btn" data-cf="arch">2 · Architecture</button><button class="btn" data-cf="hadoop">3 · Hadoop & Spark</button><button class="btn" data-cf="orchestration">4 · Streaming & Airflow</button><button class="btn" data-cf="modern">5 · Iceberg, dbt & BI</button><button class="btn" data-cf="devops">6 · Docker & Terraform</button><button class="btn" data-cf="cloud">7 · Databricks & Snowflake</button><button class="btn" id="cshuf">🔀 Shuffle</button><span class="badge g" id="cscore"></span></div>
   <div class="fgrid" id="fgrid"></div>
 </section>
 
@@ -224,7 +224,7 @@ function topicHTML(t){
 }
 function renderTopics(q){
   q=(q||'').toLowerCase().trim(); var out='';
-  ['A','B','C'].forEach(function(s){
+  Object.keys(SECTIONS).forEach(function(s){
     var list=TOPICS.filter(function(t){return t.sec===s&&(!q||(t.title+' '+t.pdf.join(' ')+' '+t.plain+' '+(t.note||'')).toLowerCase().indexOf(q)>-1);});
     if(list.length)out+='<h3 class="sec">'+SECTIONS[s]+'</h3>'+list.map(topicHTML).join('');
   });
@@ -277,7 +277,7 @@ var quiz=null, qSec='all', qLen=15;
 function quizSetup(){
   $('#quizBox').innerHTML='<div class="gh"><b style="font-size:1.1rem">🧠 Interview Quiz — '+QUIZ.length+' questions covering all '+TOPICS.length+' topics</b></div>'+
   '<p class="sub">Choose what to practise:</p><div class="sel"><b>Part:</b>'+
-  [["all","Everything"],["A","A · Foundations"],["B","B · Hadoop"],["C","C · Ecosystem"]].map(function(x){return '<button class="btn'+(qSec===x[0]?' pri':'')+'" data-qs="'+x[0]+'">'+x[1]+'</button>';}).join('')+'</div>'+
+  [["all","Everything"]].concat(Object.keys(SECTIONS).map(function(k){return [k,SECTIONS[k].split(' — ')[0]];})).map(function(x){return '<button class="btn'+(qSec===x[0]?' pri':'')+'" data-qs="'+x[0]+'">'+x[1]+'</button>';}).join('')+'</div>'+
   '<div class="sel"><b>Length:</b>'+[10,15,25,0].map(function(n){return '<button class="btn'+(qLen===n?' pri':'')+'" data-ql="'+n+'">'+(n||'All')+'</button>';}).join('')+'</div>'+
   '<button class="btn pri" id="qstart" style="margin-top:8px">▶ Start quiz</button>';
 }
