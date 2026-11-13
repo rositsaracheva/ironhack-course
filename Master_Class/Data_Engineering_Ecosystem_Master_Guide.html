@@ -1,1579 +1,964 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Complete Data Engineering Ecosystem & Interview Master Guide</title>
-  <style>
-    :root {
-      --bg: #090d16;
-      --card-bg: #131b2e;
-      --card-hover: #1c2742;
-      --border: #23314e;
-      --accent-blue: #38bdf8;
-      --accent-purple: #c084fc;
-      --accent-green: #34d399;
-      --accent-amber: #fbbf24;
-      --accent-rose: #fb7185;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --code-bg: #0b1120;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg);
-      color: var(--text-main);
-      line-height: 1.6;
-      padding-bottom: 80px;
-    }
-
-    header {
-      background: linear-gradient(135deg, #0b1329 0%, #171f38 50%, #1e1b4b 100%);
-      border-bottom: 1px solid var(--border);
-      padding: 50px 20px 40px;
-      text-align: center;
-      position: relative;
-    }
-
-    .badge-bar {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 15px;
-    }
-
-    .badge {
-      font-size: 0.78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 5px 12px;
-      border-radius: 9999px;
-      background: rgba(56, 189, 248, 0.1);
-      color: var(--accent-blue);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-    }
-    .badge-purple { background: rgba(192, 132, 252, 0.1); color: var(--accent-purple); border-color: rgba(192, 132, 252, 0.3); }
-    .badge-green { background: rgba(52, 211, 153, 0.1); color: var(--accent-green); border-color: rgba(52, 211, 153, 0.3); }
-
-    header h1 {
-      font-size: 2.4rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      margin-bottom: 12px;
-      background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    header p {
-      max-width: 800px;
-      margin: 0 auto;
-      color: var(--text-muted);
-      font-size: 1.05rem;
-    }
-
-    /* Navigation Bar */
-    .sticky-nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(9, 13, 22, 0.92);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      padding: 10px 15px;
-      flex-wrap: wrap;
-    }
-
-    .nav-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .nav-btn:hover {
-      color: var(--text-main);
-      border-color: var(--accent-blue);
-    }
-
-    .nav-btn.active {
-      background: var(--accent-blue);
-      color: #090d16;
-      border-color: var(--accent-blue);
-      font-weight: 700;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 30px auto 0;
-      padding: 0 20px;
-    }
-
-    .tab-content {
-      display: none;
-      animation: fadeIn 0.25s ease-in-out;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Grid & Cards */
-    .module-header {
-      margin-bottom: 25px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .module-header h2 {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 18px;
-      margin-bottom: 30px;
-    }
-
-    /* Interactive Expandable Accordions */
-    details.tech-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      margin-bottom: 14px;
-      overflow: hidden;
-      transition: border 0.2s;
-    }
-
-    details.tech-card:hover {
-      border-color: #3b82f6;
-    }
-
-    details.tech-card[open] {
-      border-color: var(--accent-blue);
-      box-shadow: 0 4px 20px rgba(56, 189, 248, 0.1);
-    }
-
-    details.tech-card summary {
-      padding: 16px 20px;
-      font-weight: 700;
-      font-size: 1.05rem;
-      cursor: pointer;
-      list-style: none;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      user-select: none;
-    }
-
-    details.tech-card summary::-webkit-details-marker {
-      display: none;
-    }
-
-    .summary-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .summary-badge {
-      font-size: 0.72rem;
-      padding: 3px 8px;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--accent-amber);
-    }
-
-    .expand-cue {
-      font-size: 0.8rem;
-      color: var(--accent-blue);
-      background: rgba(56, 189, 248, 0.1);
-      padding: 4px 10px;
-      border-radius: 9999px;
-      font-weight: 600;
-      transition: transform 0.2s;
-    }
-
-    details.tech-card[open] .expand-cue {
-      background: var(--accent-blue);
-      color: #090d16;
-    }
-
-    .card-body {
-      padding: 20px;
-      border-top: 1px solid var(--border);
-      color: #cbd5e1;
-      font-size: 0.95rem;
-      background: rgba(11, 17, 32, 0.5);
-    }
-
-    .card-body p {
-      margin-bottom: 12px;
-    }
-
-    .card-body ul {
-      padding-left: 20px;
-      margin-bottom: 14px;
-    }
-
-    .card-body li {
-      margin-bottom: 6px;
-    }
-
-    .interview-cue {
-      background: rgba(52, 211, 153, 0.08);
-      border-left: 4px solid var(--accent-green);
-      padding: 12px 16px;
-      border-radius: 6px;
-      margin-top: 14px;
-      font-size: 0.9rem;
-      color: #a7f3d0;
-    }
-
-    .interview-cue strong {
-      color: #6ee7b7;
-    }
-
-    .pitfall-cue {
-      background: rgba(251, 113, 133, 0.08);
-      border-left: 4px solid var(--accent-rose);
-      padding: 12px 16px;
-      border-radius: 6px;
-      margin-top: 10px;
-      font-size: 0.9rem;
-      color: #fecdd3;
-    }
-
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--accent-blue);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.88em;
-    }
-
-    pre {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      padding: 14px;
-      border-radius: 8px;
-      overflow-x: auto;
-      margin: 10px 0;
-      font-size: 0.86rem;
-      color: #e2e8f0;
-    }
-
-    /* Comparison Table */
-    .table-container {
-      overflow-x: auto;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      margin-bottom: 25px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 0.92rem;
-    }
-
-    th, td {
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    th {
-      background: #0d1527;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      font-size: 0.76rem;
-      letter-spacing: 0.05em;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    /* Interactive Flashcards Mode */
-    .flashcard-wrapper {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
-    }
-
-    .flip-card {
-      background-color: transparent;
-      height: 270px;
-      perspective: 1000px;
-      cursor: pointer;
-    }
-
-    .flip-card-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      text-align: left;
-      transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-      transform-style: preserve-3d;
-    }
-
-    .flip-card.flipped .flip-card-inner {
-      transform: rotateY(180deg);
-    }
-
-    .flip-card-front, .flip-card-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      border-radius: 14px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      border: 1px solid var(--border);
-    }
-
-    .flip-card-front {
-      background: linear-gradient(145deg, #131c31, #0f172a);
-    }
-
-    .flip-card-front:hover {
-      border-color: var(--accent-blue);
-    }
-
-    .flip-card-back {
-      background: linear-gradient(145deg, #0e2744, #1b1c3d);
-      border-color: var(--accent-blue);
-      transform: rotateY(180deg);
-      overflow-y: auto;
-    }
-
-    .mastery-btn {
-      background: rgba(52, 211, 153, 0.15);
-      border: 1px solid var(--accent-green);
-      color: #6ee7b7;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
-      align-self: flex-start;
-      margin-top: 10px;
-    }
-
-    .mastery-btn:hover {
-      background: var(--accent-green);
-      color: #090d16;
-    }
-
-    .flip-card.mastered .flip-card-front {
-      border-color: var(--accent-green);
-      background: linear-gradient(145deg, rgba(52, 211, 153, 0.1), #0f172a);
-    }
-
-    /* Interactive Quiz Game */
-    .quiz-container {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 30px;
-      max-width: 850px;
-      margin: 0 auto;
-    }
-
-    .quiz-score-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .question-box {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 20px;
-      line-height: 1.5;
-    }
-
-    .answer-options {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .answer-btn {
-      background: #0d1527;
-      border: 1px solid var(--border);
-      color: var(--text-main);
-      padding: 14px 18px;
-      border-radius: 10px;
-      font-size: 0.95rem;
-      font-weight: 500;
-      text-align: left;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .answer-btn:hover:not(:disabled) {
-      border-color: var(--accent-blue);
-      background: rgba(56, 189, 248, 0.08);
-    }
-
-    .answer-btn.correct {
-      background: rgba(52, 211, 153, 0.18) !important;
-      border-color: var(--accent-green) !important;
-      color: #6ee7b7 !important;
-    }
-
-    .answer-btn.wrong {
-      background: rgba(251, 113, 133, 0.18) !important;
-      border-color: var(--accent-rose) !important;
-      color: #fecdd3 !important;
-    }
-
-    .feedback-box {
-      padding: 16px 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      font-size: 0.95rem;
-      display: none;
-    }
-
-    .next-q-btn {
-      background: var(--accent-blue);
-      color: #090d16;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-
-    .next-q-btn:hover {
-      opacity: 0.9;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Engineering Tools & Ecosystem — Interactive Interview Guide</title>
+<style>
+:root{--bg:#0a0f1c;--panel:#121a2e;--panel2:#18223c;--line:#26345a;--txt:#f1f5f9;--mut:#94a3b8;--blue:#38bdf8;--purple:#c084fc;--green:#34d399;--amber:#fbbf24;--rose:#fb7185;--code:#0b1224}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6;padding-bottom:70px}
+header{background:linear-gradient(135deg,#0b1329,#1a2146 55%,#2a1b4d);border-bottom:1px solid var(--line);padding:34px 20px 26px;text-align:center}
+header h1{font-size:2rem;font-weight:800;letter-spacing:-.02em;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+header p{max-width:860px;margin:0 auto;color:var(--mut)}
+.badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.badge{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:4px 11px;border-radius:99px;background:rgba(56,189,248,.1);color:var(--blue);border:1px solid rgba(56,189,248,.3)}
+.badge.p{background:rgba(192,132,252,.1);color:var(--purple);border-color:rgba(192,132,252,.3)}
+.badge.g{background:rgba(52,211,153,.1);color:var(--green);border-color:rgba(52,211,153,.3)}
+.badge.a{background:rgba(251,191,36,.1);color:var(--amber);border-color:rgba(251,191,36,.3)}
+nav{position:sticky;top:0;z-index:50;background:rgba(10,15,28,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:9px 12px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.tab{background:var(--panel);border:1px solid var(--line);color:var(--mut);padding:8px 14px;border-radius:9px;font-weight:700;font-size:.84rem;cursor:pointer;transition:.15s}
+.tab:hover{color:var(--txt);border-color:var(--blue)}
+.tab.on{background:var(--blue);color:#06101f;border-color:var(--blue)}
+.wrap{max-width:1180px;margin:24px auto 0;padding:0 18px}
+.pane{display:none;animation:fi .2s}.pane.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+h2.t{font-size:1.5rem;margin-bottom:4px}.sub{color:var(--mut);margin-bottom:18px}
+h3.sec{margin:26px 0 10px;font-size:1.08rem;color:var(--blue);border-bottom:1px solid var(--line);padding-bottom:6px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}.g3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;background:rgba(255,255,255,.08);color:var(--blue);padding:1px 6px;border-radius:4px;font-size:.88em}
+pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:12px;overflow-x:auto;font-size:.84rem;margin:8px 0}pre code{background:none;padding:0;color:#e2e8f0}
+.chip{display:inline-block;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.35);color:var(--blue);padding:3px 10px;border-radius:99px;font-size:.78rem;font-weight:600;cursor:pointer;margin:2px 3px 2px 0;transition:.12s}
+.chip:hover{background:var(--blue);color:#06101f}
+.chip.done{background:rgba(52,211,153,.14);border-color:var(--green);color:var(--green)}
+.chip.static{cursor:default}
+/* layers map */
+.layer{display:grid;grid-template-columns:170px 1fr;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:11px;padding:11px 14px;margin-bottom:9px}
+.layer b{font-size:.9rem}.layer small{display:block;color:var(--mut);font-weight:400}
+@media(max-width:720px){.layer{grid-template-columns:1fr}}
+.journey{counter-reset:j;list-style:none}
+.journey li{counter-increment:j;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px 10px 46px;margin-bottom:8px;position:relative}
+.journey li:before{content:counter(j);position:absolute;left:12px;top:10px;width:25px;height:25px;border-radius:50%;background:var(--blue);color:#06101f;font-weight:800;text-align:center;line-height:25px;font-size:.85rem}
+/* topics */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.search{flex:1;min-width:230px;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:10px 14px;font-size:.95rem;outline:none}.search:focus{border-color:var(--blue)}
+.btn{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:8px 14px;font-weight:700;font-size:.85rem;cursor:pointer}.btn:hover{border-color:var(--blue)}
+.btn.pri{background:var(--blue);color:#06101f;border-color:var(--blue)}
+.bar{height:9px;background:var(--panel);border:1px solid var(--line);border-radius:99px;overflow:hidden;flex:1;min-width:140px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--green));width:0;transition:width .3s}
+details.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:.15s}
+details.card:hover{border-color:#3b5bdb}details.card[open]{border-color:var(--blue);box-shadow:0 4px 18px rgba(56,189,248,.08)}
+details.card.flash{animation:fl 1.4s}@keyframes fl{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 3px var(--amber)}}
+details.card summary{padding:13px 16px;cursor:pointer;list-style:none;display:flex;align-items:center;gap:11px;font-weight:700}
+details.card summary::-webkit-details-marker{display:none}
+.num{background:rgba(255,255,255,.08);color:var(--amber);border-radius:6px;padding:2px 8px;font-size:.74rem;white-space:nowrap}
+.ttl{flex:1}.cue{font-size:.74rem;color:var(--blue);background:rgba(56,189,248,.1);padding:3px 10px;border-radius:99px;white-space:nowrap}
+details.card[open] .cue{background:var(--blue);color:#06101f}
+.studied{font-size:.76rem;color:var(--mut);display:flex;align-items:center;gap:5px;font-weight:600}
+.cbody{padding:16px 18px;border-top:1px solid var(--line);background:rgba(8,12,24,.55);color:#cbd5e1;font-size:.94rem}
+.cbody h4{color:var(--blue);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px}.cbody h4:first-child{margin-top:0}
+.cbody ul{padding-left:20px}.cbody li{margin-bottom:5px}
+.heads{background:rgba(251,191,36,.08);border-left:4px solid var(--amber);border-radius:6px;padding:10px 14px;margin-top:10px;color:#fde68a;font-size:.88rem}
+.iv{background:rgba(52,211,153,.08);border-left:4px solid var(--green);border-radius:6px;padding:10px 14px;margin-top:10px;color:#a7f3d0;font-size:.9rem}
+/* tables */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:11px;margin:8px 0 6px;background:var(--panel)}
+table{width:100%;border-collapse:collapse;font-size:.86rem;text-align:left}th,td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#0d1428;color:var(--mut);text-transform:uppercase;font-size:.72rem;letter-spacing:.05em}tr:last-child td{border-bottom:none}
+/* flashcards */
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:16px;margin-top:14px}
+.fc{height:250px;perspective:1000px;cursor:pointer}.fci{position:relative;width:100%;height:100%;transition:transform .55s;transform-style:preserve-3d}
+.fc.fl .fci{transform:rotateY(180deg)}
+.ff,.fb{position:absolute;inset:0;backface-visibility:hidden;border-radius:13px;padding:18px;border:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between}
+.ff{background:linear-gradient(145deg,#16213a,#0f172a)}.ff:hover{border-color:var(--blue)}
+.fb{background:linear-gradient(145deg,#0e2744,#1b1c3d);border-color:var(--blue);transform:rotateY(180deg);overflow-y:auto;font-size:.86rem}
+.fc.ms .ff{border-color:var(--green);background:linear-gradient(145deg,rgba(52,211,153,.12),#0f172a)}
+.mini{background:rgba(52,211,153,.15);border:1px solid var(--green);color:var(--green);border-radius:6px;padding:4px 10px;font-size:.76rem;font-weight:700;cursor:pointer;align-self:flex-start}
+.mini:hover{background:var(--green);color:#06101f}
+/* games */
+.gtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.gp{display:none}.gp.on{display:block}
+.game{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:24px;max-width:900px;margin:0 auto}
+.gh{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:12px;margin-bottom:16px;border-bottom:1px solid var(--line)}
+.qtxt{font-size:1.1rem;font-weight:700;margin-bottom:16px}
+.opt{display:block;width:100%;text-align:left;background:#0d1428;border:1px solid var(--line);color:var(--txt);padding:12px 16px;border-radius:10px;font-size:.94rem;margin-bottom:9px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--blue);background:rgba(56,189,248,.08)}
+.opt.ok{background:rgba(52,211,153,.18)!important;border-color:var(--green)!important;color:#a7f3d0!important}
+.opt.no{background:rgba(251,113,133,.18)!important;border-color:var(--rose)!important;color:#fecdd3!important}
+.fbk{display:none;padding:13px 16px;border-radius:10px;margin:6px 0 14px;font-size:.92rem}
+.sel{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.mcols{display:grid;grid-template-columns:1fr 1.4fr;gap:12px}@media(max-width:700px){.mcols{grid-template-columns:1fr}}
+.mb{display:block;width:100%;text-align:left;background:#0d1428;border:1px solid var(--line);color:var(--txt);padding:10px 13px;border-radius:9px;margin-bottom:8px;cursor:pointer;font-size:.88rem}
+.mb:hover:not(:disabled){border-color:var(--blue)}.mb.sl{border-color:var(--amber);background:rgba(251,191,36,.1)}
+.mb.dn{border-color:var(--green);background:rgba(52,211,153,.14);color:#a7f3d0;cursor:default}.mb.bad{border-color:var(--rose);background:rgba(251,113,133,.16)}
+.slot{min-height:46px;background:#0d1428;border:1px dashed var(--line);border-radius:9px;padding:10px 13px;margin-bottom:8px;font-size:.9rem}
+.slot.ok{border:1px solid var(--green);background:rgba(52,211,153,.12)}.slot.no{border:1px solid var(--rose);background:rgba(251,113,133,.12)}
+.cov{display:flex;gap:4px;flex-wrap:wrap}
+</style>
 </head>
 <body>
+<header>
+  <div class="badges"><span class="badge">Master Class</span><span class="badge p">34 topics from your PDF</span><span class="badge g">Interview edition</span><span class="badge a">Games cover every topic</span></div>
+  <h1>Data Engineering Tools &amp; Ecosystem</h1>
+  <p>Every item of your syllabus PDF explained, connected to the others, and trained with flashcards, quizzes, match-ups, pipeline puzzles and a mock interview. Click anything to expand it.</p>
+</header>
+<nav id="nav"></nav>
+<div class="wrap">
 
-  <header>
-    <div class="badge-bar">
-      <span class="badge">Master Class Series</span>
-      <span class="badge badge-purple">30 Ecosystem Core Topics</span>
-      <span class="badge badge-green">Technical Interview Edition</span>
-    </div>
-    <h1>Data Engineering Ecosystem Master Guide</h1>
-    <p>
-      Comprehensive reference for technical interviews. Click on any topic to reveal in-depth explanations, architectural diagrams, real-world interview responses, and test your knowledge with interactive games.
-    </p>
-  </header>
+<!-- ================= 1 BIG PICTURE ================= -->
+<section class="pane on" id="p-map">
+  <h2 class="t">🗺️ The Big Picture — how every tool in the PDF fits together</h2>
+  <p class="sub">Data flows from source systems → ingestion → storage → processing → orchestration/transformation → serving. Click any chip to jump to its full explanation.</p>
+  <div id="layers"></div>
 
-  <!-- Sticky Tabs Navigation -->
-  <nav class="sticky-nav">
-    <button class="nav-btn active" onclick="openTab('tab-core', this)">📘 1. Core Languages (Python, Pandas, SQL)</button>
-    <button class="nav-btn" onclick="openTab('tab-storage', this)">🏛️ 2. Storage & Arch (RDBMS, DW, DL, DLH)</button>
-    <button class="nav-btn" onclick="openTab('tab-hadoop', this)">🐘 3. Hadoop & Distributed (HDFS, YARN, MapReduce, Hive, Impala)</button>
-    <button class="nav-btn" onclick="openTab('tab-streaming', this)">⚡ 4. Real-Time & Streaming (Spark, Kafka, NiFi, Flume, Airflow)</button>
-    <button class="nav-btn" onclick="openTab('tab-modern', this)">🚀 5. Modern Data Stack (dbt, Iceberg, Ozone, Docker, Terraform)</button>
-    <button class="nav-btn" onclick="openTab('tab-flashcards', this)">🃏 6. 3D Flashcards (Active Recall)</button>
-    <button class="nav-btn" onclick="openTab('tab-game', this)">🎮 7. Interview Simulator Game</button>
-  </nav>
+  <h3 class="sec">🧭 Follow one booking through the whole ecosystem</h3>
+  <ol class="journey">
+    <li>A customer pays for a flight. The payment is a tiny, fast, ACID write into a <span class="chip" data-go="rdbms">RDBMS (OLTP)</span> such as Postgres or MySQL.</li>
+    <li>At night, <span class="chip" data-go="sqoop">Sqoop</span> bulk-copies those structured tables to <span class="chip" data-go="hdfs">HDFS</span>; meanwhile website clicks arrive as events in <span class="chip" data-go="kafka">Kafka</span>, server logs are pushed by <span class="chip" data-go="flume">Flume</span>, and <span class="chip" data-go="nifi">NiFi</span> moves other files with drag-and-drop flows.</li>
+    <li>Everything lands raw in a <span class="chip" data-go="lake">Data Lake</span> (HDFS, S3, ADLS, GCS) or its modern replacement <span class="chip" data-go="ozone">Ozone</span>, saved in files like <span class="chip" data-go="formats">Avro / Parquet</span>. This is the <span class="chip" data-go="etl-elt">ELT</span> style: load first, transform later.</li>
+    <li><span class="chip" data-go="yarn">YARN</span> hands out CPU and memory while <span class="chip" data-go="spark">Spark</span> (or old <span class="chip" data-go="mapreduce">MapReduce</span>/<span class="chip" data-go="pig">Pig</span>) cleans the data; <span class="chip" data-go="hive">Hive</span> and <span class="chip" data-go="impala">Impala</span> let analysts query the files with SQL.</li>
+    <li>The cleaned data is organised as Bronze → Silver → Gold tables in a <span class="chip" data-go="lakehouse">Lakehouse</span> (<span class="chip" data-go="iceberg">Iceberg</span> / Delta) or a <span class="chip" data-go="dw">Data Warehouse</span> such as <span class="chip" data-go="snowflake">Snowflake</span>; <span class="chip" data-go="dbt">dbt</span> builds and tests the final SQL models.</li>
+    <li><span class="chip" data-go="airflow">Airflow</span> schedules and monitors all these steps as a DAG, while <span class="chip" data-go="docker">Docker</span> and <span class="chip" data-go="terraform">Terraform</span> make the environments and infrastructure reproducible.</li>
+    <li>Finally, managers open dashboards in <span class="chip" data-go="viz">Power BI / Tableau</span>, analysts explore with <span class="chip" data-go="hue">Hue</span>, users search logs with <span class="chip" data-go="solr">Solr</span>, and data scientists train <span class="chip" data-go="ml">ML models</span> — all written mostly in <span class="chip" data-go="python">Python</span>, <span class="chip" data-go="pandas">Pandas</span> and <span class="chip" data-go="sql">SQL</span> on platforms like <span class="chip" data-go="databricks">Databricks</span>.</li>
+  </ol>
 
-  <div class="container">
-
-    <!-- ========================================== -->
-    <!-- TAB 1: CORE LANGUAGES                     -->
-    <!-- ========================================== -->
-    <div id="tab-core" class="tab-content active">
-      <div class="module-header">
-        <h2>Module 1: Programming Foundations & Analytics (Python, Pandas, NumPy, SQL)</h2>
-        <span class="badge">Syllabus Items 1 – 3</span>
-      </div>
-
-      <!-- Item 1: Python -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">#1</span>
-            <strong>Python in Data Engineering</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <p>Python is the universal language of modern Data Engineering due to its portability, dynamic typing, and massive package ecosystem.</p>
-          <ul>
-            <li><strong>Paradigms:</strong> Supports <em>Functional</em> (lambda, map, filter), <em>Scripting</em> (automation, cron jobs), and <em>Object-Oriented Programming (OOP)</em>.</li>
-            <li><strong>Development Environments:</strong> Jupyter Notebooks (EDA), VS Code / PyCharm (production scripts, modules, CI/CD).</li>
-            <li><strong>File Formats:</strong> <code>.py</code> for version-controlled production code, <code>.ipynb</code> for interactive data exploration.</li>
-            <li><strong>Cross-Product Compatibility:</strong> Native first-class runtime across Databricks, Snowflake (Snowpark), Apache Spark (PySpark), Splunk, and Apache Flink.</li>
-            <li><strong>Key Constructs:</strong>
-              <ul>
-                <li><code>__init__</code>: Constructor method initializing state in OOP classes; also <code>__init__.py</code> designates directory as a Python package.</li>
-                <li><strong>Built-in Functions:</strong> Standard library utilities (<code>print()</code>, <code>len()</code>, <code>type()</code>, <code>enumerate()</code>, <code>zip()</code>).</li>
-                <li><strong>User-Defined Functions (UDFs):</strong> Custom logic packaged for reusable row-by-row or vectorized operations in Spark and SQL.</li>
-              </ul>
-            </li>
-          </ul>
-          <div class="interview-cue">
-            <strong>🎯 Interview Question:</strong> "Why is Python preferred over Java/Scala for many modern data pipelines?"<br>
-            <em>Answer:</em> "Python accelerates development velocity, integrates seamlessly with data science/ML frameworks, and via PySpark and Snowpark, the compute is executed on underlying JVMs or C++ engines without Python speed bottlenecks."
-          </div>
-        </div>
-      </details>
-
-      <!-- Item 2: Pandas & NumPy Data Structures -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">#2</span>
-            <strong>Data Manipulation: Pandas, NumPy & Python Structures</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <p>Core structures utilized for in-memory data processing, cleaning, and mathematical operations.</p>
-          
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Data Structure</th>
-                  <th>Mutability</th>
-                  <th>Syntax</th>
-                  <th>Duplicates?</th>
-                  <th>Primary Use Case</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>List</strong></td>
-                  <td>Mutable</td>
-                  <td><code>[1, "apple", True]</code></td>
-                  <td>Allowed (Ordered)</td>
-                  <td>Dynamic collections, queues, iterating over datasets.</td>
-                </tr>
-                <tr>
-                  <td><strong>Tuple</strong></td>
-                  <td>Immutable</td>
-                  <td><code>(10, 20)</code></td>
-                  <td>Allowed (Ordered)</td>
-                  <td>Fixed record schemas, dictionary keys, function multiple returns.</td>
-                </tr>
-                <tr>
-                  <td><strong>Set</strong></td>
-                  <td>Mutable</td>
-                  <td><code>{"a", "b", "c"}</code></td>
-                  <td>Disallowed (Unique, Unordered)</td>
-                  <td>Deduplication, membership testing (O(1) lookups), mathematical unions/diffs.</td>
-                </tr>
-                <tr>
-                  <td><strong>Dictionary</strong></td>
-                  <td>Mutable</td>
-                  <td><code>{"id": 101, "val": 25.5}</code></td>
-                  <td>Keys Unique (Key-Value)</td>
-                  <td>JSON payloads, lookups, schema mapping, configuration parameters.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <ul>
-            <li><strong>NumPy (Numerical Python):</strong> Provides N-dimensional arrays (<code>ndarray</code>) with contiguous memory allocation and vectorized C-level operations. Ideal for linear algebra and fast array math.</li>
-            <li><strong>Pandas:</strong> Built on NumPy; provides 2D labeled <code>DataFrame</code> structures (rows & columns) with powerful indexing, filling nulls, grouping, and merging messy data.</li>
-          </ul>
-          <div class="pitfall-cue">
-            <strong>⚠️ Senior Interview Distinction:</strong> Pandas is single-node and runs entirely in memory (RAM). If data exceeds memory, it crashes with Out-Of-Memory (OOM). For distributed datasets, transition to PySpark or Polars.
-          </div>
-        </div>
-      </details>
-
-      <!-- Item 3: SQL Foundations & Optimization -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">#3</span>
-            <strong>SQL (Structured Query Language) & Query Optimization</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <p>The universal declarative query language for relational databases, data warehouses, and distributed engines.</p>
-          <ul>
-            <li><strong>SQL Sublanguages:</strong>
-              <ul>
-                <li><strong>DDL (Data Definition Language):</strong> <code>CREATE</code>, <code>ALTER</code>, <code>DROP</code>, <code>TRUNCATE</code>.</li>
-                <li><strong>DML (Data Manipulation Language):</strong> <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>MERGE</code>.</li>
-                <li><strong>DQL (Data Query Language):</strong> <code>SELECT</code> and data retrieval expressions.</li>
-              </ul>
-            </li>
-            <li><strong>Core Clauses Execution Order:</strong> <code>FROM</code> &rarr; <code>JOIN</code> &rarr; <code>WHERE</code> &rarr; <code>GROUP BY</code> &rarr; <code>HAVING</code> &rarr; <code>SELECT</code> &rarr; <code>ORDER BY</code> &rarr; <code>LIMIT</code>.</li>
-            <li><strong>Joins:</strong>
-              <ul>
-                <li><code>INNER JOIN</code>: Returns matching records from both tables.</li>
-                <li><code>LEFT/RIGHT OUTER JOIN</code>: Preserves all rows from one side plus matched rows.</li>
-                <li><code>FULL OUTER JOIN</code>: Combines both sides, filling unmatched fields with NULL.</li>
-                <li><code>CROSS JOIN</code>: Cartesian product (every row combined with every other row).</li>
-              </ul>
-            </li>
-            <li><strong>CTEs & Window Functions:</strong>
-              <pre><code>WITH RankedSales AS (
-  SELECT employee_id, region, sales_amount,
-         RANK() OVER (PARTITION BY region ORDER BY sales_amount DESC) as rank
-  FROM sales
-)
-SELECT * FROM RankedSales WHERE rank <= 3;</code></pre>
-            </li>
-            <li><strong>Performance Optimization & Tuning:</strong>
-              <ul>
-                <li><code>EXPLAIN ANALYZE</code>: Reads the physical execution plan (Table Scan vs. Index Seek, join algorithms, estimated vs. actual rows).</li>
-                <li><strong>Indexing:</strong> B-Tree (standard), Hash, Bitmap indexes for fast point-lookups.</li>
-                <li><strong>Partitioning:</strong> Dividing large tables physically by date/region to achieve <em>Partition Pruning</em>.</li>
-              </ul>
-            </li>
-          </ul>
-          <div class="interview-cue">
-            <strong>🎯 Interview Question:</strong> "What is the difference between WHERE and HAVING?"<br>
-            <em>Answer:</em> "<code>WHERE</code> filters rows *before* aggregation takes place; <code>HAVING</code> filters grouped records *after* the <code>GROUP BY</code> aggregation is computed."
-          </div>
-        </div>
-      </details>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- TAB 2: STORAGE & ARCHITECTURES            -->
-    <!-- ========================================== -->
-    <div id="tab-storage" class="tab-content">
-      <div class="module-header">
-        <h2>Module 2: Storage Paradigms (RDBMS, Data Warehouse, Data Lake, Lakehouse)</h2>
-        <span class="badge badge-purple">Syllabus Items 4 – 7</span>
-      </div>
-
-      <!-- Item 4: Relational Databases / OLTP -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">#4</span>
-            <strong>Relational Databases (DBMS) & OLTP</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <p>Online Transaction Processing (OLTP) systems power operational day-to-day applications requiring high-concurrency, low-latency writes and updates.</p>
-          <ul>
-            <li><strong>ACID Guarantees:</strong>
-              <ul>
-                <li><strong>Atomicity:</strong> "All or nothing" — if any part of transaction fails, the entire transaction rolls back.</li>
-                <li><strong>Consistency:</strong> Ensures transactions transition database from one valid state to another, enforcing foreign keys and constraints.</li>
-                <li><strong>Isolation:</strong> Concurrent transactions execute without cross-contamination (Isolation levels: Read Committed, Repeatable Read, Serializable).</li>
-                <li><strong>Durability:</strong> Once committed, data persists on non-volatile disk even during power outage (Write-Ahead Logging / WAL).</li>
-              </ul>
-            </li>
-            <li><strong>Characteristics:</strong> Highly normalized (3NF), row-based storage, <em>Schema-on-Write</em>, write-heavy workloads (orders, banking, e-commerce cart).</li>
-            <li><strong>Leading Vendors:</strong> PostgreSQL, MySQL, Oracle, Microsoft SQL Server, SQLite.</li>
-          </ul>
-          <div class="interview-cue">
-            <strong>🎯 Interview Question:</strong> "Why not run analytics dashboards directly on the production OLTP database?"<br>
-            <em>Answer:</em> "Analytical queries scan millions of rows and aggregate data, which consumes CPU/RAM and locks tables, degrading the performance and availability of live operational customer transactions."
-          </div>
-        </div>
-      </details>
-
-      <!-- Item 5: Data Warehouses / OLAP -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">#5</span>
-            <strong>Data Warehouses & OLAP</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <p>Online Analytical Processing (OLAP) repositories consolidated across an enterprise to support BI, executive reporting, and historical trend analysis.</p>
-          <ul>
-            <li><strong>Characteristics:</strong> Denormalized schemas (Star schema, Snowflake schema, Fact & Dimension tables), read-heavy, batch-loaded via ETL/ELT pipelines.</li>
-            <li><strong>Schema-on-Write:</strong> Strict schema validation before data is written into tables.</li>
-            <li><strong>Modern Cloud DWs:</strong> Snowflake, Google BigQuery, Amazon Redshift, Azure Synapse. Modern cloud DWs now support semi-structured types (JSON, VARIANT) and decouple compute from storage.</li>
-          </ul>
-          <div class="interview-cue">
-            <strong>🎯 Interview Question:</strong> "What is the difference between Star Schema and Snowflake Schema?"<br>
-            <em>Answer:</em> "In a Star Schema, a centralized Fact table connects directly to denormalized Dimension tables (faster query joins). In a Snowflake Schema, Dimension tables are normalized into sub-tables (reduces data redundancy, but requires more joins)."
-          </div>
-        </div>
-      </details>
-
-      <!-- Item 6: Data Lakes -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">#6</span>
-            <strong>Data Lakes & Schema-on-Read</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <p>Massive, low-cost repositories storing structured, semi-structured, and unstructured data (text, video, audio, logs) in its raw, native format.</p>
-          <ul>
-            <li><strong>Storage Technologies:</strong> AWS S3, Azure Data Lake Storage (ADLS Gen2), Google Cloud Storage (GCS), HDFS.</li>
-            <li><strong>Consistency Model:</strong> Often follows <strong>BASE</strong> (Basically Available, Soft state, Eventually consistent) rather than strict ACID.</li>
-            <li><strong>Schema-on-Read:</strong> Raw files are ingested as-is without validation; schema is applied dynamically only when a compute engine (Spark, Hive) reads the data.</li>
-            <li><strong>Risk — "Data Swamp":</strong> Ingesting files without data catalogs, metadata governance, or lifecycle policies turns a Data Lake into an unsearchable, messy swamp.</li>
-          </ul>
-        </div>
-      </details>
-
-      <!-- Item 7: Data Lakehouses -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">#7</span>
-            <strong>Data Lakehouses (The Modern Convergence)</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <p><strong>Architecture Formula:</strong> <code>Data Lakehouse = Low-Cost Cloud Object Storage + Open Table Format (ACID & Metadata Layer)</code></p>
-          <ul>
-            <li>Bridges the gap between the cost-effectiveness and flexibility of Data Lakes with the ACID transactions, data governance, and fast BI querying of Data Warehouses.</li>
-            <li><strong>Open Table Formats:</strong> Delta Lake (Databricks), Apache Iceberg, Apache Hudi.</li>
-            <li><strong>Medallion Architecture:</strong>
-              <ul>
-                <li>🥉 <strong>Bronze:</strong> Raw, unmodified ingested data (append-only history).</li>
-                <li>🥈 <strong>Silver:</strong> Cleaned, validated, enriched, deduplicated data (source of truth).</li>
-                <li>🥇 <strong>Gold:</strong> Business-level aggregated reporting metrics and dimensional tables ready for BI and ML.</li>
-              </ul>
-            </li>
-          </ul>
-          <div class="interview-cue">
-            <strong>🎯 Interview Question:</strong> "Why are companies migrating from traditional Data Warehouses to Lakehouses?"<br>
-            <em>Answer:</em> "Lakehouses eliminate duplicate storage and ETL pipelines between separate data lakes and warehouses. They avoid vendor lock-in with open file formats (Parquet) and support both SQL analytics and Machine Learning on a single copy of data."
-          </div>
-        </div>
-      </details>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- TAB 3: HADOOP & DISTRIBUTED SYSTEMS        -->
-    <!-- ========================================== -->
-    <div id="tab-hadoop" class="tab-content">
-      <div class="module-header">
-        <h2>Module 3: Distributed Systems & Big Data (HDFS, YARN, MapReduce, Hive, Impala)</h2>
-        <span class="badge">Syllabus Items 1 – 11 (Pages 3–5)</span>
-      </div>
-
-      <!-- Item: HDFS & Master-Slave -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">Hadoop Core</span>
-            <strong>Distributed File System (HDFS) & Master-Slave Architecture</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <p>HDFS is a distributed, fault-tolerant file system designed to run on commodity hardware clusters.</p>
-          <ul>
-            <li><strong>Block Storage:</strong> Files are split into contiguous large chunks. <strong>Default Block Size = 128 MB</strong> (avoids master memory bottlenecks).</li>
-            <li><strong>Replication:</strong> Default replication factor is <strong>3x</strong> (1 local node, 1 on same rack, 1 on remote rack) ensuring hardware resilience.</li>
-            <li><strong>Daemons:</strong>
-              <ul>
-                <li><strong>NameNode (Master):</strong> Manages metadata, file namespace tree, and maps data blocks to DataNodes. High Availability (HA) mode uses Active/Standby with ZooKeeper.</li>
-                <li><strong>DataNode (Slave):</strong> Stores physical blocks on disk and performs read/write requests from clients.</li>
-              </ul>
-            </li>
-          </ul>
-          <div class="interview-cue">
-            <strong>🎯 Interview Question:</strong> "Why does HDFS suffer from the 'Small Files Problem'?"<br>
-            <em>Answer:</em> "Each file, directory, and block consumes ~150 bytes of memory in the NameNode. Storing millions of small KB-sized files exhausts the NameNode's RAM while underutilizing cluster disk storage."
-          </div>
-        </div>
-      </details>
-
-      <!-- Item: YARN -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">Resource Manager</span>
-            <strong>YARN (Yet Another Resource Negotiator)</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <p>The centralized cluster operating system decoupled from MapReduce in Hadoop 2.0 to allocate compute resources dynamically.</p>
-          <ul>
-            <li><strong>Components:</strong>
-              <ul>
-                <li><strong>ResourceManager (Master):</strong> Global cluster arbiter of compute (CPU cores, RAM).</li>
-                <li><strong>NodeManager (Slave):</strong> Runs on each worker machine, tracking container health and resource usage.</li>
-                <li><strong>ApplicationMaster:</strong> One instance spawned per submitted job to negotiate resources with the ResourceManager and coordinate tasks.</li>
-                <li><strong>Containers:</strong> Logical abstractions encapsulating memory and CPU allocations where tasks run.</li>
-              </ul>
-            </li>
-            <li><strong>Schedulers:</strong> FIFO, Capacity Scheduler, Fair Scheduler (Round Robin, LRU).</li>
-          </ul>
-        </div>
-      </details>
-
-      <!-- Item: MapReduce & Sqoop -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">Processing & Ingestion</span>
-            <strong>MapReduce Execution Model & Apache Sqoop</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <ul>
-            <li><strong>MapReduce Phases:</strong>
-              <ol style="padding-left: 20px; margin: 8px 0;">
-                <li><strong>Map:</strong> Processes input splits in parallel, applying transformations to output <code>(key, value)</code> pairs.</li>
-                <li><strong>Shuffle & Sort:</strong> System sorts and partitions intermediate data across the network so identical keys land on the same reducer (I/O intensive bottleneck).</li>
-                <li><strong>Reduce:</strong> Aggregates values per key and writes final output sequentially to HDFS.</li>
-              </ol>
-            </li>
-            <li><strong>Apache Sqoop (SQL-to-Hadoop):</strong> Bulk transfer tool connecting relational databases (MySQL, Oracle) to HDFS/Hive using JDBC. Spawns map-only jobs (default 4 mappers) for high-throughput parallel import/export. (Now retired in the Apache Attic).</li>
-          </ul>
-        </div>
-      </details>
-
-      <!-- Item: Hive & Impala -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">SQL on Hadoop</span>
-            <strong>Apache Hive vs. Cloudera Impala</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Feature</th>
-                  <th>Apache Hive</th>
-                  <th>Cloudera Impala</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Origin</strong></td>
-                  <td>Facebook (2007)</td>
-                  <td>Cloudera (2011)</td>
-                </tr>
-                <tr>
-                  <td><strong>Engine</strong></td>
-                  <td>Translates HQL to MapReduce / Tez</td>
-                  <td>Native MPP C++ Daemon engine bypassing MapReduce</td>
-                </tr>
-                <tr>
-                  <td><strong>Speed</strong></td>
-                  <td>High latency, batch oriented</td>
-                  <td><strong>5x - 10x faster</strong>, interactive low latency</td>
-                </tr>
-                <tr>
-                  <td><strong>Fault Tolerance</strong></td>
-                  <td>Highly fault-tolerant (restarts failed tasks)</td>
-                  <td>Queries fail if a worker daemon crashes during run</td>
-                </tr>
-                <tr>
-                  <td><strong>Metadata Sync</strong></td>
-                  <td>Direct Metastore owner</td>
-                  <td>Requires <code>INVALIDATE METADATA</code> to sync new Hive tables</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p><strong>Hive Table Types:</strong> Managed (Internal) Tables (dropping table deletes metadata AND underlying files) vs. External Tables (dropping table deletes metadata only, preserving physical HDFS files).</p>
-        </div>
-      </details>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- TAB 4: STREAMING & ORCHESTRATION           -->
-    <!-- ========================================== -->
-    <div id="tab-streaming" class="tab-content">
-      <div class="module-header">
-        <h2>Module 4: Real-Time Streaming & Orchestration (Spark, Kafka, NiFi, Airflow)</h2>
-        <span class="badge badge-green">Syllabus Items 12 – 17</span>
-      </div>
-
-      <!-- Item 12: Apache Spark -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">In-Memory Compute</span>
-            <strong>Apache Spark & PySpark Internal Architecture</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <p>General-purpose distributed in-memory compute engine executing workloads up to 100x faster than MapReduce.</p>
-          <ul>
-            <li><strong>Core Abstractions:</strong>
-              <ul>
-                <li><strong>RDD (Resilient Distributed Dataset):</strong> Immutable, partitioned collection of records evaluated in memory.</li>
-                <li><strong>DataFrame (DF):</strong> Distributed table with named columns, optimized by the <strong>Catalyst Query Optimizer</strong> and <strong>Tungsten Execution Engine</strong>.</li>
-              </ul>
-            </li>
-            <li><strong>Transformations vs. Actions:</strong>
-              <ul>
-                <li><strong>Transformations (LAZY):</strong> <code>select()</code>, <code>filter()</code>, <code>groupBy()</code>, <code>join()</code>. Build a Logical Directed Acyclic Graph (DAG) without triggering computation.</li>
-                <li><strong>Actions (EAGER):</strong> <code>show()</code>, <code>count()</code>, <code>collect()</code>, <code>write</code>. Trigger execution across worker nodes.</li>
-              </ul>
-            </li>
-            <li><strong>Entry Points Evolution:</strong> SparkContext (<code>sc</code>) &rarr; SparkSession (<code>spark</code>) unified in Spark 2.0+.</li>
-          </ul>
-          <div class="interview-cue">
-            <strong>🎯 Interview Question:</strong> "What is Narrow vs. Wide Transformation in Spark?"<br>
-            <em>Answer:</em> "In a <strong>Narrow Transformation</strong> (e.g. <code>map</code>, <code>filter</code>), each child partition depends on only one parent partition—no data moves across the network. In a <strong>Wide Transformation</strong> (e.g. <code>groupBy</code>, <code>join</code>), data must be shuffled across network partitions, which is expensive."
-          </div>
-        </div>
-      </details>
-
-      <!-- Item 13: Apache Airflow -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">Orchestration</span>
-            <strong>Apache Airflow (Workflow Orchestration)</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <p>Created by Airbnb; Python-native workflow orchestration platform managing complex pipeline dependencies.</p>
-          <ul>
-            <li><strong>DAG (Directed Acyclic Graph):</strong> Collection of tasks with directional relationships and no circular dependencies.</li>
-            <li><strong>Operators & Tasks:</strong> BashOperator, PythonOperator, SparkSubmitOperator, SnowflakeOperator. Task dependencies defined via bitshift: <code>task1 >> [task2, task3] >> task4</code>.</li>
-            <li><strong>Architecture:</strong> Webserver (UI), Scheduler (triggers jobs), Metastore (PostgreSQL state), Executor (Sequential, Local, Celery, Kubernetes).</li>
-          </ul>
-        </div>
-      </details>
-
-      <!-- Item 14 & 15: Kafka & Flume -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">Event Streaming</span>
-            <strong>Apache Kafka & Event-Driven Architecture</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <p>High-throughput, distributed append-only publish-subscribe event streaming log developed at LinkedIn.</p>
-          <ul>
-            <li><strong>Core Concepts:</strong>
-              <ul>
-                <li><strong>Producer:</strong> Publishes events to Kafka Topics.</li>
-                <li><strong>Broker:</strong> Server nodes storing partitioned immutable logs (default port 9092).</li>
-                <li><strong>Consumer:</strong> Reads events via a <strong>Pull model</strong>, tracking progress via consumer offsets.</li>
-                <li><strong>Partitions & Replication:</strong> Topics are split into partitions for parallel throughput and replicated across brokers for durability.</li>
-              </ul>
-            </li>
-            <li><strong>Apache Flume Comparison:</strong> Flume uses a <strong>Push model</strong> configured with Source-Channel-Sink agents designed primarily to funnel webserver logs directly into HDFS. Kafka is general-purpose and decouples arbitrary producers and consumers.</li>
-          </ul>
-        </div>
-      </details>
-
-      <!-- Item 16: Apache NiFi -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">Dataflow Automation</span>
-            <strong>Apache NiFi (Flow-Based Visual ETL)</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <p>Created by the NSA; provides a browser-based drag-and-drop UI (port 8443) for automated data ingestion, protocol routing, and transformation.</p>
-          <ul>
-            <li><strong>FlowFile:</strong> Fundamental unit consisting of payload content + key-value metadata attributes.</li>
-            <li><strong>Processors:</strong> Over 300 pre-built connectors for reading, routing, converting, and delivering files (Batch & Streaming).</li>
-            <li><strong>Data Provenance:</strong> Automatically records complete end-to-end audit lineage of every record's modification history.</li>
-          </ul>
-        </div>
-      </details>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- TAB 5: MODERN DATA STACK                   -->
-    <!-- ========================================== -->
-    <div id="tab-modern" class="tab-content">
-      <div class="module-header">
-        <h2>Module 5: Modern Data Stack (dbt, Iceberg, Ozone, Databricks, Snowflake, IaC)</h2>
-        <span class="badge badge-purple">Syllabus Items 21 – 30</span>
-      </div>
-
-      <!-- Item 22: Apache Iceberg & Table Formats -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">Open Table Format</span>
-            <strong>Apache Iceberg & Modern Open Lakehouses</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <p>High-performance open table format designed by Netflix for huge multi-petabyte analytical tables.</p>
-          <ul>
-            <li><strong>Hidden Partitioning:</strong> Automatically abstracts date/time conversions, preventing user query errors.</li>
-            <li><strong>ACID Transactions & Snapshot Isolation:</strong> Readers see consistent snapshots while writes occur concurrently.</li>
-            <li><strong>Schema Evolution:</strong> Safely add, rename, reorder, or drop columns without breaking legacy Parquet data files.</li>
-            <li><strong>Engine Independence:</strong> Query the exact same Iceberg table concurrently from Snowflake, Databricks, Spark, Trino, and Flink.</li>
-          </ul>
-        </div>
-      </details>
-
-      <!-- Item 23: Apache Ozone -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">Next-Gen Storage</span>
-            <strong>Apache Ozone (Scalable HDFS Alternative)</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <p>Distributed, open-source Object Store designed to scale beyond HDFS limits (up to billions of objects).</p>
-          <ul>
-            <li>Decouples namespace management (Ozone Manager) from block storage (Storage Container Manager).</li>
-            <li><strong>Solves the Small Files Problem:</strong> Packs small files into storage containers, avoiding master memory exhaustion.</li>
-            <li>Native S3-compatible API and transparent integration with Hadoop ecosystem workloads.</li>
-          </ul>
-        </div>
-      </details>
-
-      <!-- Item 25: dbt -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">ELT Transformation</span>
-            <strong>dbt (Data Build Tool)</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <p>The industry-standard transformation framework enabling SQL developers to follow software engineering best practices.</p>
-          <ul>
-            <li><strong>The "T" in ELT:</strong> dbt does not extract or load data; it runs SQL transformations inside your existing warehouse (Snowflake, BigQuery, Databricks).</li>
-            <li><strong>Models & Jinja:</strong> SQL files written with <code>{{ ref('upstream_model') }}</code> to build lineage graphs automatically.</li>
-            <li><strong>Testing & Documentation:</strong> Built-in YAML tests (<code>unique</code>, <code>not_null</code>, <code>relationships</code>) and auto-generated documentation portals.</li>
-            <li><strong>Version Control:</strong> Pure code stored in Git repositories, integrated with CI/CD deployment workflows.</li>
-          </ul>
-        </div>
-      </details>
-
-      <!-- Item 27 & 28: Docker & Terraform -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">DevOps & Cloud</span>
-            <strong>Containerization (Docker) & Infrastructure as Code (Terraform)</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <ul>
-            <li><strong>Docker:</strong> Packages application code, libraries, and system dependencies into portable <strong>Containers</strong> running identically across dev, test, and cloud production environments.
-              <ul>
-                <li><strong>Image vs. Container:</strong> An image is the immutable blueprint (Docker file); a container is a live running instance.</li>
-                <li><strong>Docker Compose:</strong> Multi-container orchestration tool defined in YAML files.</li>
-              </ul>
-            </li>
-            <li><strong>Terraform:</strong> Declarative Infrastructure-as-Code (IaC) tool by HashiCorp. Defines cloud infrastructure (AWS S3, Snowflake warehouses, Databricks clusters) in <code>.tf</code> files, tracking state in <code>terraform.tfstate</code>.</li>
-          </ul>
-        </div>
-      </details>
-
-      <!-- Item 29 & 30: Databricks & Snowflake -->
-      <details class="tech-card">
-        <summary>
-          <div class="summary-left">
-            <span class="summary-badge">Cloud Leaders</span>
-            <strong>Databricks (Lakehouse) vs. Snowflake (Cloud Data Warehouse)</strong>
-          </div>
-          <span class="expand-cue">Click to view deep dive</span>
-        </summary>
-        <div class="card-body">
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Dimension</th>
-                  <th>🔥 Databricks</th>
-                  <th>❄️ Snowflake</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Core Heritage</strong></td>
-                  <td>Spark, Big Data Engineering, Python, ML/AI</td>
-                  <td>Cloud SQL Data Warehouse, BI reporting, Zero-Admin SaaS</td>
-                </tr>
-                <tr>
-                  <td><strong>Compute Unit</strong></td>
-                  <td>Clusters (Driver + Workers), Serverless SQL Warehouses</td>
-                  <td>Virtual Warehouses (X-Small to 6X-Large MPP)</td>
-                </tr>
-                <tr>
-                  <td><strong>Storage Format</strong></td>
-                  <td>Delta Lake (Parquet + <code>_delta_log</code>)</td>
-                  <td>Proprietary Micro-partitions (50–500 MB columnar)</td>
-                </tr>
-                <tr>
-                  <td><strong>Data Governance</strong></td>
-                  <td>Unity Catalog (Catalog.Schema.Table/Volume)</td>
-                  <td>Database.Schema.Table/Stage + RBAC</td>
-                </tr>
-                <tr>
-                  <td><strong>Real-Time Loading</strong></td>
-                  <td>Auto Loader (<code>cloudFiles</code>)</td>
-                  <td>Snowpipe (<code>AUTO_INGEST = TRUE</code>)</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </details>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- TAB 6: 3D FLIP FLASHCARDS                  -->
-    <!-- ========================================== -->
-    <div id="tab-flashcards" class="tab-content">
-      <div class="module-header">
-        <h2>Active Recall: 3D Flip Flashcards</h2>
-        <span class="badge badge-green" id="flashcardScore">Mastered: 0 / 12</span>
-      </div>
-      <p style="color: var(--text-muted); margin-bottom: 20px;">
-        Click on any flashcard to flip it and reveal the precise technical answer. Mark cards as "Mastered" to track your interview prep progress.
-      </p>
-
-      <div class="flashcard-wrapper" id="cardsGrid">
-        <!-- Injected via JavaScript -->
-      </div>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- TAB 7: INTERVIEW SIMULATOR GAME            -->
-    <!-- ========================================== -->
-    <div id="tab-game" class="tab-content">
-      <div class="module-header">
-        <h2>Interactive Scenario Game: "Lead Data Engineer Interview"</h2>
-        <span class="badge badge-purple">10 Realistic Interview Scenarios</span>
-      </div>
-
-      <div class="quiz-container">
-        <div class="quiz-score-header">
-          <div>
-            <span class="badge" id="quizProgress">Question 1 of 10</span>
-            <span class="badge badge-purple" id="quizCategory" style="margin-left: 8px;">Architecture</span>
-          </div>
-          <div style="font-weight: 700; font-size: 1.05rem;">
-            Score: <span id="quizScoreDisplay" style="color: var(--accent-green);">0</span> / 10
-          </div>
-        </div>
-
-        <div class="question-box" id="quizQuestionText"></div>
-        <div class="answer-options" id="quizOptionsContainer"></div>
-        <div class="feedback-box" id="quizFeedbackBox"></div>
-
-        <button class="next-q-btn" id="nextQuizBtn" style="display: none;" onclick="advanceQuiz()">Next Scenario &rarr;</button>
-      </div>
-    </div>
-
+  <h3 class="sec">⚖️ The two ideas behind everything</h3>
+  <div class="grid g2">
+    <div class="box"><b>OLTP vs OLAP</b><p style="color:#cbd5e1;margin-top:6px">OLTP = quickly changing transactional data (databases). OLAP = historical analysis (warehouses, lakes, lakehouses). <span class="chip" data-go="oltp-olap">Open topic</span></p></div>
+    <div class="box"><b>ETL vs ELT</b><p style="color:#cbd5e1;margin-top:6px">ETL transforms before loading (data warehouse). ELT loads raw data first and transforms afterwards (lakes, lakehouses). <span class="chip" data-go="etl-elt">Open topic</span></p></div>
   </div>
+</section>
 
-  <script>
-    // Tab switching logic
-    function openTab(tabId, el) {
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      el.classList.add('active');
-    }
+<!-- ================= 2 TOPICS ================= -->
+<section class="pane" id="p-topics">
+  <h2 class="t">📚 All 34 topics — click a card to expand</h2>
+  <p class="sub">Each card has: what your notes say, plain-English explanation, an interview question with model answer, and links to related tools. Tick “studied” to track your progress.</p>
+  <div class="toolbar">
+    <input class="search" id="tsearch" placeholder="🔍 Search any word (e.g. block, 8443, schema, metastore, DAG)…">
+    <button class="btn" id="expAll">Expand all</button><button class="btn" id="colAll">Collapse all</button>
+    <div class="bar"><i id="sbar"></i></div><span id="stxt" style="font-weight:700;font-size:.85rem"></span>
+  </div>
+  <div id="topicList"></div>
+</section>
 
-    // Flashcard Data
-    const flashcardsData = [
-      {
-        term: "OLTP vs. OLAP",
-        category: "Databases",
-        front: "What is the primary difference between OLTP and OLAP systems?",
-        back: "<strong>OLTP:</strong> Row-based, highly normalized, optimized for fast, small transactional writes/updates (e.g., PostgreSQL, MySQL).<br><br><strong>OLAP:</strong> Columnar, denormalized, optimized for reading and aggregating millions of historical records (e.g., Snowflake, BigQuery)."
-      },
-      {
-        term: "Schema-on-Write vs. Schema-on-Read",
-        category: "Storage",
-        front: "Explain Schema-on-Write vs. Schema-on-Read and where each applies.",
-        back: "<strong>Schema-on-Write:</strong> Schema is enforced before data lands on disk (RDBMS, Data Warehouses). Guarantees data quality.<br><br><strong>Schema-on-Read:</strong> Data is ingested raw as text/binary; schema is applied only when compute reads the file (Data Lakes like S3/HDFS)."
-      },
-      {
-        term: "HDFS Block Size (128 MB)",
-        category: "Hadoop",
-        front: "Why does HDFS use large 128 MB blocks instead of traditional 4 KB OS blocks?",
-        back: "To minimize NameNode memory overhead (every block is an object in RAM) and optimize disk throughput for streaming massive sequential reads, amortizing disk seek time."
-      },
-      {
-        term: "Narrow vs. Wide Transformation",
-        category: "Apache Spark",
-        front: "What distinguishes a Narrow from a Wide Transformation in PySpark?",
-        back: "<strong>Narrow:</strong> (<code>map</code>, <code>filter</code>) Data in 1 partition contributes to 1 child partition without network transfer.<br><br><strong>Wide:</strong> (<code>groupBy</code>, <code>join</code>) Requires a <strong>Shuffle</strong> across the cluster network."
-      },
-      {
-        term: "Lazy Evaluation",
-        category: "Apache Spark",
-        front: "What is Lazy Evaluation in Apache Spark and what is its benefit?",
-        back: "Spark builds an execution plan (DAG) when transformations are declared and delays execution until an <strong>Action</strong> (<code>count</code>, <code>write</code>) is called. This enables the Catalyst Optimizer to prune columns and push down predicates."
-      },
-      {
-        term: "Kafka Consumer Offsets",
-        category: "Streaming",
-        front: "How does Apache Kafka track which messages a consumer has read?",
-        back: "Consumers maintain their progress via an <strong>offset</strong> stored in an internal topic (<code>__consumer_offsets</code>). Consumers pull data sequentially and commit offsets periodically."
-      },
-      {
-        term: "dbt (Data Build Tool)",
-        category: "Modern Stack",
-        front: "What role does dbt play in an ELT architecture?",
-        back: "dbt executes the 'T' (Transform) inside the Data Warehouse using pure SQL <code>SELECT</code> statements, adding version control, automated testing, and dependency DAG resolution."
-      },
-      {
-        term: "Micro-partitions",
-        category: "Snowflake",
-        front: "What are Snowflake Micro-partitions and how do they optimize queries?",
-        back: "Continuous, immutable 50–500 MB columnar blocks. Snowflake tracks column min/max metadata in the Cloud Services layer, enabling <strong>Query Pruning</strong> to skip reading 95%+ of partitions."
-      },
-      {
-        term: "Delta Lake Transaction Log",
-        category: "Lakehouse",
-        front: "What is Delta Lake under the hood?",
-        back: "<code>Delta Lake = Parquet files + _delta_log (JSON commit log)</code>. The log enables ACID transactions, <code>UPDATE/DELETE/MERGE</code>, and Time Travel on top of standard cloud storage."
-      },
-      {
-        term: "Airflow DAG vs. Task",
-        category: "Orchestration",
-        front: "What is the relationship between an Airflow DAG and an Operator/Task?",
-        back: "A <strong>DAG</strong> defines the workflow structure and schedule. An <strong>Operator</strong> defines a unit of work (e.g. PythonOperator), which becomes a runnable <strong>Task</strong> instance in the DAG."
-      },
-      {
-        term: "Zero-Copy Cloning",
-        category: "Snowflake",
-        front: "Why does Zero-Copy Cloning take seconds and cost $0 in extra storage initially?",
-        back: "It duplicates only metadata pointers in the Cloud Services layer pointing to existing immutable micro-partitions. Physical storage is incurred only when cloned rows are subsequently modified."
-      },
-      {
-        term: "Apache Iceberg Hidden Partitioning",
-        category: "Table Formats",
-        front: "What is Hidden Partitioning in Apache Iceberg?",
-        back: "Users query by natural timestamps or IDs; Iceberg automatically handles partition conversions (e.g. year/month) behind the scenes without requiring users to supply explicit partition filter columns."
-      }
-    ];
+<!-- ================= 3 COMPARE ================= -->
+<section class="pane" id="p-compare">
+  <h2 class="t">🔗 Compare &amp; Connect</h2>
+  <p class="sub">The questions interviewers love are comparisons. Open each block.</p>
+  <div id="compare"></div>
+</section>
 
-    let masteredCards = new Set();
+<!-- ================= 4 FLASHCARDS ================= -->
+<section class="pane" id="p-cards">
+  <h2 class="t">🃏 Flashcards — all 34 topics</h2>
+  <p class="sub">Say the answer out loud, then click the card to flip it. Mark the ones you know.</p>
+  <div class="toolbar"><button class="btn pri" data-cf="all">All</button><button class="btn" data-cf="A">Part A · Foundations</button><button class="btn" data-cf="B">Part B · Hadoop</button><button class="btn" data-cf="C">Part C · Ecosystem</button><button class="btn" id="cshuf">🔀 Shuffle</button><span class="badge g" id="cscore"></span></div>
+  <div class="fgrid" id="fgrid"></div>
+</section>
 
-    function renderFlashcards() {
-      const container = document.getElementById('cardsGrid');
-      container.innerHTML = flashcardsData.map((card, idx) => {
-        const isMastered = masteredCards.has(idx);
-        return `
-          <div class="flip-card ${isMastered ? 'mastered' : ''}" onclick="this.classList.toggle('flipped')">
-            <div class="flip-card-inner">
-              <div class="flip-card-front">
-                <div>
-                  <span class="badge">${card.category}</span>
-                  <h3 style="font-size: 1.15rem; margin-top: 15px;">${card.term}</h3>
-                  <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 10px;">${card.front}</p>
-                </div>
-                <div style="font-size: 0.8rem; color: var(--accent-blue);">👆 Click to reveal answer</div>
-              </div>
-              <div class="flip-card-back">
-                <div>
-                  <div style="font-weight: 700; color: var(--accent-blue); margin-bottom: 8px;">${card.term}</div>
-                  <div style="font-size: 0.88rem; line-height: 1.5; color: #f1f5f9;">${card.back}</div>
-                </div>
-                <button class="mastery-btn" onclick="toggleMastery(event, ${idx})">
-                  ${isMastered ? '✓ Mastered' : 'Mark as Mastered'}
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-      document.getElementById('flashcardScore').innerText = `Mastered: ${masteredCards.size} / ${flashcardsData.length}`;
-    }
+<!-- ================= 5 GAMES ================= -->
+<section class="pane" id="p-games">
+  <h2 class="t">🎮 Practice arena — every topic is in every game</h2>
+  <p class="sub">Five games. All 34 topics appear in the quiz, match-up, true/false and mock interview; the pipeline puzzles connect the tools into real flows.</p>
+  <div class="box" style="margin-bottom:14px"><b>Topics practised so far in games: <span id="covtxt"></span></b><div class="cov" id="cov" style="margin-top:8px"></div></div>
+  <div class="gtabs" id="gtabs"></div>
 
-    function toggleMastery(e, idx) {
-      e.stopPropagation();
-      if (masteredCards.has(idx)) {
-        masteredCards.delete(idx);
-      } else {
-        masteredCards.add(idx);
-      }
-      renderFlashcards();
-    }
+  <div class="gp on" id="g-quiz"><div class="game" id="quizBox"></div></div>
+  <div class="gp" id="g-match"><div class="game" id="matchBox"></div></div>
+  <div class="gp" id="g-order"><div class="game" id="orderBox"></div></div>
+  <div class="gp" id="g-tf"><div class="game" id="tfBox"></div></div>
+  <div class="gp" id="g-mock"><div class="game" id="mockBox"></div></div>
+</section>
 
-    // Interactive Quiz Game Data
-    const quizQuestions = [
-      {
-        category: "Scaling & Architecture",
-        q: "You are designing an analytical pipeline. 200 data analysts log in at 9:00 AM on Monday, causing dashboard queries to queue. The queries are simple, but the volume of concurrent requests is overloading the warehouse. What is the most cost-effective solution?",
-        options: [
-          "Scale Up the Snowflake Virtual Warehouse from Medium to 4X-Large.",
-          "Enable Multi-Cluster Warehouses in Snowflake to automatically Scale Out extra clusters.",
-          "Re-import the data as uncompressed CSVs to bypass columnar parsing.",
-          "Switch all tables to Temporary Tables."
-        ],
-        correct: 1,
-        explanation: "Correct! When the bottleneck is High Concurrency (queueing queries), you Scale OUT with Multi-Cluster Warehouses. Scaling UP (larger compute size) is used for single complex queries with heavy processing."
-      },
-      {
-        category: "Streaming & Ingestion",
-        q: "IoT sensors emit 100,000 JSON messages per second. You need a fault-tolerant message buffer that allows multiple distinct microservices (alerting, archival, real-time analytics) to read the same stream independently at their own pace. What tool should you implement?",
-        options: [
-          "Apache Sqoop",
-          "Apache Kafka",
-          "Apache Pig",
-          "Cloudera Impala"
-        ],
-        correct: 1,
-        explanation: "Correct! Apache Kafka is an immutable distributed event log designed for high-throughput pub-sub, allowing multiple independent consumer groups to read offsets without destroying messages."
-      },
-      {
-        category: "Table Formats",
-        q: "A team using Apache Hive finds that updating individual records for customer GDPR 'Right to be Forgotten' deletion requests requires rewriting entire multi-gigabyte partitions. Which technology directly solves this by supporting row-level ACID updates and deletes?",
-        options: [
-          "Delta Lake / Apache Iceberg",
-          "Raw CSV on HDFS",
-          "Apache Flume with memory channel",
-          "Apache YARN"
-        ],
-        correct: 0,
-        explanation: "Correct! Open table formats like Delta Lake and Apache Iceberg introduce snapshot isolation and metadata commit logs, enabling MERGE, UPDATE, and DELETE operations without rewriting whole datasets."
-      },
-      {
-        category: "PySpark Optimization",
-        q: "In a PySpark job, you call df.filter(...), df.select(...), and df.withColumn(...). When you inspect the cluster UI, zero tasks have executed on the worker nodes. Why?",
-        options: [
-          "The Spark cluster has failed.",
-          "These methods are Transformations, which are evaluated Lazily until an Action (like .count() or .write) is invoked.",
-          "PySpark does not support filtering without SQLContext.",
-          "The driver node does not have enough memory to allocate the initial task."
-        ],
-        correct: 1,
-        explanation: "Correct! Spark uses Lazy Evaluation. Transformations merely construct the DAG; computation only begins when an Action triggers execution."
-      },
-      {
-        category: "Data Warehouse Strategy",
-        q: "You have 50 intermediate staging tables in Snowflake populated nightly during an ETL pipeline that do not require 7-day disaster recovery. How can you reduce storage overhead by 30–50%?",
-        options: [
-          "Create them as Transient Tables (CREATE TRANSIENT TABLE).",
-          "Convert them into External Stages.",
-          "Use Apache Sqoop with 1 mapper.",
-          "Wrap the tables in Materialized Views."
-        ],
-        correct: 0,
-        explanation: "Correct! Transient tables persist until explicitly dropped, but have no 7-day Fail-safe period (and 0–1 day Time Travel), significantly slashing auxiliary storage costs."
-      },
-      {
-        category: "File Formats",
-        q: "Why is Parquet significantly faster than CSV for analytical aggregation queries (e.g., SELECT AVG(salary) FROM employees)?",
-        options: [
-          "Parquet is row-oriented and reads the first 100 rows instantly.",
-          "Parquet is columnar, allowing the query engine to read only the 'salary' column and skip all other columns from disk (Column Pruning).",
-          "Parquet stores data uncompressed, eliminating decompression CPU time.",
-          "Parquet replaces the need for a database engine."
-        ],
-        correct: 1,
-        explanation: "Correct! Columnar storage enables Column Pruning (reading only referenced columns) and Predicate Pushdown (using min/max footer metadata to skip row groups)."
-      },
-      {
-        category: "DevOps & Pipeline",
-        q: "A team wants to manage SQL transformations in Snowflake using modular SELECT statements, Git version control, automated data testing, and auto-generated data lineage documentation. What is the standard tool?",
-        options: [
-          "dbt (Data Build Tool)",
-          "Apache Pig",
-          "Docker Compose",
-          "Apache Flume"
-        ],
-        correct: 0,
-        explanation: "Correct! dbt brings software engineering practices (version control, modularity, automated testing, DAG lineage) to SQL data modeling."
-      },
-      {
-        category: "Data Quality & Lineage",
-        q: "In the Databricks Medallion Architecture, what is the specific role of the Silver layer?",
-        options: [
-          "Stores raw unvalidated data exactly as received from source systems.",
-          "Cleans, filters, deduplicates, and enriches data to form the trusted enterprise 'single source of truth'.",
-          "Provides pre-aggregated KPIs strictly for executive dashboard visualization.",
-          "Acts as a temporary scratchpad dropped after 24 hours."
-        ],
-        correct: 1,
-        explanation: "Correct! Bronze is raw, Silver is validated/cleaned/deduplicated (enterprise truth), and Gold is business-level aggregated reporting."
-      },
-      {
-        category: "Hadoop Architecture",
-        q: "If an HDFS cluster experiences millions of small 5 KB files, which master component risks crashing due to memory exhaustion?",
-        options: [
-          "The DataNode",
-          "The NameNode",
-          "The TaskTracker",
-          "The YARN Container"
-        ],
-        correct: 1,
-        explanation: "Correct! The NameNode holds all filesystem metadata (files, directories, block locations) in RAM (~150 bytes per block). Millions of small files consume RAM without storing significant data."
-      },
-      {
-        category: "Disaster Recovery",
-        q: "A junior developer accidentally executes 'DROP TABLE sales_2026;' in Snowflake. The table had a 30-day Time Travel retention policy. What is the fastest command to restore the table immediately?",
-        options: [
-          "Call Snowflake support to initiate a Fail-safe recovery.",
-          "Execute: UNDROP TABLE sales_2026;",
-          "Re-run all ETL scripts from the raw S3 bucket.",
-          "ALTER TABLE sales_2026 RESTART;"
-        ],
-        correct: 1,
-        explanation: "Correct! Snowflake's Time Travel allows immediate self-service restoration of dropped databases, schemas, and tables using the UNDROP command."
-      }
-    ];
+</div>
+<footer style="max-width:1180px;margin:30px auto 0;padding:0 18px;color:var(--mut);font-size:.8rem">Source: your “Data engineering Tools and Ecosystem” PDF. Boxes labelled <b>Heads-up</b> are clarifications added to fix wording in the notes (for example “OLTP = Online Transaction <i>Processing</i>”).</footer>
 
-    let currentQ = 0;
-    let quizScore = 0;
+<!-- ====================================================== DATA ====================================================== -->
+<script id="data">
+var SECTIONS = {
+  A: "Part A · Foundations: languages, databases & architectures",
+  B: "Part B · Hadoop & distributed systems",
+  C: "Part C · Streaming, orchestration & the modern stack"
+};
 
-    function loadQuizQuestion() {
-      const q = quizQuestions[currentQ];
-      document.getElementById('quizProgress').innerText = `Question ${currentQ + 1} of ${quizQuestions.length}`;
-      document.getElementById('quizCategory').innerText = q.category;
-      document.getElementById('quizQuestionText').innerText = q.q;
-      document.getElementById('quizFeedbackBox').style.display = 'none';
-      document.getElementById('nextQuizBtn').style.display = 'none';
+var TOPICS = [
+/* ---------------- PART A ---------------- */
+{id:"python",sec:"A",n:"1",title:"Python",emoji:"🐍",
+ pdf:["Functional and scripting language; used in Jupyter, VS Code, PyCharm (shell)","Open-source and portable language","File extensions: <code>.py</code> (script) and <code>.ipynb</code> (notebook)","Compatible with almost every product: Databricks, Snowflake, Spark, Splunk, Flink","<code>__init__</code> / main function: the first function, error logging","In-built functions: predefined, the language already has them, e.g. <code>print()</code>","User-Defined Functions (UDFs): functions you write yourself"],
+ plain:"Python is the glue language of data engineering. One language lets you clean data (Pandas), drive Spark (PySpark), query Snowflake (Snowpark), write Airflow DAGs and customise Kafka producers and consumers.",
+ note:"In real Python, <code>__init__</code> is the constructor that runs first when an object is created, and <code>if __name__ == '__main__':</code> marks the program entry point. That is the “main / first function” idea in your notes.",
+ q:"Why is Python so widely used in data engineering?",
+ a:"It is open-source, portable and easy to read; it works as scripts (.py) and notebooks (.ipynb); and it is a first-class language in Databricks, Snowflake (Snowpark), Spark (PySpark), Airflow and Kafka clients, so one language covers cleaning, orchestration and ML.",
+ rel:[["pandas","its data libraries"],["spark","PySpark = Spark in Python"],["airflow","DAGs are Python files"],["kafka","producers/consumers can be Python scripts"],["databricks","notebooks in Python"],["snowflake","Snowpark"]],
+ match:"Portable open-source language: .py scripts and .ipynb notebooks"},
 
-      const optionsDiv = document.getElementById('quizOptionsContainer');
-      optionsDiv.innerHTML = q.options.map((opt, i) => `
-        <button class="answer-btn" onclick="submitAnswer(${i}, this)">
-          <strong>${String.fromCharCode(65 + i)}.</strong> ${opt}
-        </button>
-      `).join('');
-    }
+{id:"pandas",sec:"A",n:"2",title:"Pandas, NumPy & Python data structures",emoji:"🐼",
+ pdf:["Pandas: rows-and-columns structure → DataFrames, like tables","Used for cleaning messy data and data validation","NumPy: mathematical functions and one-dimensional arrays (same data type inside an array)","List: mutable, mixed data types, square brackets <code>[]</code>, can contain a list, ordered","Tuple: immutable, round brackets <code>()</code>, mixed types, can contain a tuple, ordered","Set: no duplicate values, unordered, curly braces <code>{}</code>","Dictionary: key-value data, unique keys, values can be multiple and nested"],
+ plain:"Pandas gives you Excel-like tables in code; NumPy gives fast maths on arrays; lists, tuples, sets and dictionaries are the basic Python containers that hold your data before it becomes a DataFrame.",
+ note:"Pandas works in the memory of ONE machine. When the data no longer fits, move to Spark (distributed DataFrames with a similar feel).",
+ q:"What is the difference between a list, tuple, set and dictionary?",
+ a:"List <code>[]</code> is mutable and ordered; tuple <code>()</code> is immutable and ordered; set <code>{}</code> holds unique unordered values; dictionary <code>{k:v}</code> maps unique keys to values. Use a set to deduplicate, a tuple for fixed records and a dict for JSON-like lookups.",
+ rel:[["python","the language they live in"],["spark","distributed DataFrames when data is big"],["sql","a DataFrame behaves like a table"]],
+ match:"DataFrames (rows/columns) to clean data + NumPy arrays; list, tuple, set, dict"},
 
-    function submitAnswer(chosenIdx, btn) {
-      const q = quizQuestions[currentQ];
-      const buttons = document.querySelectorAll('.answer-btn');
-      buttons.forEach(b => b.disabled = true);
+{id:"sql",sec:"A",n:"3",title:"SQL",emoji:"🧮",
+ pdf:["Structured Query Language, used for analysis (open standard)","Vendors: Oracle, Microsoft SQL Server, MySQL, Postgres","<code>GROUP BY</code>, <code>HAVING</code>, <code>ORDER BY</code>","Joins: inner, outer, right, left, cross","CTE and window functions","<code>EXPLAIN ANALYZE</code> to see how the query is executed","Indexes","Partitions","DDL, DML, DQL"],
+ plain:"SQL is the common language for asking questions of structured data. You will meet it again in Hive (HQL), Impala, Spark SQL, Snowflake and dbt.",
+ note:"Evaluation order: FROM/JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT. DDL = CREATE/ALTER/DROP (structure), DML = INSERT/UPDATE/DELETE (data), DQL = SELECT (queries). An index speeds up reads on a column; a partition splits a big table (e.g. by date) so queries skip what they do not need.",
+ q:"What is the difference between WHERE and HAVING?",
+ a:"WHERE filters individual rows before grouping; HAVING filters the groups after GROUP BY and aggregation (e.g. HAVING COUNT(*) > 2).",
+ rel:[["rdbms","where SQL started"],["hive","HQL is SQL-like"],["impala","same HQL"],["snowflake","SQL-first warehouse"],["dbt","models are SQL SELECTs"]],
+ match:"Query language: joins, GROUP BY/HAVING, CTEs, window functions, DDL/DML/DQL"},
 
-      const feedback = document.getElementById('quizFeedbackBox');
-      feedback.style.display = 'block';
+{id:"rdbms",sec:"A",n:"4 · 18",title:"Relational Databases (DBMS) · OLTP",emoji:"🏦",
+ pdf:["OLTP and ACID: Atomicity, Consistency, Isolation, Durability","Uses SQL and structured data: tabular rows and columns, row-based by default, saved in binary format","Can update and delete individual records","Examples: MySQL, Oracle, Postgres, SQLite, SQL Server","Indexes, dynamic partitions, GRANT, REVOKE","Day-to-day activity, up to a few GBs; transaction data only","Examples of use: banking, online payments, airline bookings, e-commerce","Schema-on-write; write-heavy"],
+ plain:"A relational database runs the live application: every payment or booking is a small, safe transaction. ACID guarantees nothing is half-saved: Atomicity (all or nothing), Consistency (rules always respected), Isolation (parallel users do not disturb each other), Durability (committed data survives a crash).",
+ q:"Why not run big analytics directly on the production OLTP database?",
+ a:"Analytical queries scan millions of rows and consume CPU, memory and locks, slowing down the live transactions. That is why we copy data (Sqoop, ETL/ELT) into a warehouse, lake or lakehouse built for OLAP.",
+ rel:[["oltp-olap","OLTP definition"],["sqoop","exports RDBMS tables to HDFS"],["dw","the analytical counterpart"],["sql","its language"]],
+ match:"OLTP databases with ACID: banking, payments, bookings; schema-on-write"},
 
-      if (chosenIdx === q.correct) {
-        btn.classList.add('correct');
-        quizScore++;
-        feedback.style.background = 'rgba(52, 211, 153, 0.12)';
-        feedback.style.borderLeft = '4px solid var(--accent-green)';
-        feedback.style.color = '#a7f3d0';
-        feedback.innerHTML = `<strong>🌟 Brilliant!</strong> ${q.explanation}`;
-      } else {
-        btn.classList.add('wrong');
-        buttons[q.correct].classList.add('correct');
-        feedback.style.background = 'rgba(251, 113, 133, 0.12)';
-        feedback.style.borderLeft = '4px solid var(--accent-rose)';
-        feedback.style.color = '#fecdd3';
-        feedback.innerHTML = `<strong>⚠️ Incorrect.</strong> ${q.explanation}`;
-      }
+{id:"dw",sec:"A",n:"5 · 19",title:"Data Warehouses",emoji:"🏢",
+ pdf:["Historical data collected over the years; organisation of databases","Medallion architecture: Gold, Silver, Bronze","ACID properties, OLAP, ETL (transform before saving), structured data","Recent data warehouses also handle semi-structured data and can do ELT","Schema-on-write; read-heavy","Used for data mining and data analytics","Examples: Snowflake (cloud-based), Google BigQuery, Amazon Redshift, Azure Synapse, Informatica"],
+ plain:"A warehouse is the company's tidy, historical library of data, optimised for reading and reporting. Medallion layers: Bronze = raw copy, Silver = cleaned and joined, Gold = business-ready tables for dashboards.",
+ note:"Informatica is mainly an ETL / data-integration tool; your notes list it next to the warehouses.",
+ q:"What is the Medallion architecture?",
+ a:"A layered design: Bronze holds raw ingested data, Silver holds cleaned, validated and enriched data, Gold holds aggregated business-ready tables for BI and ML. Quality improves at each step.",
+ rel:[["snowflake","cloud warehouse example"],["etl-elt","ETL is classic for warehouses"],["oltp-olap","warehouses are OLAP"],["lakehouse","also uses the medallion layers"],["viz","dashboards read Gold"]],
+ match:"Historical, read-heavy OLAP store with ETL and Gold/Silver/Bronze layers"},
 
-      document.getElementById('quizScoreDisplay').innerText = quizScore;
-      document.getElementById('nextQuizBtn').style.display = 'inline-block';
-      document.getElementById('nextQuizBtn').innerText = (currentQ < quizQuestions.length - 1) ? 'Next Scenario →' : 'View Final Results 🏆';
-    }
+{id:"lake",sec:"A",n:"6 · 20",title:"Data Lakes",emoji:"🌊",
+ pdf:["Raw format (every format), file-based; “everything is text / string”","BASE: Basically Available, Soft state, Eventually consistent","OLAP; schema-on-read; read-heavy AND write-heavy","Horizontal scaling and vertical scaling","Collection of raw data: any kind of data can be dumped in","Does only Extraction and Load, then transforms afterwards (ELT, ETL) at storage level","Drawback: data swamping","Examples: Amazon S3, Azure Data Lake, Databricks, GCS, HDFS (Hadoop), Cloudera (vendor), IBM, SAP HANA, blobs, file systems"],
+ plain:"A lake is a huge cheap folder where you dump every kind of file first and decide the structure later (schema-on-read). It is flexible and scalable, but without metadata and governance it turns into a swamp nobody can search.",
+ note:"Horizontal scaling = add more machines; vertical scaling = make one machine bigger.",
+ q:"What is schema-on-read and what is the main risk of a data lake?",
+ a:"Schema-on-read means data is stored raw and the structure is applied only when you read it. The main risk is a data swamp: lots of unmanaged, undocumented files. Catalogs, metadata and lineage (or a lakehouse) fix it.",
+ rel:[["hdfs","on-premise lake storage"],["lakehouse","the upgrade"],["etl-elt","loaded with ELT"],["ozone","modern object-store alternative"],["formats","files stored in lakes"]],
+ match:"Raw files in any format, schema-on-read, BASE; risk: data swamp"},
 
-    function advanceQuiz() {
-      if (currentQ < quizQuestions.length - 1) {
-        currentQ++;
-        loadQuizQuestion();
-      } else {
-        const pct = Math.round((quizScore / quizQuestions.length) * 100);
-        document.getElementById('quizQuestionText').innerHTML = `
-          <div style="text-align: center; padding: 20px 0;">
-            <div style="font-size: 2.2rem; margin-bottom: 10px;">🏆</div>
-            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Interview Simulation Complete!</h3>
-            <p style="color: var(--text-muted); font-size: 1.1rem;">
-              Final Score: <strong>${quizScore} / ${quizQuestions.length}</strong> (${pct}%)
-            </p>
-            <p style="color: #cbd5e1; margin-top: 15px; font-size: 0.95rem;">
-              ${pct >= 80 ? '🔥 Outstanding! You demonstrate senior-level architectural intuition for technical interviews.' : '👍 Solid effort! Review the deep dive modules and flip through the flashcards to solidify edge cases.'}
-            </p>
-            <button class="next-q-btn" style="margin-top: 20px;" onclick="resetQuiz()">Restart Assessment 🔄</button>
-          </div>
-        `;
-        document.getElementById('quizOptionsContainer').innerHTML = '';
-        document.getElementById('quizFeedbackBox').style.display = 'none';
-        document.getElementById('nextQuizBtn').style.display = 'none';
-      }
-    }
+{id:"lakehouse",sec:"A",n:"7 · 21",title:"Data Lakehouses",emoji:"🏡",
+ pdf:["Data Lake + Data Warehouse","Handles structured, semi-structured and unstructured data","Examples: Delta Lake (Databricks), Microsoft Fabric, Apache Iceberg","OLAP (marked OLAP/OLTP* in the notes)","Diversified storage: metadata, catalog, lineage","Uses Parquet / ORC as table formats","ACID transactions and BASE; cloud storage","AI/ML works on the data-lake side; BI and reporting on the data-warehouse side"],
+ plain:"A lakehouse puts warehouse features (ACID tables, catalog, SQL) on top of cheap lake storage. One copy of data serves BI dashboards and machine learning.",
+ q:"Why do companies move from lake + warehouse to a lakehouse?",
+ a:"It removes duplicate copies and pipelines between two systems, keeps open file formats (Parquet/ORC) to avoid lock-in, and adds ACID transactions, metadata and lineage so SQL analytics and AI/ML share the same governed data.",
+ rel:[["iceberg","open table format"],["databricks","Delta Lake"],["lake","its storage side"],["dw","its BI side"],["formats","Parquet/ORC underneath"],["ml","AI/ML workloads"]],
+ match:"Lake + warehouse in one: ACID tables on cheap storage for BI and AI/ML"},
 
-    function resetQuiz() {
-      currentQ = 0;
-      quizScore = 0;
-      document.getElementById('quizScoreDisplay').innerText = '0';
-      loadQuizQuestion();
-    }
+{id:"oltp-olap",sec:"A",n:"8",title:"OLTP vs OLAP",emoji:"⚖️",
+ pdf:["OLTP — Online Transactional <i>Protocol</i> (as written): databases; transactional, quickly changing data","OLAP — Online Analytical <i>Protocol</i> (as written): data warehouses, data lakes, lakehouses; historical data"],
+ plain:"OLTP runs the business right now (many small writes). OLAP studies the business afterwards (few huge reads over history).",
+ note:"The “P” stands for Processing: Online Transaction Processing and Online Analytical Processing, not “Protocol”.",
+ q:"Explain OLTP vs OLAP with examples.",
+ a:"OLTP: quick, small, concurrent transactions on current data, e.g. Postgres behind a payment app. OLAP: complex aggregations over large historical data, e.g. Snowflake or a lakehouse feeding dashboards.",
+ rel:[["rdbms","OLTP"],["dw","OLAP"],["lake","OLAP"],["lakehouse","OLAP"]],
+ match:"Transactional (quickly changing) vs analytical (historical) processing"},
 
-    // Initialize components
-    renderFlashcards();
-    loadQuizQuestion();
-  </script>
+{id:"etl-elt",sec:"A",n:"7 · 8",title:"ETL vs ELT",emoji:"🔄",
+ pdf:["ETL: Extract → Transform → Load (data warehouse)","ELT: Extract → Load → then Transform (data lakes, data lakehouses)"],
+ plain:"In ETL you clean the data before it enters the warehouse. In ELT you dump raw data first and transform it later with the power of the lake/lakehouse engine.",
+ note:"Modern warehouses (Snowflake…) can also do ELT, and dbt is the tool for the “T” after loading.",
+ q:"ETL or ELT — which would you choose and why?",
+ a:"ELT for lakes and lakehouses: loading is fast, raw data is kept for reprocessing, and transformation scales with cheap compute. ETL for classic warehouses that need clean, validated data before it is stored.",
+ rel:[["dw","ETL"],["lake","ELT"],["lakehouse","ELT"],["dbt","transformation after load"],["nifi","ETL-style dataflow tool"]],
+ match:"Transform-before-load vs load-first-then-transform"},
+
+/* ---------------- PART B ---------------- */
+{id:"hdfs",sec:"B",n:"1",title:"HDFS (and DBFS / GFS / EMRFS)",emoji:"🗄️",
+ pdf:["Storage layer: file systems such as HDFS, DBFS, GFS, EMRFS","Hadoop ecosystem; master–slave architecture","Data is stored in files and saved in blocks; default block size 128 MB","NameNode – DataNode architecture; HA mode and Classic mode","Default format: text (everything on HDFS is a string)"],
+ plain:"HDFS splits big files into 128 MB blocks and spreads them over many machines. The NameNode (master) remembers which blocks belong to which file; DataNodes (workers) store the blocks.",
+ note:"HDFS keeps 3 copies of each block by default. Classic mode has one NameNode (a single point of failure); HA mode has an Active + Standby NameNode. DBFS = Databricks File System, GFS = Google File System, EMRFS = Amazon EMR File System (written “EMFS” in the notes).",
+ q:"Why are HDFS blocks so large (128 MB) and what is the small-files problem?",
+ a:"Large blocks reduce the metadata the NameNode keeps in memory and allow long sequential reads. Millions of tiny files overload the NameNode memory while wasting capacity, which is exactly what Ozone fixes.",
+ rel:[["yarn","allocates compute for jobs on HDFS"],["mapreduce","processes HDFS blocks"],["sqoop","imports data into HDFS"],["ozone","successor storage"],["distributed","master/worker daemons"],["lake","HDFS = on-prem lake"]],
+ match:"Distributed file system: 128 MB blocks, NameNode + DataNodes"},
+
+{id:"yarn",sec:"B",n:"2",title:"YARN (resource management)",emoji:"🧶",
+ pdf:["Resource management — Yet Another Resource Negotiator","ResourceManager – NodeManager","All slave daemons run on the same node (as the storage workers)","Apache Mesos: another existing resource-management tool","Resources: CPU cores and memory; schedules tasks and prioritises by scheduling type (e.g. Round Robin, LRU)","Containers","ApplicationMaster: one per job, the main coordinator of the job"],
+ plain:"YARN is the cluster's traffic controller. The ResourceManager owns all CPU and memory; each NodeManager reports its machine; for every job an ApplicationMaster negotiates containers where the tasks run.",
+ note:"The notes call containers “storage units”; precisely, a container is a bundle of CPU cores + memory in which a task runs (HDFS blocks are the storage units). The real YARN schedulers are FIFO, Capacity and Fair.",
+ q:"Explain the roles in YARN.",
+ a:"ResourceManager = cluster-wide master that allocates resources; NodeManager = per-machine worker that launches and monitors containers; ApplicationMaster = one per job, negotiates containers and coordinates tasks; containers = CPU + memory slices.",
+ rel:[["hdfs","runs on the same machines (data locality)"],["mapreduce","jobs it schedules"],["spark","can run on YARN"],["distributed","master/worker pattern"]],
+ match:"Resource manager: ResourceManager, NodeManager, one ApplicationMaster per job"},
+
+{id:"mapreduce",sec:"B",n:"3 · 4",title:"Apache MapReduce (and its logic)",emoji:"🗺️",
+ pdf:["Processing jobs; Java-based; JobTracker – TaskTracker","Runs with Hadoop only","Can run only batch processing","Map-reduce logic: mappers run in parallel, reducers run after them (sequentially, per the notes)","Written in Java; many tools run on the same logic (Hive, Pig, Sqoop, Spark’s model)"],
+ plain:"MapReduce splits work into two steps: Map (many machines process their own blocks in parallel and emit key-value pairs) and Reduce (combine all values of the same key). It is reliable but slow because it writes to disk between steps.",
+ note:"Between map and reduce the framework does a shuffle & sort. By default there is a single reducer, which is why the notes describe reducers as sequential; you can configure more reducers.",
+ q:"How does MapReduce work, and why did Spark replace it?",
+ a:"Map tasks run in parallel on data blocks and output key-value pairs; shuffle & sort groups them by key; reduce aggregates. It is batch-only and writes to disk between stages, so Spark’s in-memory model is much faster and also supports interactive and streaming use.",
+ rel:[["hdfs","reads its input from HDFS"],["yarn","gets resources from YARN"],["hive","early Hive compiled to MapReduce"],["pig","Pig compiles to MapReduce"],["spark","successor engine"],["sqoop","import jobs are map-only"]],
+ match:"Java batch engine: mappers in parallel, then reducers"},
+
+{id:"sqoop",sec:"B",n:"5",title:"Apache Sqoop",emoji:"🚚",
+ pdf:["Ingestion / acquire / extract / transfer of STRUCTURED data from an RDBMS to HDFS","Runs with 4 mappers by default","Client-side tool","Needs a connector/driver to reach the database and the URL of HDFS","Retired tool (moved to the Apache Attic)","Can create Hive tables directly (<code>--hive-import</code>)","Data types are converted internally to Hive data types"],
+ plain:"Sqoop is the bridge between relational databases and Hadoop: it launches parallel map tasks that copy tables into HDFS (and Hive) using the database connector.",
+ note:"Sqoop can also export from HDFS back to an RDBMS. An import is a map-only job (no reducers).",
+ q:"How would you move a MySQL table into Hadoop?",
+ a:"Use Sqoop import with the JDBC connector and URL; by default it uses 4 parallel mappers, and <code>--hive-import</code> creates the Hive table with converted data types. Today you would also consider Spark JDBC or NiFi because Sqoop is retired.",
+ rel:[["rdbms","its source"],["hdfs","its destination"],["hive","--hive-import"],["mapreduce","runs as map-only job"],["nifi","modern alternative for flows"]],
+ match:"Client-side bulk transfer of RDBMS tables to HDFS (4 mappers by default)"},
+
+{id:"formats",sec:"B",n:"6",title:"Data formats: Text, Sequence, Avro, Parquet / ORC",emoji:"📦",
+ pdf:["Text: human-readable, not space-efficient, default format on HDFS","Sequence: not human-readable, a little more space-efficient than text, mostly images / binary data (machine-understandable)","Avro: JSON-like, stores data in binary and the schema in JSON; data in <code>.avro</code> files, schema in <code>.avsc</code>; <code>getschema</code> shows the schema","Parquet (ORC): created by Twitter + Cloudera; columnar, binary, <code>.parquet</code> files; needs a reader; compresses data up to 90%","RC and ORC files are other columnar formats"],
+ plain:"Text/CSV is easy but big. Avro is row-based binary with its schema inside: great for streaming and schema changes. Parquet/ORC are columnar: ideal for analytics because queries read only the columns they need and files compress strongly.",
+ q:"When would you pick Avro and when Parquet?",
+ a:"Avro (row-based, schema in JSON) for write-heavy ingestion, Kafka streams and schema evolution. Parquet/ORC (columnar, compressed) for read-heavy analytics in Hive, Impala, Spark and lakehouse tables.",
+ rel:[["hdfs","default text format"],["hive","Hive is more compatible with Avro"],["impala","Impala is more compatible with Parquet"],["kafka","Avro often used in streams"],["lakehouse","Parquet/ORC table files"]],
+ match:"Text, Sequence, Avro (.avsc schema), Parquet/ORC (columnar)"},
+
+{id:"distributed",sec:"B",n:"7",title:"Distributed systems vocabulary",emoji:"🌐",
+ pdf:["Parallel processing; distributed storage AND distributed processing","Worker daemons of storage and processing are always on the same machine","Can run in hybrid mode (some machines on cloud, some on-prem / bare metal)","Pseudo cluster: all services running on the same machine","Node: a (physical) machine","Cluster: collection of nodes over a single network","Daemon: a logical service running in the background","Master service: metadata; worker service: the actual doers (slaves)","MPP — Massively Parallel Processing: wherever the data is, the processing happens there (Databricks)"],
+ plain:"Big data does not fit in one computer, so many nodes form a cluster. Master daemons keep metadata, worker daemons do the work next to the data, and MPP engines run the same query on many nodes at once.",
+ q:"Define node, cluster, daemon and MPP.",
+ a:"A node is one machine; a cluster is many nodes on one network; a daemon is a background service (NameNode, DataNode, ResourceManager…); MPP means splitting a job across many nodes that each process their local data in parallel.",
+ rel:[["hdfs","master/worker storage"],["yarn","master/worker resources"],["spark","MPP-style processing"],["impala","MPP SQL engine"],["databricks","clusters on the cloud"]],
+ match:"Nodes, clusters, daemons, master/worker, MPP, pseudo cluster"},
+
+{id:"pig",sec:"B",n:"8",title:"Apache Pig",emoji:"🐷",
+ pdf:["Created at Yahoo; mainly for processing (80%) and some analysis (20%)","Language: PigLatin","Limited SQL-like functions","Converts PigLatin into MapReduce internally","Slow in processing; retired tool"],
+ plain:"Pig lets you write short data-flow scripts (PigLatin) instead of long Java MapReduce programs. It still compiles to MapReduce, so it is slow and now considered legacy.",
+ note:"The notes give 2001 as the creation year; Pig was developed at Yahoo in the mid-2000s. In an interview just say “created at Yahoo”.",
+ q:"What is Pig and why is it rarely used now?",
+ a:"Pig is a data-flow language (PigLatin) compiled to MapReduce for ETL-style processing. It is slow compared with Spark and Hive on newer engines, so it is retired/legacy.",
+ rel:[["mapreduce","what it compiles to"],["hive","SQL-like alternative"],["spark","modern replacement"]],
+ match:"PigLatin scripts compiled to MapReduce; slow, retired"},
+
+{id:"hive",sec:"B",n:"9",title:"Apache Hive",emoji:"🐝",
+ pdf:["Created by Facebook in 2007; analytical tool for big (unstructured) data","Uses a shell (<code>hive</code> / <code>beeline</code>)","Batch and interactive processing; query language HQL (Hive Query Language)","More compatible with Avro","Handles complex data types: MAP, STRUCT, ARRAY","Partitioning (static and dynamic), bucketing, windowing, explode, indexing","Runs similar to SQL","Data is stored on HDFS; metadata is stored in the Metastore","Uses only directories as locations","Managed table and External table"],
+ plain:"Hive puts a table on top of files in HDFS and lets you query them with SQL-like HQL. The files stay in HDFS; the table definitions live in the Metastore.",
+ note:"Managed table: dropping it deletes metadata AND data. External table: dropping it deletes only the metadata; the files stay.",
+ q:"Managed vs external Hive table?",
+ a:"A managed table is owned by Hive, so DROP removes metadata and data. An external table only points to a directory, so DROP removes metadata and keeps the files, which is safer for shared data.",
+ rel:[["hdfs","stores its data"],["sql","HQL is SQL-like"],["impala","shares the metastore"],["formats","Avro-friendly"],["mapreduce","original engine"],["iceberg","Iceberg adds row-level updates Hive lacks"]],
+ match:"HQL over HDFS data with a Metastore; managed and external tables"},
+
+{id:"impala",sec:"B",n:"10",title:"Cloudera Impala",emoji:"🦌",
+ pdf:["Built by Cloudera in 2011; runs about 5 times faster than Hive","Runs directly on the cluster; shell: <code>impala-shell</code>","Batch and interactive processing","Uses the same metastore as Hive and the same HQL","More compatible with Parquet","Not fault tolerant","Own daemons: State-store server, Catalog server, Impala server","<code>INVALIDATE METADATA</code> — command to synchronise changes made in the metastore"],
+ plain:"Impala answers SQL queries in seconds with its own always-on MPP daemons instead of launching MapReduce jobs. The price: if a node fails during a query, the query fails.",
+ q:"Hive vs Impala?",
+ a:"Both read the same tables through the shared metastore with HQL. Hive is fault tolerant and good for long batch jobs; Impala is ~5x faster for interactive queries, prefers Parquet, but is not fault tolerant. After Hive changes you run INVALIDATE METADATA in Impala.",
+ rel:[["hive","shares metastore & HQL"],["formats","prefers Parquet"],["distributed","MPP engine"],["hue","queried from Hue"]],
+ match:"Cloudera MPP SQL ~5x faster than Hive; not fault tolerant"},
+
+{id:"hue",sec:"B",n:"11",title:"Cloudera Hue",emoji:"🎛️",
+ pdf:["GUI interface to access all the tools","HUE = Hadoop User Experience","Provides basic visualisation dashboards for Hive and Impala"],
+ plain:"Hue is the web page where analysts type Hive or Impala queries, browse HDFS files and see simple charts, without using a terminal.",
+ q:"What is Hue used for?",
+ a:"It is a browser-based GUI for the Hadoop ecosystem: run Hive/Impala queries, browse files, and build basic dashboards.",
+ rel:[["hive","query editor"],["impala","query editor"],["viz","full BI tools go further"]],
+ match:"Hadoop User Experience: web GUI for Hive/Impala with dashboards"},
+
+{id:"spark",sec:"B",n:"12",title:"Apache Spark",emoji:"⚡",
+ pdf:["General-purpose in-memory processing engine","Runs stand-alone or on a cluster; batch and interactive shell","Languages: Scala (<code>spark-shell</code>), Python (<code>pyspark</code>), R (SparkR), Java 8, SQL","Can be installed without Hadoop (Windows, Linux, Mac)","Anonymous functions: lambda in Python, <code>=></code> in Scala","Runs on the same map-reduce logic","Operations: Transformations and Actions; transformations are immutable","Lazy evaluation: until an action is triggered, results are not retrieved","RDD — Resilient Distributed Dataset: the building block of a Spark app","Entry points: SparkContext (<code>sc</code>), SQLContext (<code>sqlCtx</code>), SparkSession (<code>spark</code>), Streaming context (<code>ssc</code>)","DataFrames (DF)"],
+ plain:"Spark keeps data in memory across a cluster, so it is far faster than MapReduce. Transformations (select, filter, join) only build a plan; an action (count, show, write) triggers the real work.",
+ q:"What is lazy evaluation and what is an RDD?",
+ a:"Transformations are lazy: Spark records a plan and runs it only when an action is called, letting it optimise the whole chain. An RDD is the immutable, partitioned, fault-tolerant collection that underlies Spark; DataFrames add named columns on top.",
+ rel:[["mapreduce","faster successor"],["python","PySpark"],["pandas","similar DataFrames, but distributed"],["yarn","can run on YARN"],["kafka","Spark Streaming reads Kafka"],["databricks","built on Spark"]],
+ match:"In-memory engine: RDDs/DataFrames, lazy transformations vs actions"},
+
+/* ---------------- PART C ---------------- */
+{id:"airflow",sec:"C",n:"13",title:"Apache Airflow",emoji:"🌬️",
+ pdf:["Created at Airbnb; orchestration tool","Complex workflow management; helps in monitoring","Workflows are Python DAGs (Directed Acyclic Graphs)","Dependencies: <code>task1 >> task2 >> task3</code>","Define functions; helps detect container issues, streaming issues, pipeline issues","Schedule: cron job; previously Oozie was the tool for the same purpose"],
+ plain:"Airflow is the conductor: you describe the pipeline as a DAG in Python, set the schedule, and Airflow runs each task in order, retries failures and shows the status.",
+ q:"What is a DAG and why Airflow?",
+ a:"A Directed Acyclic Graph is a set of tasks with one-way dependencies and no loops. Airflow schedules them (cron), runs them in dependency order, retries and monitors them. It replaced Oozie in many stacks.",
+ rel:[["python","DAGs are Python"],["spark","tasks that submit Spark jobs"],["dbt","tasks that run dbt"],["sqoop","tasks that ingest"],["docker","tasks can run in containers"]],
+ match:"Airbnb's Python DAG orchestrator that schedules and monitors workflows"},
+
+{id:"flume",sec:"C",n:"14",title:"Apache Flume",emoji:"🪵",
+ pdf:["Streams data from multiple sources into HDFS","Runs as a Flume Agent","Configure source → channel → sink in a configuration file","Part of the Hadoop ecosystem","Push model"],
+ plain:"Flume is a pipe for log-like streaming data: a source receives events, a channel buffers them, a sink writes them to HDFS. Sources push the data.",
+ q:"How does Flume work and how is it different from Kafka?",
+ a:"A Flume agent chains source → channel → sink, defined in a config file and mainly pushing data into HDFS. Kafka is a general publish/subscribe log where many consumers can read the same events independently.",
+ rel:[["hdfs","its usual destination"],["kafka","more general streaming platform"],["nifi","visual alternative"]],
+ match:"Push-model agent (source-channel-sink) streaming logs into HDFS"},
+
+{id:"kafka",sec:"C",n:"15",title:"Apache Kafka",emoji:"📨",
+ pdf:["Created at LinkedIn (2011); publish/subscribe messaging system","Used for ingestion and data retention","Can run without Hadoop (standalone)","Broker daemons hold the messages/events: ports 9092, 9093","Producer produces the event; Consumer consumes the event","Partitions and replications; multiple producers and consumers","Push-pull model","Uses ZooKeeper for monitoring: port 2181","A Topic is created; producers and consumers send/receive messages through it","Producers and consumers can be customised in Python scripts"],
+ plain:"Kafka is a durable, replicated log of events. Producers push events into a topic, brokers store them in partitions, and consumers pull them at their own pace, so many systems can read the same stream.",
+ q:"Explain topic, partition, producer and consumer in Kafka.",
+ a:"A topic is a named stream of events; it is split into partitions for parallelism and replicated across brokers for safety; producers push events to a topic and consumers pull them (push-pull model) and track their position, so many consumers can read independently. ZooKeeper (2181) coordinates the cluster.",
+ rel:[["flume","older log-shipping tool"],["spark","Spark Streaming consumes it"],["python","Python producers/consumers"],["formats","Avro events"],["nifi","can publish to Kafka"]],
+ match:"LinkedIn's pub/sub log: topics, brokers 9092, ZooKeeper 2181"},
+
+{id:"nifi",sec:"C",n:"16",title:"Apache NiFi",emoji:"🧩",
+ pdf:["Created by the NSA; based on ETL processing","Pre-defined processors available","Dashboards to create Processor Groups","Runs on a Java-based UI (port 8443)","Connectors available","Data flow: content and attributes (FlowFile)","Data ingestion: batch and streaming"],
+ plain:"NiFi is a drag-and-drop canvas: you connect processors (read, convert, route, write) and watch the data move. Each record travels as a FlowFile made of content + attributes.",
+ q:"When would you choose NiFi?",
+ a:"When you want visual, low-code ingestion and routing for batch or streaming data with many ready-made processors and connectors, plus tracking of every FlowFile.",
+ rel:[["kafka","can feed/consume Kafka"],["flume","visual alternative"],["sqoop","modern alternative for DB ingestion"],["etl-elt","ETL-style tool"]],
+ match:"NSA-born visual dataflow tool: processors, FlowFiles, UI on 8443"},
+
+{id:"solr",sec:"C",n:"17",title:"Apache Solr (Cloudera Search)",emoji:"🔎",
+ pdf:["Search engine for clusters; runs on JSON documents as data","Search queries are fast","Scalable and fault tolerant","Normal search by indexing; facets, grouping","Underlying engine is Apache Lucene"],
+ plain:"Solr indexes documents so you can search them like Google: full-text search, filters (facets) and grouping, over huge collections.",
+ q:"What is Solr?",
+ a:"A scalable, fault-tolerant search engine built on Apache Lucene that indexes JSON documents and offers fast full-text search, facets and grouping; Cloudera ships it as Cloudera Search.",
+ rel:[["hdfs","indexes data from the cluster"],["hue","search dashboards"]],
+ match:"Lucene-based search engine over JSON documents: indexing, facets"},
+
+{id:"iceberg",sec:"C",n:"22",title:"Apache Iceberg",emoji:"🧊",
+ pdf:["Open table format for analytics, used to create data lakehouses","Schema-on-write","Mainly for streaming data","ACID transactions","Single updates and deletions are possible, unlike Hive"],
+ plain:"Iceberg is a table layer over Parquet/ORC files that tracks every change in metadata. That gives lakes transactions, safe row-level updates/deletes and schema changes.",
+ q:"What does Iceberg give you over plain Hive tables?",
+ a:"ACID transactions and row-level UPDATE/DELETE on lake files (Hive classic tables cannot do single-row changes easily), plus reliable schema evolution and consistent reads while data is being written.",
+ rel:[["lakehouse","the architecture it enables"],["hive","limitations it removes"],["formats","stores Parquet/ORC"],["databricks","Delta Lake is a similar format"]],
+ match:"Open table format giving lakehouses ACID row-level updates/deletes"},
+
+{id:"ozone",sec:"C",n:"23",title:"Apache Ozone",emoji:"🫧",
+ pdf:["Alternative storage to HDFS","Uses containers which ultimately have blocks as storage units","Open source; object-based storage (opposite to file-based HDFS)","For streaming, real-time data and cloud setups","Compatible with the existing Hadoop ecosystem","Can store a larger volume of data than HDFS","Does not have the small-files problem that HDFS had"],
+ plain:"Ozone stores data as objects grouped into containers instead of one metadata entry per file, so it scales to billions of objects and handles small files well, while still working with Hadoop tools.",
+ q:"HDFS vs Ozone?",
+ a:"HDFS is file-based with all metadata on the NameNode, so millions of small files hurt. Ozone is an object store that groups data in containers, scales to far more objects, suits cloud/streaming setups and stays compatible with Hadoop tools.",
+ rel:[["hdfs","what it replaces"],["lake","object storage for lakes"],["distributed","distributed storage"]],
+ match:"Object store replacing HDFS: containers, no small-files problem"},
+
+{id:"ml",sec:"C",n:"24",title:"Machine Learning",emoji:"🤖",
+ pdf:["Supervised and Unsupervised learning","Training and testing data","Pre-built ML models; can run in Python as well as R","Classification, regression, clustering, recommendation systems, pattern matching","Simplifies machine-learning applications","Supported on the cloud as well as on local machines"],
+ plain:"ML learns patterns from data. Supervised learning uses labelled examples (classification, regression); unsupervised learning finds structure without labels (clustering). You train on one part of the data and test on another.",
+ q:"Supervised vs unsupervised learning?",
+ a:"Supervised: labelled data, predict a known target (classification for categories, regression for numbers). Unsupervised: no labels, discover groups or patterns (clustering). Always evaluate on separate testing data.",
+ rel:[["python","main ML language (with R)"],["lakehouse","AI/ML runs on the lake side"],["databricks","ML platform"],["spark","distributed ML"]],
+ match:"Supervised vs unsupervised learning with training/testing data"},
+
+{id:"dbt",sec:"C",n:"25",title:"dbt (data build tool)",emoji:"🛠️",
+ pdf:["Transformation tool / builder tool","YAML files","Test cases","Use / create models","Put data in seeds","Documentation served on port 8080","Git repository: version control","Runs locally or on a cluster"],
+ plain:"dbt is the “T” in ELT: you write SELECT statements as models, add tests in YAML, load small CSV files as seeds, generate documentation, and keep everything in Git. The warehouse does the heavy lifting.",
+ q:"What does dbt do and what does it not do?",
+ a:"dbt transforms data already loaded in the warehouse using SQL models, YAML tests, seeds and generated docs under Git version control. It does not extract or load data; Airflow can schedule it.",
+ rel:[["etl-elt","the T after load"],["sql","models are SQL"],["snowflake","runs inside it"],["airflow","scheduled by it"]],
+ match:"SQL 'T' of ELT: models, seeds, YAML tests, docs, Git"},
+
+{id:"viz",sec:"C",n:"26",title:"Visualization tools",emoji:"📊",
+ pdf:["Power BI, Qlik, Looker, Tableau","Building dashboards; DAX (Power BI formulas)","Filters and aggregations","Environment is different for every tool","Can read / connect to multiple sources","Dashboards can be shared"],
+ plain:"BI tools connect to your warehouse or lakehouse, let you drag fields, filter and aggregate, and publish dashboards that business people use daily.",
+ note:"DAX is the formula language of Power BI; Power Query is a separate data-preparation feature.",
+ q:"How does a BI tool fit into the pipeline?",
+ a:"It is the serving layer: it connects to Gold tables in the warehouse/lakehouse, applies filters and aggregations, and shares dashboards. The heavy transformation happens upstream.",
+ rel:[["dw","reads Gold tables"],["lakehouse","reads Gold tables"],["hue","simpler dashboards on Hadoop"]],
+ match:"Power BI, Qlik, Looker, Tableau: dashboards, filters, sharing"},
+
+{id:"docker",sec:"C",n:"27",title:"Docker",emoji:"🐳",
+ pdf:["Beneficial for containerisation","Images; start / stop Docker containers","Docker Compose (<code>docker compose up</code>) defined in YAML","Container: an instance of the image"],
+ plain:"Docker packages an application with everything it needs into an image. A running copy of that image is a container, so it behaves the same on your laptop, a server or the cloud.",
+ q:"Image vs container?",
+ a:"An image is the immutable blueprint (code + libraries); a container is a running instance of it. Docker Compose starts several containers together from a YAML file (e.g. Airflow + Postgres + Kafka).",
+ rel:[["airflow","often deployed with Compose"],["kafka","easy local clusters"],["terraform","creates the servers that run containers"]],
+ match:"Images run as containers; docker compose describes them in YAML"},
+
+{id:"terraform",sec:"C",n:"28",title:"Terraform",emoji:"🏗️",
+ pdf:["IaC — Infrastructure as Code","Code kept in a Git repository","Can manage multiple clusters","Typically 4 files; the state file <code>tfstate</code>; variables"],
+ plain:"With Terraform you describe servers, clusters and storage in files; running it creates exactly that. It remembers what exists in the tfstate file, so changes are repeatable and reviewable in Git.",
+ note:"Common files: <code>main.tf</code>, <code>variables.tf</code>, <code>outputs.tf</code> and a variables-values file such as <code>terraform.tfvars</code>.",
+ q:"Why Infrastructure as Code?",
+ a:"Infrastructure becomes versioned, reviewable and reproducible: the same code builds dev, test and prod. Terraform compares the code with the tfstate file and applies only the differences.",
+ rel:[["docker","packages what runs on that infra"],["databricks","can provision workspaces/clusters"],["snowflake","can provision warehouses"],["airflow","environment it runs in"]],
+ match:"Infrastructure as Code: .tf files, variables, tfstate, Git"},
+
+{id:"databricks",sec:"C",n:"29",title:"Databricks",emoji:"🔥",
+ pdf:["Company selling engineering / analytical products","Runs on Microsoft Azure and AWS","Based on Delta Lake (data lakehouse) and Spark","SparkSession is built in","Community / free edition","Languages: SQL, Python, Scala","Catalog server (Unity Catalog)"],
+ plain:"Databricks is a managed lakehouse platform built on Spark: notebooks, clusters, Delta Lake tables and a catalog, ready in the cloud.",
+ q:"What is Databricks and why is it called a lakehouse platform?",
+ a:"It combines cloud object storage with Delta Lake tables (ACID, time travel), managed Spark clusters and a catalog (Unity Catalog), supporting SQL, Python and Scala for both BI and ML on one copy of data.",
+ rel:[["spark","its engine"],["lakehouse","Delta Lake"],["python","notebooks"],["snowflake","main competitor"],["ml","ML workloads"]],
+ match:"Lakehouse company: Delta Lake, built-in SparkSession, free edition"},
+
+{id:"snowflake",sec:"C",n:"30",title:"Snowflake",emoji:"❄️",
+ pdf:["Data warehousing tool; SQL and ETL pipelines","Snowpipe (pipelines)","Snowpark: DataFrames with Spark-like code","Free for 30 days","Pay as you use"],
+ plain:"Snowflake is a cloud data warehouse: you load data, query it with SQL, automate loading with Snowpipe, and pay only for the compute and storage you use.",
+ note:"Snowpark is Snowflake's own DataFrame API (Python/Java/Scala) with a Spark-like style; it runs on Snowflake's engine, not on Spark.",
+ q:"What is Snowflake and what is Snowpipe?",
+ a:"Snowflake is a cloud-native, pay-as-you-use data warehouse with separated storage and compute. Snowpipe is its continuous-loading service that ingests files automatically as they arrive.",
+ rel:[["dw","warehouse example"],["sql","its main language"],["dbt","transforms inside it"],["databricks","competitor"],["python","Snowpark"]],
+ match:"Cloud data warehouse: Snowpipe, Snowpark, 30-day trial, pay per use"}
+];
+
+var EXTRA_INTERVIEW = [
+ {q:"Walk me through a pipeline from a payments database to a manager's dashboard.",topics:["rdbms","sqoop","kafka","lake","lakehouse","airflow","dbt","viz"],a:"Payments live in an OLTP database. Sqoop (batch) or Kafka (events) ingest them into the lake/lakehouse (ELT). Spark/dbt clean them through Bronze → Silver → Gold, Airflow schedules and monitors the DAG, and Power BI/Tableau reads the Gold tables."},
+ {q:"ETL vs ELT, and where do warehouses, lakes and lakehouses fit?",topics:["etl-elt","dw","lake","lakehouse"],a:"ETL transforms before loading and suits warehouses (schema-on-write). ELT loads raw first and transforms later, suiting lakes and lakehouses (schema-on-read, then ACID tables). Modern warehouses can do ELT too."},
+ {q:"Hive vs Impala vs Spark vs Pig — when would you use each?",topics:["hive","impala","spark","pig"],a:"Hive: fault-tolerant batch SQL over HDFS with a metastore. Impala: fast interactive SQL on the same metastore, not fault tolerant. Spark: in-memory engine for batch, streaming and ML in Python/Scala/SQL. Pig: legacy PigLatin scripts compiled to MapReduce."},
+ {q:"Choose an ingestion tool: Sqoop, Flume, Kafka or NiFi?",topics:["sqoop","flume","kafka","nifi"],a:"Sqoop for bulk structured data from an RDBMS to HDFS; Flume for pushing log streams into HDFS; Kafka for durable, multi-consumer event streaming; NiFi for visual, low-code batch and streaming flows with many connectors."},
+ {q:"Why a lakehouse instead of a lake plus a warehouse?",topics:["lakehouse","lake","dw","iceberg"],a:"One governed copy of data on cheap storage with ACID tables (Iceberg/Delta), metadata and lineage; BI and AI/ML use the same data, avoiding duplicate pipelines."},
+ {q:"HDFS vs Ozone vs cloud object storage?",topics:["hdfs","ozone","lake"],a:"HDFS: file-based, 128 MB blocks, NameNode limits and small-files problem. Ozone: object-based containers, scales to far more objects, Hadoop-compatible. Cloud object storage (S3, ADLS, GCS) is the managed lake storage."},
+ {q:"How do you make infrastructure and environments reproducible?",topics:["docker","terraform"],a:"Docker images/containers (and Compose YAML) reproduce the application environment; Terraform reproduces the infrastructure from code with a tfstate file, all versioned in Git."},
+ {q:"How do dbt and Airflow differ and work together?",topics:["dbt","airflow"],a:"dbt transforms data inside the warehouse with tested SQL models; Airflow orchestrates and schedules whole workflows (ingest → transform → publish). An Airflow DAG task often runs dbt."},
+ {q:"Explain the Hadoop stack from storage to processing.",topics:["hdfs","yarn","mapreduce","distributed"],a:"HDFS stores 128 MB blocks (NameNode + DataNodes); YARN allocates CPU/memory with ResourceManager, NodeManagers and one ApplicationMaster per job; MapReduce (and later Spark) run the processing next to the data on the worker nodes."}
+];
+
+/* Quiz: Q(topic, stem, correct, [wrong x3], explanation) */
+function Q(t,s,c,w,e){return {t:t,s:s,c:c,w:w,e:e};}
+var QUIZ = [
+ Q("python","Which file extensions are typical for Python scripts and notebooks?",".py and .ipynb",[".sql and .csv",".jar and .class",".avro and .avsc"],"Scripts use .py; Jupyter notebooks use .ipynb."),
+ Q("python","A function you write yourself, as opposed to print(), is called…","a User-Defined Function (UDF)",["an in-built function","a daemon","a processor group"],"print() is in-built; your own def is a user-defined function."),
+ Q("pandas","Which Python container is immutable, ordered and uses round brackets?","Tuple",["List","Set","Dictionary"],"Tuples () cannot be changed after creation."),
+ Q("pandas","Which structure holds only unique values, is unordered and uses curly braces?","Set",["List","Tuple","DataFrame"],"A set drops duplicates automatically."),
+ Q("pandas","Which library gives you DataFrames for cleaning messy tables?","Pandas",["NumPy","Sqoop","Impala"],"Pandas = rows/columns DataFrames; NumPy = maths on arrays."),
+ Q("sql","Which clause filters groups AFTER GROUP BY?","HAVING",["WHERE","ORDER BY","LIMIT"],"WHERE filters rows before grouping; HAVING filters groups."),
+ Q("sql","CREATE, ALTER and DROP belong to which SQL sublanguage?","DDL",["DML","DQL","ACID"],"DDL defines structure; DML changes data; DQL queries it."),
+ Q("sql","Which command shows how a query is executed?","EXPLAIN ANALYZE",["GRANT","TRUNCATE","UNDROP"],"EXPLAIN (ANALYZE) shows the execution plan."),
+ Q("rdbms","Which ACID property means 'all or nothing'?","Atomicity",["Consistency","Isolation","Durability"],"Atomicity: a transaction fully happens or not at all."),
+ Q("rdbms","Which workload best fits an RDBMS (OLTP)?","Online payments and airline bookings",["Ten years of trend analysis","Storing raw images and logs","Full-text search of documents"],"OLTP handles many small, current transactions."),
+ Q("dw","Which combination is typical of a data warehouse?","Schema-on-write, ETL, read-heavy",["Schema-on-read, no ACID","Unstructured only, write-heavy","Row-based, tiny GB only"],"Warehouses validate data when writing and are used mostly for reading."),
+ Q("dw","What is the order of the Medallion layers from raw to business-ready?","Bronze → Silver → Gold",["Gold → Silver → Bronze","Silver → Bronze → Gold","Bronze → Gold → Silver"],"Bronze raw, Silver cleaned, Gold business-ready."),
+ Q("lake","Which consistency model do data lakes follow according to the notes?","BASE",["ACID only","Serializable only","None, they are always inconsistent"],"BASE: Basically Available, Soft state, Eventually consistent."),
+ Q("lake","What is the main drawback of a data lake?","Data swamping",["It cannot store raw data","It needs a schema before loading","It cannot scale"],"Without metadata and governance a lake becomes a swamp."),
+ Q("lakehouse","A data lakehouse is…","a data lake + a data warehouse",["a database + a cache","Hive + Pig","Kafka + Flume"],"It combines cheap lake storage with warehouse features."),
+ Q("lakehouse","Which are lakehouse table technologies?","Delta Lake, Apache Iceberg, Microsoft Fabric",["Sqoop, Flume, Pig","MySQL, Oracle, Postgres","Docker, Terraform, dbt"],"These provide ACID tables over lake storage."),
+ Q("oltp-olap","OLTP vs OLAP: which pairing is right?","OLTP = quickly changing transactions; OLAP = historical analysis",["OLTP = historical; OLAP = transactions","Both mean the same","OLTP = lakes; OLAP = databases"],"OLTP runs the business now; OLAP analyses history."),
+ Q("etl-elt","Which order describes ELT?","Extract → Load → Transform",["Extract → Transform → Load","Load → Extract → Transform","Transform → Extract → Load"],"ELT loads raw data first and transforms it afterwards."),
+ Q("etl-elt","ETL is traditionally used with ___, ELT with ___.","data warehouses; lakes and lakehouses",["lakes; warehouses","Kafka; Flume","Docker; Terraform"],"Classic warehouses transform first; lakes transform later."),
+ Q("hdfs","What is the default HDFS block size?","128 MB",["4 KB","1 GB","64 KB"],"HDFS uses large 128 MB blocks."),
+ Q("hdfs","Which HDFS daemon keeps the metadata (which blocks make which file)?","NameNode",["DataNode","NodeManager","ApplicationMaster"],"NameNode = master with metadata; DataNodes store blocks."),
+ Q("yarn","What does YARN do?","Manages cluster resources (CPU and memory) and schedules tasks",["Stores data blocks","Translates SQL to Java","Streams logs into HDFS"],"YARN = Yet Another Resource Negotiator."),
+ Q("yarn","Which YARN component exists once per job and coordinates it?","ApplicationMaster",["ResourceManager","NodeManager","DataNode"],"One ApplicationMaster per job negotiates containers."),
+ Q("mapreduce","MapReduce can run which kind of processing?","Batch only, Java-based, Hadoop only",["Real-time only","Interactive only","Streaming only"],"MapReduce is a batch engine written in Java."),
+ Q("mapreduce","In MapReduce logic, which tasks run in parallel across the blocks?","Mappers",["Reducers","The NameNode","ZooKeeper"],"Many mappers process blocks in parallel; reducers combine afterwards."),
+ Q("sqoop","Sqoop transfers…","structured data from an RDBMS to HDFS",["logs from web servers to HDFS","events between Kafka topics","images into Solr"],"Sqoop = SQL-to-Hadoop for structured data."),
+ Q("sqoop","How many mappers does Sqoop use by default?","4",["1","8","16"],"Default parallelism is 4 mappers."),
+ Q("sqoop","Which option lets Sqoop create the Hive table while importing?","--hive-import",["--to-hive","--make-table","--avro"],"--hive-import creates the Hive table and converts data types."),
+ Q("formats","Which format stores data in binary with the schema in JSON (.avsc)?","Avro",["Parquet","Text","Sequence"],"Avro data = .avro, schema = .avsc."),
+ Q("formats","Which format is columnar, binary and can compress data up to 90%?","Parquet",["Text","Avro","Sequence"],"Parquet (created by Twitter + Cloudera) is columnar."),
+ Q("formats","What is the default, human-readable but space-inefficient format on HDFS?","Text",["Parquet","Avro","Sequence"],"Everything on HDFS defaults to text/string."),
+ Q("distributed","What is a cluster?","A collection of nodes connected over a single network",["A background service","A single physical machine","A SQL view"],"Node = machine, cluster = many nodes, daemon = service."),
+ Q("distributed","What is a pseudo cluster?","All services running on the same single machine",["A cluster in two clouds","A cluster without a master","A broken cluster"],"Used for learning and testing."),
+ Q("distributed","What does MPP (Massively Parallel Processing) mean?","Many nodes process their local data in parallel",["One big server processes everything","Data is moved to one processing node","Only batch jobs are allowed"],"Processing happens where the data is."),
+ Q("pig","Which language does Apache Pig use?","PigLatin",["HQL","Scala only","DAX"],"PigLatin is converted to MapReduce."),
+ Q("pig","Why is Pig considered a legacy tool?","It converts to MapReduce, is slow, and is retired",["It cannot read HDFS","It only works on Windows","It needs a GUI"],"Spark and Hive replaced it."),
+ Q("hive","Where do Hive store its data and its metadata?","Data in HDFS, metadata in the Metastore",["Both in the Metastore","Both in HDFS","Data in Kafka, metadata in Solr"],"Files stay in HDFS; table definitions live in the Metastore."),
+ Q("hive","What happens to the files when you DROP an EXTERNAL Hive table?","They stay; only metadata is removed",["They are deleted","They move to Impala","They become Avro"],"External tables only point to a directory."),
+ Q("hive","Which complex data types can Hive handle?","MAP, STRUCT and ARRAY",["TUPLE and SET only","DAG and FlowFile","RDD and DF"],"Hive supports nested/complex types."),
+ Q("impala","How does Impala compare with Hive?","About 5x faster but not fault tolerant",["Slower but fault tolerant","Same speed, different language","Only works with Text files"],"Impala uses MPP daemons instead of MapReduce."),
+ Q("impala","Which command synchronises Impala with changes made in the Hive metastore?","INVALIDATE METADATA",["REFRESH HDFS","SYNC HIVE","MSCK ALL"],"Run it after creating tables from Hive."),
+ Q("hue","What is Hue?","A web GUI (Hadoop User Experience) for Hive and Impala",["A resource manager","A search engine","A streaming tool"],"Hue gives query editors and basic dashboards."),
+ Q("spark","When does Spark actually compute results?","When an action is triggered",["As soon as a transformation is written","Only when the cluster restarts","Never, it only plans"],"Lazy evaluation: transformations only build a plan."),
+ Q("spark","Which variable is the SparkSession in a notebook?","spark",["sc","ssc","sqlCtx"],"sc = SparkContext, sqlCtx = SQLContext, ssc = streaming context."),
+ Q("spark","Which of these is an ACTION?","count()",["filter()","select()","withColumn()"],"count/show/collect/write trigger execution."),
+ Q("airflow","How are Airflow workflows defined?","As DAGs written in Python",["As XML files only","With drag-and-drop only","As SQL views"],"Directed Acyclic Graphs defined in Python."),
+ Q("airflow","What does task1 >> task2 >> task3 mean?","task2 runs after task1, task3 after task2",["All run in parallel","task3 runs first","They are one task"],"The >> operator defines dependencies."),
+ Q("flume","Flume agents are configured as…","source → channel → sink",["producer → topic → consumer","mapper → shuffle → reducer","bronze → silver → gold"],"The chain is defined in a configuration file."),
+ Q("flume","Which tool in the notes uses the PUSH model to stream data into HDFS?","Flume",["Sqoop","Hive","Solr"],"Flume sources push events through channels to sinks."),
+ Q("kafka","Which ports does the notes list for Kafka brokers and ZooKeeper?","Brokers 9092/9093, ZooKeeper 2181",["Brokers 8443, ZooKeeper 8080","Brokers 2181, ZooKeeper 9092","Brokers 4040, ZooKeeper 7077"],"Remember: 9092 brokers, 2181 ZooKeeper."),
+ Q("kafka","Which statement about Kafka is true?","It can run standalone without Hadoop and supports many producers and consumers",["It needs HDFS","It has only one consumer","It is a SQL engine"],"Kafka is an independent pub/sub log."),
+ Q("nifi","Who created NiFi and on which port does its UI run in the notes?","The NSA, port 8443",["LinkedIn, port 9092","Airbnb, port 8080","Yahoo, port 2181"],"NiFi = NSA, visual UI on 8443."),
+ Q("nifi","What is a NiFi FlowFile made of?","Content and attributes",["Only a SQL query","A Docker image","A Parquet footer"],"FlowFile = content + attributes."),
+ Q("solr","Which tool is a search engine built on Apache Lucene with indexing and facets?","Solr",["Hive","Flume","Sqoop"],"Solr = Cloudera Search."),
+ Q("iceberg","What can Iceberg do that classic Hive tables could not easily do?","Single-row updates and deletes with ACID",["Run on Windows","Read CSV files","Create dashboards"],"Iceberg is an open table format for lakehouses."),
+ Q("ozone","How is Ozone different from HDFS?","Object-based storage with containers and no small-files problem",["File-based with one NameNode","A SQL engine","A visualisation tool"],"Ozone stores objects grouped in containers."),
+ Q("ml","Clustering is an example of…","unsupervised learning",["supervised learning","a SQL join","a Docker image"],"Unsupervised = no labels; classification/regression = supervised."),
+ Q("ml","Why do we split data into training and testing sets?","To evaluate the model on data it has not seen",["To make the table smaller","To remove duplicates","To create indexes"],"Testing data measures real performance."),
+ Q("dbt","Which of these is a dbt feature?","Models, seeds, YAML tests and generated documentation",["Stream processing","Container orchestration","Block storage"],"dbt = transformation (the T of ELT)."),
+ Q("dbt","Which dbt object loads small static CSV data into the warehouse?","Seeds",["Models","Sources","Macros only"],"Seeds are CSV files dbt loads as tables."),
+ Q("viz","Which of these are visualisation / BI tools?","Power BI, Qlik, Looker, Tableau",["Sqoop, Flume, NiFi","Hive, Impala, Pig","Docker, Terraform, dbt"],"They build and share dashboards."),
+ Q("docker","What is a Docker container?","A running instance of an image",["A blueprint of an app","A cluster manager","A YAML file only"],"Image = blueprint; container = running instance."),
+ Q("docker","Which file format defines multi-container setups for Docker Compose?","YAML",["Parquet","JSON-L","Avro"],"docker compose up reads a YAML file."),
+ Q("terraform","Where does Terraform remember which infrastructure it created?","In the tfstate file",["In the Hive Metastore","In ZooKeeper","In a Docker image"],"tfstate is Terraform's record of reality."),
+ Q("terraform","What does IaC stand for?","Infrastructure as Code",["Integration as Cluster","Index and Cache","Internal Data Catalog"],"Infrastructure is described in code kept in Git."),
+ Q("databricks","Which storage technology is Databricks' lakehouse based on?","Delta Lake",["HDFS only","Pig","Sqoop"],"Databricks = Spark + Delta Lake."),
+ Q("databricks","Which statement matches Databricks in the notes?","Runs on Azure and AWS, built-in SparkSession, free community edition",["Only on-premise, no Spark","Only SQL, no Python","A search engine"],"Notebooks have spark ready to use."),
+ Q("snowflake","What is Snowpipe?","Snowflake's pipeline service for loading data",["A resource manager","A BI tool","A search engine"],"Snowpipe automates loading into Snowflake."),
+ Q("snowflake","How is Snowflake billed and trialled according to the notes?","Pay as you use, free for 30 days",["Fixed licence, no trial","Free forever","Per GB of Hive tables"],"Pay-as-you-use cloud warehouse.")
+];
+
+/* Scenario questions mixing topics (used inside the quiz as well) */
+QUIZ.push(
+ Q("sqoop","Every night you must copy structured tables from MySQL into Hadoop. Which tool?","Sqoop",["Flume","Solr","Pig"],"Sqoop imports RDBMS tables into HDFS/Hive."),
+ Q("kafka","Website events must be buffered and read independently by several systems. Which tool?","Kafka",["Sqoop","Hue","Terraform"],"Kafka topics let many consumers read the same stream."),
+ Q("nifi","You want a visual, drag-and-drop dataflow with processors and tracking. Which tool?","NiFi",["Impala","Pig","Docker"],"NiFi = visual ETL-style dataflow."),
+ Q("impala","Analysts need very fast interactive SQL on Parquet files in Hadoop. Which engine?","Impala",["Pig","Sqoop","Flume"],"Impala is the fast MPP SQL engine."),
+ Q("airflow","You must schedule and monitor a multi-step pipeline with dependencies. Which tool?","Airflow",["Hue","Solr","Ozone"],"Airflow orchestrates DAGs."),
+ Q("terraform","You want the same cloud infrastructure to be rebuilt from code in dev and prod. Which tool?","Terraform",["Pandas","Hive","Kafka"],"Terraform = Infrastructure as Code."),
+ Q("lakehouse","One platform must serve BI dashboards and ML on cheap storage with ACID. What architecture?","Data lakehouse",["Plain RDBMS","Pure data lake","Pseudo cluster"],"Lakehouse = lake + warehouse.")
+);
+
+/* True / False speed round */
+function TF(t,s,v,e){return {t:t,s:s,v:v,e:e};}
+var TFS = [
+ TF("hdfs","HDFS stores files in blocks, 128 MB by default.",true,"Default block size is 128 MB."),
+ TF("hdfs","In HDFS the DataNode keeps the metadata of the whole file system.",false,"The NameNode keeps the metadata; DataNodes keep blocks."),
+ TF("sqoop","Sqoop uses 4 mappers by default.",true,"Default parallelism is 4."),
+ TF("sqoop","Sqoop is a server-side tool that streams logs into HDFS.",false,"Sqoop is client-side and moves structured RDBMS data; Flume streams logs."),
+ TF("kafka","Kafka brokers use ports 9092/9093 and ZooKeeper uses 2181 (as in the notes).",true,"Remember 9092 and 2181."),
+ TF("kafka","Kafka can only run on top of Hadoop.",false,"Kafka can run standalone."),
+ TF("nifi","NiFi was created by the NSA and its UI runs on port 8443.",true,"NiFi = NSA, 8443."),
+ TF("nifi","NiFi is a search engine built on Lucene.",false,"That is Solr."),
+ TF("solr","Solr is built on the Apache Lucene engine.",true,"Solr indexes JSON documents with facets and grouping."),
+ TF("impala","Impala can be around 5x faster than Hive but is not fault tolerant.",true,"Speed vs fault tolerance trade-off."),
+ TF("impala","Impala has its own separate metastore and query language.",false,"It uses Hive's metastore and HQL."),
+ TF("hive","Hive stores its data on HDFS and its metadata in the Metastore.",true,"Data in HDFS, definitions in the Metastore."),
+ TF("hive","Dropping an external Hive table deletes the underlying files.",false,"Only metadata is deleted."),
+ TF("pig","Pig scripts are written in HQL.",false,"Pig uses PigLatin."),
+ TF("mapreduce","MapReduce runs only with Hadoop and supports only batch processing.",true,"That is why Spark replaced it."),
+ TF("spark","Spark transformations are lazy: nothing runs until an action is triggered.",true,"Lazy evaluation."),
+ TF("spark","Spark needs Hadoop installed in order to run.",false,"It can run stand-alone, even without Hadoop."),
+ TF("airflow","Airflow workflows are Python DAGs and tasks can be chained like task1 >> task2.",true,"Dependencies use >>."),
+ TF("airflow","Oozie replaced Airflow.",false,"Oozie came before Airflow."),
+ TF("flume","Flume agents chain source, channel and sink defined in a config file.",true,"Flume uses a push model into HDFS."),
+ TF("formats","Avro stores data in binary and its schema in JSON (.avsc).",true,"Avro: .avro data + .avsc schema."),
+ TF("formats","Parquet is a row-based, human-readable text format.",false,"Parquet is columnar binary."),
+ TF("formats","Text is the default format on HDFS.",true,"Everything on HDFS is a string by default."),
+ TF("dw","Data warehouses are schema-on-write and read-heavy.",true,"Structure is enforced when writing."),
+ TF("lake","Data lakes are strictly ACID and schema-on-write.",false,"Lakes are schema-on-read and follow BASE."),
+ TF("lake","The main risk of a data lake is a data swamp.",true,"Lack of governance and metadata."),
+ TF("rdbms","Atomicity means a transaction is all-or-nothing.",true,"The A in ACID."),
+ TF("rdbms","OLTP databases are designed for years of historical analytics.",false,"That is OLAP."),
+ TF("lakehouse","A lakehouse combines a data lake and a data warehouse.",true,"Lake storage + warehouse features."),
+ TF("iceberg","Iceberg allows single-row updates and deletes with ACID, unlike classic Hive tables.",true,"Iceberg is an open table format."),
+ TF("ozone","Ozone is file-based just like HDFS.",false,"Ozone is object-based."),
+ TF("ozone","Ozone does not suffer from the small-files problem.",true,"It stores objects in containers."),
+ TF("dbt","dbt uses YAML files, models, seeds and tests, and Git for version control.",true,"dbt is the transformation tool of ELT."),
+ TF("docker","A Docker container is a running instance of an image.",true,"Image = blueprint."),
+ TF("terraform","Terraform keeps the state of the infrastructure in the tfstate file.",true,"tfstate = what exists now."),
+ TF("snowflake","Snowflake offers a 30-day free trial and is pay-as-you-use.",true,"Cloud warehouse billing."),
+ TF("databricks","Databricks can only run on-premise.",false,"It runs on Azure and AWS."),
+ TF("yarn","YARN has one ApplicationMaster per job.",true,"The ApplicationMaster coordinates its job."),
+ TF("yarn","YARN stores the data blocks of files.",false,"HDFS stores blocks; YARN manages CPU and memory."),
+ TF("etl-elt","ELT loads raw data first and transforms it afterwards in the lake or lakehouse.",true,"ELT = Extract, Load, Transform."),
+ TF("oltp-olap","OLAP is used for quickly changing transactional data.",false,"That is OLTP."),
+ TF("sql","HAVING filters groups after GROUP BY.",true,"WHERE filters rows before."),
+ TF("python","A .ipynb file is a Jupyter notebook.",true,".py = script, .ipynb = notebook."),
+ TF("pandas","A tuple can be changed after it is created.",false,"Tuples are immutable."),
+ TF("hue","Hue offers a GUI and basic dashboards for Hive and Impala.",true,"Hadoop User Experience."),
+ TF("ml","Clustering is a supervised learning technique.",false,"It is unsupervised."),
+ TF("viz","Power BI, Qlik, Looker and Tableau are dashboard tools.",true,"They build and share dashboards."),
+ TF("distributed","In a pseudo cluster all services run on the same machine.",true,"Used for learning and testing.")
+];
+
+/* Pipeline ordering puzzles */
+var ORDERS = [
+ {title:"Classic Hadoop analytics",steps:[
+  {t:"Orders are created in a MySQL database (OLTP, ACID)",tp:["rdbms"]},
+  {t:"Sqoop imports the structured tables into HDFS",tp:["sqoop","hdfs"]},
+  {t:"Hive maps the files to tables; metadata goes to the Metastore",tp:["hive"]},
+  {t:"Impala runs fast interactive queries on the same metastore (INVALIDATE METADATA after changes)",tp:["impala"]},
+  {t:"Hue shows the results in a simple dashboard",tp:["hue"]}]},
+ {title:"Real-time clickstream to dashboard",steps:[
+  {t:"Website events are produced into a Kafka topic",tp:["kafka"]},
+  {t:"Spark Streaming consumes and cleans the events",tp:["spark"]},
+  {t:"Data lands in lakehouse tables as Bronze → Silver → Gold (Iceberg / Delta)",tp:["lakehouse","iceberg"]},
+  {t:"An Airflow DAG schedules and monitors the daily aggregation",tp:["airflow"]},
+  {t:"A Power BI / Tableau dashboard reads the Gold table",tp:["viz"]}]},
+ {title:"Modern cloud ELT",steps:[
+  {t:"Terraform creates the cloud infrastructure from code (tfstate)",tp:["terraform"]},
+  {t:"Raw files are extracted and loaded as-is into the data lake (ELT)",tp:["lake","etl-elt"]},
+  {t:"Snowpipe loads the files into Snowflake",tp:["snowflake"]},
+  {t:"dbt models transform the raw tables inside the warehouse and run tests",tp:["dbt"]},
+  {t:"A Looker / Tableau dashboard is shared with the business",tp:["viz"]}]}
+];
+
+/* Compare tables: [title, headers[], rows[][]] */
+var COMPARE = [
+ ["Database vs Data Warehouse vs Data Lake vs Lakehouse",["","Database (RDBMS)","Data Warehouse","Data Lake","Lakehouse"],[
+  ["Purpose","Day-to-day transactions (OLTP)","Historical analysis (OLAP)","Store everything raw (OLAP)","BI + AI/ML on one copy"],
+  ["Schema","Schema-on-write","Schema-on-write","Schema-on-read","Both (table formats)"],
+  ["Consistency","ACID","ACID","BASE","ACID + BASE"],
+  ["Data","Structured, up to a few GBs","Structured (+ semi-structured)","Any format, raw","Structured, semi, unstructured"],
+  ["Workload","Write-heavy","Read-heavy","Read and write heavy","Read and write"],
+  ["Examples","MySQL, Oracle, Postgres, SQLite","Snowflake, BigQuery, Redshift, Synapse","S3, ADLS, GCS, HDFS","Delta Lake, Iceberg, Fabric"]]],
+ ["Ingestion tools: Sqoop vs Flume vs Kafka vs NiFi",["","Sqoop","Flume","Kafka","NiFi"],[
+  ["Moves","Structured RDBMS data → HDFS","Streaming logs → HDFS","Events between many systems","Any data, batch or streaming"],
+  ["Model","Client-side, 4 mappers","Push: source → channel → sink","Push-pull, topics + partitions","Visual processors, FlowFiles"],
+  ["Origin","Hadoop (retired)","Hadoop ecosystem","LinkedIn 2011","NSA"],
+  ["Ports / UI","—","Config file","Brokers 9092/9093, ZooKeeper 2181","UI 8443"]]],
+ ["Processing / query on Hadoop: MapReduce vs Pig vs Hive vs Impala vs Spark",["","MapReduce","Pig","Hive","Impala","Spark"],[
+  ["Language","Java","PigLatin","HQL","HQL (same metastore)","Scala, Python, R, Java, SQL"],
+  ["Speed","Slow (batch)","Slow","Slower (MapReduce-based)","~5x faster than Hive","In-memory, fast"],
+  ["Fault tolerant","Yes","Yes","Yes","No","Yes (RDD lineage)"],
+  ["Status","Legacy","Retired","Active","Active","Industry standard"]]],
+ ["File formats",["","Text","Sequence","Avro","Parquet / ORC"],[
+  ["Layout","Row, text","Row, binary","Row, binary + JSON schema","Columnar, binary"],
+  ["Human-readable","Yes","No","No","No"],
+  ["Best for","Small/simple files, HDFS default","Images, binary data","Streaming, schema evolution (.avro/.avsc)","Analytics, up to 90% compression"]]],
+ ["HDFS vs Ozone",["","HDFS","Ozone"],[
+  ["Storage model","File-based, 128 MB blocks","Object-based, containers"],
+  ["Small files","Problem (NameNode memory)","No problem"],
+  ["Scale","Limited by NameNode","More data / objects"],
+  ["Fit","On-prem Hadoop","Streaming, real-time, cloud setups, Hadoop-compatible"]]],
+ ["Databricks vs Snowflake",["","Databricks","Snowflake"],[
+  ["Type","Lakehouse platform (Spark + Delta Lake)","Cloud data warehouse"],
+  ["Languages","SQL, Python, Scala","SQL (+ Snowpark, ETL pipelines)"],
+  ["Loading","Spark / streaming","Snowpipe"],
+  ["Cost / trial","Free community edition","Pay as you use, 30-day free trial"],
+  ["Clouds","Azure, AWS","Cloud-based"]]],
+ ["Python containers",["","List","Tuple","Set","Dictionary"],[
+  ["Brackets","[ ]","( )","{ }","{ key: value }"],
+  ["Mutable","Yes","No","Yes","Yes"],
+  ["Ordered","Yes","Yes","No","Insertion order"],
+  ["Duplicates","Allowed","Allowed","Not allowed","Keys unique"],
+  ["Nesting","List in list","Tuple in tuple","—","Yes, nested values"]]],
+ ["Ports & numbers cheat-sheet",["Item","Value"],[
+  ["HDFS default block size","128 MB"],["Sqoop default mappers","4"],["Kafka brokers","9092, 9093"],["ZooKeeper","2181"],
+  ["NiFi UI","8443"],["dbt docs","8080"],["Impala vs Hive","≈ 5x faster, not fault tolerant"],["Parquet compression","up to 90%"],["Snowflake trial","30 days"]]]
+];
+
+/* Map layers: [label, sublabel, ids[]] */
+var LAYERS = [
+ ["Languages","write the logic",["python","pandas","sql"]],
+ ["Source systems","where data is born",["rdbms","oltp-olap"]],
+ ["Ingestion","get data in",["sqoop","flume","kafka","nifi"]],
+ ["Storage & formats","keep it",["hdfs","ozone","lake","formats","distributed"]],
+ ["Architectures","how it is organised",["dw","lakehouse","iceberg","etl-elt"]],
+ ["Processing & query","crunch it",["mapreduce","pig","hive","impala","spark"]],
+ ["Resources & orchestration","run it",["yarn","airflow"]],
+ ["Transformation","model it",["dbt"]],
+ ["Serving & insight","use it",["viz","hue","solr","ml"]],
+ ["Platforms","all-in-one clouds",["databricks","snowflake"]],
+ ["DevOps","reproduce it",["docker","terraform"]]
+];
+</script>
+
+<!-- ====================================================== APP ====================================================== -->
+<script id="app">
+var $ = function(s){return document.querySelector(s);};
+var $$ = function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
+var byId = {}; TOPICS.forEach(function(t){byId[t.id]=t;});
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var x=a[i];a[i]=a[j];a[j]=x;}return a;}
+var store={get:function(k,d){try{var v=localStorage.getItem('de_'+k);return v?JSON.parse(v):d;}catch(e){return d;}},set:function(k,v){try{localStorage.setItem('de_'+k,JSON.stringify(v));}catch(e){}}};
+var studied=new Set(store.get('studied',[])), mastered=new Set(store.get('mastered',[])), touched=new Set(store.get('touched',[]));
+function chip(id,label){var t=byId[id];return '<span class="chip" data-go="'+id+'">'+(t?t.emoji+' ':'')+(label||(t?t.title:id))+'</span>';}
+
+/* ---------- tabs ---------- */
+var TABS=[["p-map","🗺️ Big Picture"],["p-topics","📚 All Topics"],["p-compare","🔗 Compare"],["p-cards","🃏 Flashcards"],["p-games","🎮 Games"]];
+function showTab(id){$$('.pane').forEach(function(p){p.classList.toggle('on',p.id===id);});$$('#nav .tab').forEach(function(b){b.classList.toggle('on',b.dataset.t===id);});window.scrollTo(0,0);}
+$('#nav').innerHTML=TABS.map(function(t,i){return '<button class="tab'+(i===0?' on':'')+'" data-t="'+t[0]+'">'+t[1]+'</button>';}).join('');
+$('#nav').addEventListener('click',function(e){var b=e.target.closest('.tab');if(b)showTab(b.dataset.t);});
+
+/* ---------- jump to topic ---------- */
+function goTopic(id){
+  showTab('p-topics');
+  var s=$('#tsearch'); if(s&&s.value){s.value='';renderTopics('');}
+  var d=document.getElementById('t-'+id); if(!d)return;
+  d.open=true; setTimeout(function(){d.scrollIntoView({behavior:'smooth',block:'start'});d.classList.remove('flash');void d.offsetWidth;d.classList.add('flash');},40);
+}
+document.addEventListener('click',function(e){var g=e.target.closest('[data-go]');if(g){e.preventDefault();goTopic(g.dataset.go);}});
+
+/* ---------- big picture ---------- */
+$('#layers').innerHTML=LAYERS.map(function(l){return '<div class="layer"><b>'+l[0]+'<small>'+l[1]+'</small></b><div>'+l[2].map(function(i){return chip(i);}).join('')+'</div></div>';}).join('');
+
+/* ---------- topics ---------- */
+function topicHTML(t){
+  var rel=t.rel.map(function(r){return '<span class="chip" data-go="'+r[0]+'" title="'+r[1]+'">'+byId[r[0]].emoji+' '+byId[r[0]].title+'</span> <small style="color:#94a3b8">'+r[1]+'</small>';}).join('<br>');
+  return '<details class="card" id="t-'+t.id+'"><summary><span class="num">'+t.n+'</span><span class="ttl">'+t.emoji+' '+t.title+'</span>'+
+   '<label class="studied" onclick="event.stopPropagation()"><input type="checkbox" data-st="'+t.id+'"'+(studied.has(t.id)?' checked':'')+'> studied</label><span class="cue">click to open</span></summary>'+
+   '<div class="cbody"><h4>From your notes (PDF item '+t.n+')</h4><ul>'+t.pdf.map(function(p){return '<li>'+p+'</li>';}).join('')+'</ul>'+
+   '<h4>In plain English</h4><p>'+t.plain+'</p>'+(t.note?'<div class="heads"><b>💡 Heads-up:</b> '+t.note+'</div>':'')+
+   '<h4>🎤 Interview</h4><div class="iv"><b>Q: '+t.q+'</b><br><br>'+t.a+'</div>'+
+   '<h4>🔗 Connected to</h4><div>'+rel+'</div></div></details>';
+}
+function renderTopics(q){
+  q=(q||'').toLowerCase().trim(); var out='';
+  ['A','B','C'].forEach(function(s){
+    var list=TOPICS.filter(function(t){return t.sec===s&&(!q||(t.title+' '+t.pdf.join(' ')+' '+t.plain+' '+(t.note||'')).toLowerCase().indexOf(q)>-1);});
+    if(list.length)out+='<h3 class="sec">'+SECTIONS[s]+'</h3>'+list.map(topicHTML).join('');
+  });
+  $('#topicList').innerHTML=out||'<div class="box">No topic matches “'+q+'”.</div>';
+  if(q)$$('#topicList details').forEach(function(d){d.open=true;});
+  progress();
+}
+function progress(){var n=studied.size,t=TOPICS.length;$('#sbar').style.width=(100*n/t)+'%';$('#stxt').textContent=n+' / '+t+' studied';}
+$('#tsearch').addEventListener('input',function(e){renderTopics(e.target.value);});
+$('#expAll').addEventListener('click',function(){$$('#topicList details').forEach(function(d){d.open=true;});});
+$('#colAll').addEventListener('click',function(){$$('#topicList details').forEach(function(d){d.open=false;});});
+$('#topicList').addEventListener('change',function(e){var c=e.target.closest('[data-st]');if(!c)return;if(c.checked)studied.add(c.dataset.st);else studied.delete(c.dataset.st);store.set('studied',Array.from(studied));progress();});
+
+/* ---------- compare ---------- */
+$('#compare').innerHTML=COMPARE.map(function(c,i){
+  return '<details class="card"'+(i===0?' open':'')+'><summary><span class="ttl">'+c[0]+'</span><span class="cue">click to open</span></summary><div class="cbody"><div class="tw"><table><thead><tr>'+c[1].map(function(h){return '<th>'+h+'</th>';}).join('')+'</tr></thead><tbody>'+c[2].map(function(r){return '<tr>'+r.map(function(x,j){return '<td>'+(j===0?'<b>'+x+'</b>':x)+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div></div></details>';
+}).join('');
+
+/* ---------- flashcards ---------- */
+var cf='all', cardOrder=TOPICS.slice();
+function renderCards(){
+  var list=cardOrder.filter(function(t){return cf==='all'||t.sec===cf;});
+  $('#fgrid').innerHTML=list.map(function(t){var m=mastered.has(t.id);
+   return '<div class="fc'+(m?' ms':'')+'" data-fc="'+t.id+'"><div class="fci"><div class="ff"><div><span class="badge">PDF '+t.n+'</span><h3 style="font-size:1.12rem;margin-top:12px">'+t.emoji+' '+t.title+'</h3><p style="color:#94a3b8;font-size:.86rem;margin-top:8px">What is it, and what do you remember about it?</p></div><div style="font-size:.78rem;color:#38bdf8">👆 click to flip'+(m?' · ✅ mastered':'')+'</div></div>'+
+   '<div class="fb"><div><b style="color:#38bdf8">'+t.title+'</b><p style="margin:6px 0"><b>'+t.match+'</b></p><p style="color:#cbd5e1">'+t.plain+'</p></div><button class="mini" data-ms="'+t.id+'">'+(m?'Undo ✅':'✅ I know it')+'</button></div></div></div>';}).join('');
+  $('#cscore').textContent='Mastered: '+mastered.size+' / '+TOPICS.length;
+}
+$('#fgrid').addEventListener('click',function(e){
+  var ms=e.target.closest('[data-ms]');
+  if(ms){e.stopPropagation();var id=ms.dataset.ms;if(mastered.has(id))mastered.delete(id);else mastered.add(id);store.set('mastered',Array.from(mastered));renderCards();return;}
+  var c=e.target.closest('.fc');if(c)c.classList.toggle('fl');
+});
+$$('[data-cf]').forEach(function(b){b.addEventListener('click',function(){cf=b.dataset.cf;$$('[data-cf]').forEach(function(x){x.classList.toggle('pri',x===b);});renderCards();});});
+$('#cshuf').addEventListener('click',function(){cardOrder=shuffle(TOPICS);renderCards();});
+
+/* ---------- coverage ---------- */
+function touch(ids){ids.forEach(function(i){touched.add(i);});store.set('touched',Array.from(touched));renderCov();}
+function renderCov(){
+  $('#cov').innerHTML=TOPICS.map(function(t){return '<span class="chip'+(touched.has(t.id)?' done':'')+'" data-go="'+t.id+'">'+t.emoji+' '+t.title.split(' ')[0]+'</span>';}).join('');
+  $('#covtxt').textContent=touched.size+' / '+TOPICS.length;
+}
+
+/* ---------- games tabs ---------- */
+var GAMES=[["g-quiz","🧠 Quiz"],["g-match","🔗 Match-up"],["g-order","🧩 Build the pipeline"],["g-tf","⚡ True / False"],["g-mock","🎤 Mock interview"]];
+$('#gtabs').innerHTML=GAMES.map(function(g,i){return '<button class="tab'+(i===0?' on':'')+'" data-g="'+g[0]+'">'+g[1]+'</button>';}).join('');
+$('#gtabs').addEventListener('click',function(e){var b=e.target.closest('[data-g]');if(!b)return;$$('#gtabs .tab').forEach(function(x){x.classList.toggle('on',x===b);});$$('.gp').forEach(function(p){p.classList.toggle('on',p.id===b.dataset.g);});});
+
+/* ---------- QUIZ ---------- */
+var quiz=null, qSec='all', qLen=15;
+function quizSetup(){
+  $('#quizBox').innerHTML='<div class="gh"><b style="font-size:1.1rem">🧠 Interview Quiz — '+QUIZ.length+' questions covering all '+TOPICS.length+' topics</b></div>'+
+  '<p class="sub">Choose what to practise:</p><div class="sel"><b>Part:</b>'+
+  [["all","Everything"],["A","A · Foundations"],["B","B · Hadoop"],["C","C · Ecosystem"]].map(function(x){return '<button class="btn'+(qSec===x[0]?' pri':'')+'" data-qs="'+x[0]+'">'+x[1]+'</button>';}).join('')+'</div>'+
+  '<div class="sel"><b>Length:</b>'+[10,15,25,0].map(function(n){return '<button class="btn'+(qLen===n?' pri':'')+'" data-ql="'+n+'">'+(n||'All')+'</button>';}).join('')+'</div>'+
+  '<button class="btn pri" id="qstart" style="margin-top:8px">▶ Start quiz</button>';
+}
+function quizStart(){
+  var pool=QUIZ.filter(function(q){return qSec==='all'||byId[q.t].sec===qSec;});
+  pool=shuffle(pool); if(qLen)pool=pool.slice(0,qLen);
+  quiz={list:pool,i:0,score:0,missed:{}}; quizShow();
+}
+function quizShow(){
+  var q=quiz.list[quiz.i]; touch([q.t]);
+  var opts=shuffle([{x:q.c,ok:true}].concat(q.w.map(function(w){return {x:w,ok:false};})));
+  quiz.cur={q:q,opts:opts};
+  $('#quizBox').innerHTML='<div class="gh"><div><span class="badge">Question '+(quiz.i+1)+' / '+quiz.list.length+'</span> <span class="badge p">'+byId[q.t].emoji+' '+byId[q.t].title+'</span></div><b>Score: <span style="color:#34d399">'+quiz.score+'</span></b></div>'+
+   '<div class="qtxt">'+q.s+'</div>'+opts.map(function(o,i){return '<button class="opt" data-o="'+i+'"><b>'+String.fromCharCode(65+i)+'.</b> '+o.x+'</button>';}).join('')+
+   '<div class="fbk" id="qfb"></div><button class="btn pri" id="qnext" style="display:none"></button>';
+}
+function quizAnswer(i){
+  var c=quiz.cur,o=c.opts[i],btns=$$('#quizBox .opt'),fb=$('#qfb');
+  btns.forEach(function(b,k){b.disabled=true;if(c.opts[k].ok)b.classList.add('ok');});
+  fb.style.display='block';
+  if(o.ok){quiz.score++;fb.style.background='rgba(52,211,153,.12)';fb.style.borderLeft='4px solid #34d399';fb.style.color='#a7f3d0';fb.innerHTML='<b>✅ Correct.</b> '+c.q.e;}
+  else{btns[i].classList.add('no');quiz.missed[c.q.t]=true;fb.style.background='rgba(251,113,133,.12)';fb.style.borderLeft='4px solid #fb7185';fb.style.color='#fecdd3';fb.innerHTML='<b>❌ Not quite.</b> '+c.q.e;}
+  var n=$('#qnext');n.style.display='inline-block';n.textContent=quiz.i<quiz.list.length-1?'Next →':'See results 🏆';
+}
+function quizEnd(){
+  var pct=Math.round(100*quiz.score/quiz.list.length),miss=Object.keys(quiz.missed);
+  $('#quizBox').innerHTML='<div style="text-align:center"><div style="font-size:2.2rem">🏆</div><h3>Quiz complete: '+quiz.score+' / '+quiz.list.length+' ('+pct+'%)</h3><p style="color:#94a3b8;margin-top:6px">'+(pct>=80?'Excellent — interview-ready on this part!':'Good start — review the topics below and try again.')+'</p></div>'+
+   (miss.length?'<h4 style="margin:18px 0 8px;color:#fb7185">Review these topics (click to open):</h4><div>'+miss.map(function(i){return chip(i);}).join('')+'</div>':'<p style="margin-top:14px;color:#34d399;text-align:center">No mistakes! 🎉</p>')+
+   '<div style="text-align:center;margin-top:18px"><button class="btn pri" id="qagain">🔄 Play again</button></div>';
+}
+$('#quizBox').addEventListener('click',function(e){
+  var b;
+  if((b=e.target.closest('[data-qs]'))){qSec=b.dataset.qs;quizSetup();}
+  else if((b=e.target.closest('[data-ql]'))){qLen=parseInt(b.dataset.ql,10);quizSetup();}
+  else if(e.target.closest('#qstart')||e.target.closest('#qagain')){quizSetup();quizStart();}
+  else if((b=e.target.closest('.opt'))&&!b.disabled){quizAnswer(parseInt(b.dataset.o,10));}
+  else if(e.target.closest('#qnext')){quiz.i++;if(quiz.i<quiz.list.length)quizShow();else quizEnd();}
+});
+
+/* ---------- MATCH ---------- */
+var mg=null;
+function matchNew(){
+  var pick=shuffle(TOPICS).slice(0,6); touch(pick.map(function(t){return t.id;}));
+  mg={pick:pick,right:shuffle(pick),sel:null,done:{},bad:0,t0:Date.now()}; matchDraw();
+}
+function matchDraw(){
+  var left=mg.pick.map(function(t){return '<button class="mb'+(mg.done[t.id]?' dn':'')+(mg.sel===t.id?' sl':'')+'" data-ml="'+t.id+'"'+(mg.done[t.id]?' disabled':'')+'>'+t.emoji+' <b>'+t.title+'</b></button>';}).join('');
+  var right=mg.right.map(function(t){return '<button class="mb'+(mg.done[t.id]?' dn':'')+'" data-mr="'+t.id+'"'+(mg.done[t.id]?' disabled':'')+'>'+t.match+'</button>';}).join('');
+  var n=Object.keys(mg.done).length;
+  $('#matchBox').innerHTML='<div class="gh"><b style="font-size:1.1rem">🔗 Match each tool with its description</b><span class="badge">'+n+' / 6 matched · '+mg.bad+' mistakes</span></div><div class="mcols"><div>'+left+'</div><div>'+right+'</div></div>'+
+   (n===6?'<div class="fbk" style="display:block;background:rgba(52,211,153,.12);border-left:4px solid #34d399;color:#a7f3d0"><b>🎉 Round complete in '+Math.round((Date.now()-mg.t0)/1000)+' s with '+mg.bad+' mistakes.</b> Topics: '+mg.pick.map(function(t){return chip(t.id);}).join('')+'</div>':'')+
+   '<div style="margin-top:10px"><button class="btn pri" id="mnew">🔄 New round (6 different topics)</button></div>';
+}
+$('#matchBox').addEventListener('click',function(e){
+  if(!mg)return; var b;
+  if(e.target.closest('#mnew')){matchNew();return;}
+  if((b=e.target.closest('[data-ml]'))&&!b.disabled){mg.sel=b.dataset.ml;matchDraw();return;}
+  if((b=e.target.closest('[data-mr]'))&&!b.disabled&&mg.sel){
+    if(b.dataset.mr===mg.sel){mg.done[mg.sel]=true;mg.sel=null;matchDraw();}
+    else{mg.bad++;b.classList.add('bad');var bt=b;setTimeout(function(){mg.sel=null;matchDraw();},450);}
+  }
+});
+
+/* ---------- ORDER ---------- */
+var og=null;
+function orderMenu(){
+  $('#orderBox').innerHTML='<div class="gh"><b style="font-size:1.1rem">🧩 Build the pipeline</b></div><p class="sub">Click the steps in the correct order, from the very start of the data journey to the end.</p>'+
+   ORDERS.map(function(o,i){return '<button class="btn'+(i===0?' pri':'')+'" data-os="'+i+'" style="margin:4px 6px 4px 0">'+o.title+'</button>';}).join('');
+}
+function orderStart(i){
+  var o=ORDERS[i]; var all=[];o.steps.forEach(function(s){all=all.concat(s.tp);}); touch(all);
+  og={i:i,items:shuffle(o.steps.map(function(s,k){return {k:k,t:s.t};})),chosen:[],checked:false}; orderDraw();
+}
+function orderDraw(){
+  var o=ORDERS[og.i],n=o.steps.length;
+  var slots=''; for(var s=0;s<n;s++){var c=og.chosen[s];var cls='slot';if(og.checked&&c!==undefined)cls+=(c.k===s?' ok':' no');
+   slots+='<div class="'+cls+'" '+(c!==undefined&&!og.checked?'data-un="'+s+'" style="cursor:pointer"':'')+'><b>'+(s+1)+'.</b> '+(c!==undefined?c.t:'<span style="color:#64748b">…</span>')+'</div>';}
+  var used={};og.chosen.forEach(function(c){used[c.k]=true;});
+  var pool=og.items.filter(function(it){return !used[it.k];}).map(function(it){return '<button class="mb" data-op="'+it.k+'">'+it.t+'</button>';}).join('');
+  var res='';
+  if(og.checked){var ok=og.chosen.every(function(c,s){return c.k===s;});
+   res='<div class="fbk" style="display:block;background:'+(ok?'rgba(52,211,153,.12)':'rgba(251,191,36,.1)')+';border-left:4px solid '+(ok?'#34d399':'#fbbf24')+';color:'+(ok?'#a7f3d0':'#fde68a')+'">'+(ok?'<b>✅ Perfect order!</b>':'<b>Not quite — correct order:</b>')+'<ol style="margin:8px 0 0 20px">'+o.steps.map(function(s){return '<li>'+s.t+' '+s.tp.map(function(i){return chip(i);}).join('')+'</li>';}).join('')+'</ol></div>';}
+  $('#orderBox').innerHTML='<div class="gh"><b style="font-size:1.1rem">🧩 '+o.title+'</b><button class="btn" id="omenu">← Other pipelines</button></div><h4 style="color:#38bdf8;margin-bottom:6px">Your pipeline</h4>'+slots+
+   (og.checked?'':'<h4 style="color:#38bdf8;margin:14px 0 6px">Steps to place (click in order)</h4>'+pool)+res+
+   '<div style="margin-top:12px"><button class="btn pri" id="ocheck"'+(og.chosen.length<n||og.checked?' disabled':'')+'>Check order</button> <button class="btn" id="oreset">Reset</button></div>';
+}
+$('#orderBox').addEventListener('click',function(e){
+  var b;
+  if((b=e.target.closest('[data-os]'))){orderStart(parseInt(b.dataset.os,10));return;}
+  if(e.target.closest('#omenu')){orderMenu();return;}
+  if(!og)return;
+  if((b=e.target.closest('[data-op]'))){var k=parseInt(b.dataset.op,10);og.chosen.push(og.items.filter(function(x){return x.k===k;})[0]);orderDraw();return;}
+  if((b=e.target.closest('[data-un]'))){og.chosen.splice(parseInt(b.dataset.un,10),1);orderDraw();return;}
+  if(e.target.closest('#ocheck')){og.checked=true;orderDraw();return;}
+  if(e.target.closest('#oreset')){orderStart(og.i);}
+});
+
+/* ---------- TRUE / FALSE ---------- */
+var tf=null;
+function tfStart(){tf={list:shuffle(TFS),i:0,score:0,streak:0,best:0,missed:{},ans:false};tfShow();}
+function tfShow(){
+  var q=tf.list[tf.i];touch([q.t]);tf.ans=false;
+  $('#tfBox').innerHTML='<div class="gh"><div><span class="badge">Statement '+(tf.i+1)+' / '+tf.list.length+'</span> <span class="badge p">'+byId[q.t].emoji+' '+byId[q.t].title+'</span></div><b>Score: <span style="color:#34d399">'+tf.score+'</span> · 🔥 '+tf.streak+'</b></div>'+
+   '<div class="qtxt">'+q.s+'</div><div class="sel"><button class="btn pri" data-tf="1" style="min-width:140px">✅ True</button><button class="btn" data-tf="0" style="min-width:140px">❌ False</button></div><div class="fbk" id="tffb"></div><button class="btn pri" id="tfnext" style="display:none"></button>';
+}
+function tfAnswer(v){
+  if(tf.ans)return;tf.ans=true;var q=tf.list[tf.i],ok=(v===q.v),fb=$('#tffb');fb.style.display='block';
+  if(ok){tf.score++;tf.streak++;tf.best=Math.max(tf.best,tf.streak);fb.style.background='rgba(52,211,153,.12)';fb.style.borderLeft='4px solid #34d399';fb.style.color='#a7f3d0';fb.innerHTML='<b>✅ Correct ('+(q.v?'True':'False')+').</b> '+q.e;}
+  else{tf.streak=0;tf.missed[q.t]=true;fb.style.background='rgba(251,113,133,.12)';fb.style.borderLeft='4px solid #fb7185';fb.style.color='#fecdd3';fb.innerHTML='<b>❌ It was '+(q.v?'True':'False')+'.</b> '+q.e;}
+  var n=$('#tfnext');n.style.display='inline-block';n.textContent=tf.i<tf.list.length-1?'Next →':'See results 🏆';
+}
+function tfEnd(){
+  var miss=Object.keys(tf.missed),pct=Math.round(100*tf.score/tf.list.length);
+  $('#tfBox').innerHTML='<div style="text-align:center"><div style="font-size:2.2rem">⚡</div><h3>Speed round: '+tf.score+' / '+tf.list.length+' ('+pct+'%) · best streak '+tf.best+'</h3></div>'+
+   (miss.length?'<h4 style="margin:16px 0 8px;color:#fb7185">Review:</h4><div>'+miss.map(function(i){return chip(i);}).join('')+'</div>':'<p style="text-align:center;color:#34d399;margin-top:12px">Perfect! 🎉</p>')+
+   '<div style="text-align:center;margin-top:16px"><button class="btn pri" id="tfagain">🔄 Play again</button></div>';
+}
+$('#tfBox').addEventListener('click',function(e){
+  var b;
+  if((b=e.target.closest('[data-tf]'))){tfAnswer(b.dataset.tf==='1');}
+  else if(e.target.closest('#tfnext')){tf.i++;if(tf.i<tf.list.length)tfShow();else tfEnd();}
+  else if(e.target.closest('#tfagain')){tfStart();}
+});
+
+/* ---------- MOCK INTERVIEW ---------- */
+var mk=null;
+function mockPool(){
+  var p=TOPICS.map(function(t){return {q:t.q,a:t.a,topics:[t.id]};}); return p.concat(EXTRA_INTERVIEW);
+}
+function mockStart(){mk={list:shuffle(mockPool()),i:0,knew:0,review:{},shown:false};mockShow();}
+function mockShow(){
+  var q=mk.list[mk.i];touch(q.topics);mk.shown=false;
+  $('#mockBox').innerHTML='<div class="gh"><div><span class="badge">Question '+(mk.i+1)+' / '+mk.list.length+'</span></div><b>Knew it: <span style="color:#34d399">'+mk.knew+'</span></b></div>'+
+   '<div style="background:#0d1428;border:1px solid var(--line);border-left:4px solid var(--purple);border-radius:10px;padding:16px 18px;margin-bottom:14px"><span class="badge p">🎤 Interviewer</span><p class="qtxt" style="margin:10px 0 0">'+q.q+'</p></div>'+
+   '<p style="color:#94a3b8;font-size:.9rem;margin-bottom:12px">Answer out loud first (30–60 seconds), then reveal the model answer and be honest with yourself.</p>'+
+   '<button class="btn pri" id="mreveal">👁️ Reveal model answer</button><div id="mans" style="display:none;margin-top:14px"></div>';
+}
+function mockReveal(){
+  var q=mk.list[mk.i];$('#mreveal').style.display='none';var a=$('#mans');a.style.display='block';
+  a.innerHTML='<div class="iv"><b>Model answer</b><br><br>'+q.a+'</div><div style="margin:10px 0">Related: '+q.topics.map(function(i){return chip(i);}).join('')+'</div>'+
+   '<div class="sel"><button class="btn pri" id="mknew">✅ I knew it</button><button class="btn" id="mkrev">🔁 Need to review</button></div>';
+}
+function mockNext(){mk.i++;if(mk.i<mk.list.length)mockShow();else mockEnd();}
+function mockEnd(){
+  var miss=Object.keys(mk.review);
+  $('#mockBox').innerHTML='<div style="text-align:center"><div style="font-size:2.2rem">🎤</div><h3>Mock interview finished: you knew '+mk.knew+' of '+mk.list.length+'</h3></div>'+
+   (miss.length?'<h4 style="margin:16px 0 8px;color:#fbbf24">Topics to review before the real interview:</h4><div>'+miss.map(function(i){return chip(i);}).join('')+'</div>':'<p style="text-align:center;color:#34d399;margin-top:12px">You are ready! 🎉</p>')+
+   '<div style="text-align:center;margin-top:16px"><button class="btn pri" id="magain">🔄 New mock interview</button></div>';
+}
+$('#mockBox').addEventListener('click',function(e){
+  if(e.target.closest('#mstart')||e.target.closest('#magain')){mockStart();}
+  else if(e.target.closest('#mreveal')){mockReveal();}
+  else if(e.target.closest('#mknew')){mk.knew++;mockNext();}
+  else if(e.target.closest('#mkrev')){mk.list[mk.i].topics.forEach(function(i){mk.review[i]=true;});mockNext();}
+});
+
+/* ---------- init ---------- */
+renderTopics('');renderCards();renderCov();quizSetup();matchNew();orderMenu();tfStart();
+$('#mockBox').innerHTML='<div class="gh"><b style="font-size:1.1rem">🎤 Mock interview — '+(TOPICS.length+EXTRA_INTERVIEW.length)+' open questions</b></div><p class="sub">One question per topic plus cross-topic design questions, in random order. Answer out loud, reveal the model answer, then rate yourself honestly.</p><button class="btn pri" id="mstart">▶ Start mock interview</button>';
+</script>
 </body>
 </html>
