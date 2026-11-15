@@ -1,0 +1,420 @@
+# Snowflake + dbt: A Hands-On Class Manual
+
+## Table of Contents
+1. Prerequisites & Setup
+2. Connecting dbt to Snowflake
+3. dbt Project Structure
+4. Sources
+5. Staging Models
+6. Intermediate & Mart Models
+7. Materializations
+8. Testing
+9. Snapshots (SCD Type 2)
+10. Macros & Jinja
+11. Seeds
+12. Documentation & Lineage
+13. Deployment Basics
+14. Class Exercises
+
+---
+
+## 1. Prerequisites & Setup
+
+**What students need:**
+- A Snowflake trial account (free, 30 days) — https://signup.snowflake.com
+- Python 3.9+ installed locally
+- A terminal / VS Code
+
+**Install dbt with the Snowflake adapter:**
+
+```bash
+python -m venv dbt-env
+source dbt-env/bin/activate      # Windows: dbt-env\Scripts\activate
+pip install dbt-snowflake
+dbt --version
+```
+
+**Create a Snowflake warehouse, database, and role for the class (run in Snowflake worksheet):**
+
+```sql
+USE ROLE ACCOUNTADMIN;
+
+CREATE WAREHOUSE IF NOT EXISTS dbt_wh WITH WAREHOUSE_SIZE = 'XSMALL' AUTO_SUSPEND = 60 AUTO_RESUME = TRUE;
+CREATE DATABASE IF NOT EXISTS dbt_db;
+CREATE ROLE IF NOT EXISTS dbt_role;
+
+GRANT USAGE ON WAREHOUSE dbt_wh TO ROLE dbt_role;
+GRANT ALL ON DATABASE dbt_db TO ROLE dbt_role;
+GRANT ROLE dbt_role TO USER <your_username>;
+```
+
+---
+
+## 2. Connecting dbt to Snowflake
+
+Initialize a project:
+
+```bash
+dbt init my_dbt_project
+cd my_dbt_project
+```
+
+This creates a `profiles.yml` (usually in `~/.dbt/`). Configure it:
+
+```yaml
+my_dbt_project:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: <account_id>          # e.g. abcd-xy12345
+      user: <your_username>
+      password: <your_password>      # or use key-pair auth in production
+      role: dbt_role
+      database: dbt_db
+      warehouse: dbt_wh
+      schema: dev_yourname
+      threads: 4
+```
+
+**Test the connection:**
+
+```bash
+dbt debug
+```
+
+> **Class discussion point:** in production, passwords are never hardcoded — use key-pair authentication or environment variables (`{{ env_var('DBT_PASSWORD') }}`) and a secrets manager.
+
+---
+
+## 3. dbt Project Structure
+
+```
+my_dbt_project/
+├── dbt_project.yml
+├── models/
+│   ├── staging/
+│   │   ├── stg_orders.sql
+│   │   └── stg_customers.sql
+│   ├── intermediate/
+│   │   └── int_order_payments.sql
+│   └── marts/
+│       └── fct_orders.sql
+├── seeds/
+├── snapshots/
+├── macros/
+├── tests/
+└── analyses/
+```
+
+Key config in `dbt_project.yml`:
+
+```yaml
+name: 'my_dbt_project'
+version: '1.0'
+profile: 'my_dbt_project'
+
+models:
+  my_dbt_project:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: ephemeral
+    marts:
+      +materialized: table
+```
+
+---
+
+## 4. Sources
+
+Sources tell dbt where raw data already lives in Snowflake (loaded separately, e.g. via `COPY INTO` or Snowpipe).
+
+`models/staging/_sources.yml`:
+
+```yaml
+version: 2
+
+sources:
+  - name: raw
+    database: dbt_db
+    schema: raw_data
+    tables:
+      - name: orders
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 12, period: hour}
+          error_after: {count: 24, period: hour}
+      - name: customers
+```
+
+Check freshness:
+
+```bash
+dbt source freshness
+```
+
+---
+
+## 5. Staging Models
+
+Staging models do light cleanup — renaming, casting, no joins.
+
+`models/staging/stg_orders.sql`:
+
+```sql
+with source as (
+    select * from {{ source('raw', 'orders') }}
+),
+
+renamed as (
+    select
+        order_id,
+        customer_id,
+        order_date::date as order_date,
+        status as order_status,
+        amount::number(10,2) as order_amount
+    from source
+)
+
+select * from renamed
+```
+
+`models/staging/stg_customers.sql`:
+
+```sql
+select
+    customer_id,
+    first_name,
+    last_name,
+    email,
+    signup_date::date as signup_date
+from {{ source('raw', 'customers') }}
+```
+
+Run just staging:
+
+```bash
+dbt run --select staging.*
+```
+
+---
+
+## 6. Intermediate & Mart Models
+
+`models/intermediate/int_order_payments.sql`:
+
+```sql
+select
+    o.order_id,
+    o.customer_id,
+    o.order_date,
+    o.order_amount,
+    case when o.order_status = 'refunded' then 0 else o.order_amount end as net_amount
+from {{ ref('stg_orders') }} o
+```
+
+`models/marts/fct_orders.sql`:
+
+```sql
+select
+    p.order_id,
+    p.customer_id,
+    c.first_name,
+    c.last_name,
+    p.order_date,
+    p.net_amount
+from {{ ref('int_order_payments') }} p
+left join {{ ref('stg_customers') }} c
+    on p.customer_id = c.customer_id
+```
+
+> **Note the use of `ref()` instead of hardcoded table names** — this is what lets dbt build the dependency graph (DAG) automatically. Show `dbt docs generate && dbt docs serve` here to visualize it.
+
+---
+
+## 7. Materializations
+
+| Type | What it creates in Snowflake | When to use |
+|---|---|---|
+| `view` | A Snowflake VIEW | Lightweight staging, cheap to keep fresh |
+| `table` | A full table, rebuilt each run | Marts that need query speed |
+| `incremental` | A table, appended/merged | Large fact tables — avoid full rebuilds |
+| `ephemeral` | Not built in Snowflake — inlined as CTE | Intermediate logic reused once |
+
+Incremental example:
+
+```sql
+{{ config(materialized='incremental', unique_key='order_id') }}
+
+select * from {{ ref('stg_orders') }}
+
+{% if is_incremental() %}
+where order_date > (select max(order_date) from {{ this }})
+{% endif %}
+```
+
+Run:
+
+```bash
+dbt run --select fct_orders --full-refresh   # rebuild from scratch
+dbt run --select fct_orders                  # incremental run
+```
+
+---
+
+## 8. Testing
+
+`models/marts/_marts.yml`:
+
+```yaml
+version: 2
+
+models:
+  - name: fct_orders
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+      - name: net_amount
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+```
+
+Run tests:
+
+```bash
+dbt test
+dbt test --select fct_orders
+```
+
+Custom singular test — `tests/assert_positive_order_amounts.sql`:
+
+```sql
+select *
+from {{ ref('fct_orders') }}
+where net_amount < 0
+```
+*(A test "fails" if this query returns any rows.)*
+
+---
+
+## 9. Snapshots (SCD Type 2)
+
+Use when you need to track how a row changes over time — e.g., customer address history.
+
+`snapshots/customers_snapshot.sql`:
+
+```sql
+{% snapshot customers_snapshot %}
+
+{{
+    config(
+        target_schema='snapshots',
+        unique_key='customer_id',
+        strategy='timestamp',
+        updated_at='updated_at',
+    )
+}}
+
+select * from {{ source('raw', 'customers') }}
+
+{% endsnapshot %}
+```
+
+Run:
+
+```bash
+dbt snapshot
+```
+
+This adds `dbt_valid_from` / `dbt_valid_to` columns automatically, letting you query "what did this customer's record look like on date X."
+
+---
+
+## 10. Macros & Jinja
+
+`macros/cents_to_dollars.sql`:
+
+```sql
+{% macro cents_to_dollars(column_name) %}
+    ({{ column_name }} / 100)::numeric(10,2)
+{% endmacro %}
+```
+
+Usage in a model:
+
+```sql
+select
+    order_id,
+    {{ cents_to_dollars('amount_cents') }} as amount_dollars
+from {{ ref('stg_orders') }}
+```
+
+> Great teaching moment: macros are how dbt avoids repeating SQL logic — similar to functions in a programming language.
+
+---
+
+## 11. Seeds
+
+CSV files checked into the repo, loaded as Snowflake tables — good for static reference data (e.g., country codes, status mappings).
+
+`seeds/status_mapping.csv`:
+
+```
+raw_status,clean_status
+comp,completed
+canc,cancelled
+ref,refunded
+```
+
+```bash
+dbt seed
+```
+
+---
+
+## 12. Documentation & Lineage
+
+Add descriptions in the `.yml` files, then:
+
+```bash
+dbt docs generate
+dbt docs serve
+```
+
+This opens a browser showing the full DAG (lineage graph) and column-level docs — a good visual for students to see how staging → intermediate → marts connect.
+
+---
+
+## 13. Deployment Basics
+
+- **Environments:** use dbt `target`s (`dev`, `staging`, `prod`) pointing to different Snowflake schemas/databases so students don't overwrite each other's work.
+- **CI idea:** on every pull request, run `dbt build --target ci` against a scratch schema to catch breakages before merge.
+- **Production scheduling:** dbt Cloud's built-in scheduler, OR an orchestrator like Airflow (covered separately) triggers `dbt build` on a schedule or event.
+
+```bash
+dbt build --target prod    # runs + tests everything, in DAG order
+```
+
+---
+
+## 14. Class Exercises
+
+1. **Basic pipeline:** Load a sample `orders` and `customers` CSV into Snowflake via seeds, then build `stg_`, `int_`, and `fct_` models on top.
+2. **Testing:** Add at least 3 generic tests and 1 custom singular test to `fct_orders`. Intentionally break the data (e.g., insert a duplicate `order_id`) and confirm `dbt test` catches it.
+3. **Incremental models:** Convert `fct_orders` to incremental, insert new rows into the raw table, and observe (via Snowflake query history) that only new rows are processed.
+4. **Snapshots:** Build a `customers_snapshot`, update a customer's email in the raw table, re-run `dbt snapshot`, and query the snapshot table to see both versions of the row.
+5. **Lineage:** Run `dbt docs generate` and have each student trace `fct_orders` back to its raw source tables in the graph.
+
+---
+
+*End of manual. Pairs well with the follow-up module: orchestrating this same dbt project from Airflow (scheduling, dependency sensing, alerting).*

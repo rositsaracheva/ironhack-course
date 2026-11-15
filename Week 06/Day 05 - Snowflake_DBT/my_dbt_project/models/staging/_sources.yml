@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: raw
+    database: dbt_db
+    schema: dev_schema
+    tables:
+      - name: orders
+      - name: customers
+      - name: products
+      - name: clickstream
