@@ -47,3 +47,4 @@ You can view and interact with the dashboards directly in the browser without do
 - **`Styles_Dashboards_1-12.twbx`** — Complete packaged Tableau workbook containing all 12 sheets, all 3 dashboards, and the data extract (open with Tableau Desktop or Tableau Public).
 - **`styles.csv`** — Source dataset (44,446 product records).
 - **`POWER BI(styles.csv).docx`** — Original exercise instructions.
+
