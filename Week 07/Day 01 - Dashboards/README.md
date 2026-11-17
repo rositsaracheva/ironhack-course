@@ -56,7 +56,7 @@ This folder contains the complete solution for the **`styles.csv`** visualizatio
       `Tshirts` (7,067), `Shirts` (3,217), `Casual Shoes` (2,845), `Watches` (2,542), `Sports Shoes` (2,036), `Kurtas` (1,844), `Tops` (1,762), `Handbags` (1,759), `Heels` (1,323), `Sunglasses` (1,073), `Wallets` (936), `Flip Flops` (914), `Sandals` (897), `Briefs` (849), `Belts` (813), `Backpacks` (724), `Socks` (686), `Formal Shoes` (637), `Perfume and Body Mist` (613), `Jeans` (609), `Shorts` (547), `Trousers` (533).
     - **Less Popular Products (`≤ 500` items — 121 Article Types, 10,216 total items):**
       `Flats` (500), `Bra` (477), `Dresses` (464), `Sarees` (427), `Earrings` (417), `Deodorant` (347), `Nail Polish` (329), `Lipstick` (315), `Track Pants` (304), `Clutches` (289), `Sweatshirts` (285), `Caps` (283), `Sweaters` (277), `Ties` (263), `Jackets` (258), `Innerwear Vests` (242), `Kurtis` (234), `Tunics` (229), `Nightdress` (189), `Leggings` (177), `Pendant` (176), `Capris` (173), `Necklace and Chains` (160), `Lip Gloss` (144), `Night suits` (141), and 96 more categories.
-    - ([View Sheet](https://public.tableau.com/views/Dashboards9-12/11_PopularvsLessPopular))
+    - ([View Updated Chart 11](images/chart11_popular_vs_less_popular.png) | [Tableau Public Sheet](https://public.tableau.com/views/Dashboards9-12/11_PopularvsLessPopular))
 12. **Year vs Product Count Scatter Chart:** Scatter plot of `year` vs product count with `season` as the color legend. ([View Sheet](https://public.tableau.com/views/Dashboards9-12/12_YearvsCountScatter))
 
 ---
