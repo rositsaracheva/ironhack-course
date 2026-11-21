@@ -542,7 +542,25 @@ with tab2:
     st.plotly_chart(fig_hour, use_container_width=True)
 
     # Bonus Advanced Visual: Weekday x Hour Demand Heatmap (Staffing & Playlist Optimization)
-    st.subheader("🔥 Bonus: Weekday × Hour Sales Heatmap (Staffing & Playlist Optimization)")
+    col_h_title, col_h_btn = st.columns([4, 1.3])
+    with col_h_title:
+        st.subheader("🔥 Bonus: Weekday × Hour Sales Heatmap (Staffing & Playlist Optimization)")
+    with col_h_btn:
+        with st.popover("💡 How to Read This Chart", use_container_width=True):
+            st.markdown(
+                """
+                ### 🔍 What Does This Heatmap Show?
+                - **Staffing** means scheduling how many baristas work at each hour so we avoid long queues during rushes and avoid overspending on quiet shifts.
+                - **Colors:** **Pale yellow** = quiet hours (`$0–$500`), **Orange** = steady traffic, **Dark Espresso Brown** = peak rush hotspots (`$1,500+`).
+
+                ### 💡 4 Key Business Insights
+                1. **10:00 AM Peak Every Day:** Column `10` is dark brown all week — schedule maximum barista staffing from `9:30–11:30 AM` with upbeat morning playlists.
+                2. **Tuesday Is Our Busiest Day:** Hotspots at `10:00–11:00 AM`, `4:00 PM (16:00)`, and `7:00 PM (19:00)` (the darkest square on the chart).
+                3. **Later Weekend Mornings:** Friday peaks at `8:00–9:00 AM` (commuters), while Saturday & Sunday shift later to `10:00 AM–12:00 PM`.
+                4. **Quiet Opening & Closing (`6:00 AM` & `10:00 PM`):** Pale yellow across almost all days — only minimal opening/closing staff needed.
+                """
+            )
+
     heat_pivot = (
         filtered_df.pivot_table(
             index="weekday", columns="hour_of_day", values="money", aggfunc="sum", fill_value=0
