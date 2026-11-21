@@ -25,3 +25,4 @@
 
 - **File:** [Mini Project 2 - Section E.twbx](Mini%20Project%202%20-%20Section%20E.twbx)
 - Contains all 10 required worksheets and executive dashboards built from [cleaned_coffee_sales.csv](cleaned_coffee_sales.csv).
+
