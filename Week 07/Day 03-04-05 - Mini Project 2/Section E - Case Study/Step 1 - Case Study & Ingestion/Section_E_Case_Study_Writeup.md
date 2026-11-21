@@ -3,6 +3,8 @@
 **Folder:** `Section E - Case Study/`  
 **Stack:** `CSV (Coffee Sales)` → `Python + Pandas` → `Snowflake / Databricks` → `SQL + dbt` → `Apache Airflow` → `Tableau / Power BI`
 
+[![🚀 Open Live BrewBeats Dashboard](https://img.shields.io/badge/🚀%20OPEN%20LIVE%20DASHBOARD-BrewBeats%20Real--Time%20App-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://week07day03-04-05-miniproject2sectione-casestudystep2-ccet58.streamlit.app)
+
 ---
 
 ## 1. Business Scenario & Problem Statement

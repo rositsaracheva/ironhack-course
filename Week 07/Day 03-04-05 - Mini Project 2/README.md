@@ -3,7 +3,7 @@
 **Author:** Rositsa Kaloyanova  
 **Stack:** Apache Spark (RDDs & DataFrames) · Databricks SQL · Snowflake SQL & Snowpark · dbt (DuckDB / Snowflake) · Apache Airflow · Python (Streamlit & Plotly) · Tableau
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://week07day03-04-05-miniproject2sectione-casestudystep2-ccet58.streamlit.app)
 [![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-blue?logo=python)](https://www.python.org/)
 [![Apache Spark](https://img.shields.io/badge/Apache%20Spark-PySpark-E25A1C?logo=apachespark)](https://spark.apache.org/)
 [![dbt](https://img.shields.io/badge/dbt-Core-FF694B?logo=dbt)](https://www.getdbt.com/)
@@ -38,8 +38,12 @@ flowchart LR
 
 ## 🚀 Quick Access: Live Interactive Dashboard
 
-> **⚡ Want to explore the Live Real-Time BrewBeats Dashboard?**  
-> Built with **Python + Streamlit + Plotly + DuckDB** connected directly to our Section D `dbt` warehouse (`stg_coffee_sales`), featuring a **Real-Time POS Order Simulator**, all 10 Executive Sales KPIs & charts, a Weekday × Hour staffing heatmap, and an interactive Spotify Playlist Curator!
+[![🚀 Open Live BrewBeats Dashboard](https://img.shields.io/badge/🚀%20OPEN%20LIVE%20DASHBOARD-BrewBeats%20Real--Time%20App-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://week07day03-04-05-miniproject2sectione-casestudystep2-ccet58.streamlit.app)
+
+> **⚡ Live Public URL (Anyone can open it!):**  
+> 👉 **[https://week07day03-04-05-miniproject2sectione-casestudystep2-ccet58.streamlit.app](https://week07day03-04-05-miniproject2sectione-casestudystep2-ccet58.streamlit.app)**
+>
+> Built by **Rositsa Kaloyanova** with **Python + Streamlit + Plotly + DuckDB**, featuring a **Real-Time POS Order Simulator**, all 10 Executive Sales KPIs & charts, a Weekday × Hour staffing heatmap, and an interactive Spotify Playlist Curator!
 
 - **Source Code:** [brewbeats_dashboard.py](Section%20E%20-%20Case%20Study/Step%202%20-%20Tableau%20Dashboard%20vs%20Live%20Python%20Dashboard/Live%20Python%20Dashboard/brewbeats_dashboard.py)
 - **Tableau Packaged Workbook:** [Mini Project 2 - Section E.twbx](Section%20E%20-%20Case%20Study/Step%202%20-%20Tableau%20Dashboard%20vs%20Live%20Python%20Dashboard/Mini%20Project%202%20-%20Section%20E.twbx)
@@ -71,3 +75,4 @@ flowchart LR
 - **Best-Selling Coffee:** **Latte** by revenue (`$27,866.30` / `24.14%` share) | **Americano with Milk** by cup volume (`824` cups)
 - **Payment Split:** `97.55%` Card (`$112,245.58`) vs. `2.45%` Cash (`$3,186.00`)
 - **Peak Month:** **October 2024** (`$13,891.16`, `426` transactions) followed by **February 2025** (`$13,215.48`, `423` transactions)
+
