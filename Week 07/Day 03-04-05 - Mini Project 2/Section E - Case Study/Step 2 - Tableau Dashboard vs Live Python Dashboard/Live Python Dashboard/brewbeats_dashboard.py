@@ -30,12 +30,16 @@ How this Live Python Dashboard works:
 import os
 import random
 from datetime import datetime
-import duckdb
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+
+try:
+    import duckdb
+except ImportError:
+    duckdb = None
 
 # ---------------------------------------------------------------------------
 # 1. PAGE CONFIG & CUSTOM COFFEE-THEMED EXECUTIVE STYLING
@@ -113,21 +117,25 @@ def load_coffee_data():
     Falls back to `cleaned_coffee_sales.csv` if the local DuckDB file is unavailable.
     """
     source_label = "DuckDB dbt Warehouse (`main.stg_coffee_sales`)"
-    if os.path.exists(DUCKDB_PATH):
-        con = duckdb.connect(DUCKDB_PATH, read_only=True)
-        df = con.sql(
-            """
-            SELECT
-                sale_date AS date,
-                sale_timestamp AS datetime,
-                payment_type AS cash_type,
-                card_id AS card,
-                CAST(amount AS DOUBLE) AS money,
-                coffee_name
-            FROM main.stg_coffee_sales
-            """
-        ).df()
-        con.close()
+    if duckdb is not None and os.path.exists(DUCKDB_PATH):
+        try:
+            con = duckdb.connect(DUCKDB_PATH, read_only=True)
+            df = con.sql(
+                """
+                SELECT
+                    sale_date AS date,
+                    sale_timestamp AS datetime,
+                    payment_type AS cash_type,
+                    card_id AS card,
+                    CAST(amount AS DOUBLE) AS money,
+                    coffee_name
+                FROM main.stg_coffee_sales
+                """
+            ).df()
+            con.close()
+        except Exception:
+            source_label = "Cleaned POS CSV (`cleaned_coffee_sales.csv`)"
+            df = pd.read_csv(CLEANED_CSV_PATH)
     else:
         source_label = "Cleaned POS CSV (`cleaned_coffee_sales.csv`)"
         df = pd.read_csv(CLEANED_CSV_PATH)
