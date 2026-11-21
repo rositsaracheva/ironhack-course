@@ -25,3 +25,12 @@ STUDY_NOTEBOOK/
 # Environment and Secret Files
 .env
 *.env
+
+# Local AI Assistant Rules (do not commit)
+GEMINI.md
+
+# dbt build artifacts & local logs
+**/target/
+**/dbt_packages/
+*.duckdb.wal
+

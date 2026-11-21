@@ -1,0 +1,29 @@
+# ============================================================================
+# BrewBeats — Mini Project 2: Section D - Q1 (dbt Project Configuration)
+# File  : Section D_Q1/brewbeats_dbt/dbt_project.yml
+# ============================================================================
+# This file tells dbt the name of our project, where our SQL models live ("models"),
+# and how our staging folder should be built in the database:
+# - staging models are built as 'view' (lightweight virtual tables that clean raw data)
+
+name: 'brewbeats_dbt'
+version: '1.0.0'
+config-version: 2
+
+profile: 'brewbeats_dbt'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  brewbeats_dbt:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table

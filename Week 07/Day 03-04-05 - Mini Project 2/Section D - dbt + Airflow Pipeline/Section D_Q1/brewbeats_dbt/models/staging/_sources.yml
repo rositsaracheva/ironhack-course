@@ -1,0 +1,16 @@
+# ============================================================================
+# BrewBeats — Mini Project 2: Section D - Q1 (dbt Raw Source Definition)
+# File  : Section D_Q1/brewbeats_dbt/models/staging/_sources.yml
+# ============================================================================
+# This file registers our raw 'coffee_sales' table in Snowflake/DuckDB as a dbt source
+# so our staging model can reference it cleanly using {{ source('raw', 'coffee_sales') }}.
+
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw point-of-sale coffee transactions loaded from coffee_sales.csv"
+    schema: sales
+    tables:
+      - name: coffee_sales
+        description: "Raw coffee sales transactions table (3,636 rows)"

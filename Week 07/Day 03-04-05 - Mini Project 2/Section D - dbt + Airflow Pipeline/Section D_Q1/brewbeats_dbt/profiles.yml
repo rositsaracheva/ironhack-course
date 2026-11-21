@@ -1,0 +1,12 @@
+# ============================================================================
+# BrewBeats — Mini Project 2: Section D (Local DuckDB Connection Profile for dbt)
+# File  : Section D_Q1/brewbeats_dbt/profiles.yml
+# ============================================================================
+brewbeats_dbt:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: '/Users/rosi/Documents/IronHack Course /Week 07/Day 03-04-05 - Mini Project 2/Section D - dbt + Airflow Pipeline/Section D_Q1/brewbeats_dbt/brewbeats.duckdb'
+      schema: main
+      threads: 4

@@ -1,0 +1,94 @@
+# ============================================================================
+# BrewBeats — Mini Project 2: Section D (dbt + Airflow Pipeline)
+# Folder: Section D - dbt + Airflow Pipeline/Section D_Q3/
+# File  : Section_D_Q3_schema.yml (and models/schema.yml)
+# Task  : Section D - Q3: Add a not_null test and a unique test to your dbt models.
+# ============================================================================
+# How data quality tests work in dbt (schema.yml):
+# When we run `dbt test`, dbt reads this YAML file and automatically generates SQL queries
+# to check that our tables obey these data quality rules before any dashboard uses them:
+# 1. unique   : checks that every row has a distinct value in this column (0 duplicates allowed).
+# 2. not_null : checks that no row has an empty/NULL value in this column (0 NULLs allowed).
+#
+# Below, I added both `unique` and `not_null` tests to:
+# - Our staging model (`stg_coffee_sales`) on its primary key `transaction_id`
+#   (plus `not_null` checks on `sale_date`, `amount`, and `coffee_name`).
+# - Our mart model (`fct_daily_revenue`) on its primary key `sale_date` (since there must be
+#   only 1 summary row per calendar day and no NULL dates), plus `not_null` on `total_daily_revenue`.
+
+version: 2
+
+models:
+  # 1. Data quality tests for our Staging Model (Section D - Q1)
+  - name: stg_coffee_sales
+    description: "Cleaned staging view of individual coffee kiosk transactions (3,636 rows)"
+    columns:
+      - name: transaction_id
+        description: "Unique primary key for each coffee transaction"
+        tests:
+          - unique
+          - not_null
+      - name: sale_date
+        description: "Calendar date of the transaction"
+        tests:
+          - not_null
+      - name: amount
+        description: "Transaction amount in dollars"
+        tests:
+          - not_null
+      - name: coffee_name
+        description: "Name of the coffee drink sold"
+        tests:
+          - not_null
+
+  # 2. Data quality tests for our Mart Model (Section D - Q2)
+  - name: fct_daily_revenue
+    description: "Daily revenue mart table aggregating total transactions and revenue per day"
+    columns:
+      - name: sale_date
+        description: "Primary key for the daily revenue mart (one unique row per calendar day)"
+        tests:
+          - unique
+          - not_null
+      - name: total_transactions
+        description: "Total number of transactions on that day"
+        tests:
+          - not_null
+      - name: total_daily_revenue
+        description: "Total revenue earned on that day"
+        tests:
+          - not_null
+
+# ============================================================================
+# Verified Execution Output (`dbt test` — Section D - Q3: All 9 Tests PASSED)
+# ============================================================================
+# 11:40:51  Running with dbt=1.13.0-b1
+# 11:40:51  Registered adapter: duckdb=1.11.1
+# 11:40:52  Found 2 models, 9 data tests, 1 source, 511 macros
+# 11:40:52  
+# 11:40:52  Concurrency: 4 threads (target='dev')
+# 11:40:52  
+# 11:40:52  4 of 9 START test not_null_stg_coffee_sales_amount ............................. [RUN]
+# 11:40:52  1 of 9 START test not_null_fct_daily_revenue_sale_date ......................... [RUN]
+# 11:40:52  2 of 9 START test not_null_fct_daily_revenue_total_daily_revenue ............... [RUN]
+# 11:40:52  3 of 9 START test not_null_fct_daily_revenue_total_transactions ................ [RUN]
+# 11:40:52  2 of 9 PASS not_null_fct_daily_revenue_total_daily_revenue ..................... [PASS in 0.03s]
+# 11:40:52  3 of 9 PASS not_null_fct_daily_revenue_total_transactions ...................... [PASS in 0.03s]
+# 11:40:52  4 of 9 PASS not_null_stg_coffee_sales_amount ................................... [PASS in 0.04s]
+# 11:40:52  5 of 9 START test not_null_stg_coffee_sales_coffee_name ........................ [RUN]
+# 11:40:52  1 of 9 PASS not_null_fct_daily_revenue_sale_date ............................... [PASS in 0.04s]
+# 11:40:52  6 of 9 START test not_null_stg_coffee_sales_sale_date .......................... [RUN]
+# 11:40:52  7 of 9 START test not_null_stg_coffee_sales_transaction_id ..................... [RUN]
+# 11:40:52  8 of 9 START test unique_fct_daily_revenue_sale_date ........................... [RUN]
+# 11:40:52  5 of 9 PASS not_null_stg_coffee_sales_coffee_name .............................. [PASS in 0.03s]
+# 11:40:52  6 of 9 PASS not_null_stg_coffee_sales_sale_date ................................ [PASS in 0.02s]
+# 11:40:52  9 of 9 START test unique_stg_coffee_sales_transaction_id ....................... [RUN]
+# 11:40:52  8 of 9 PASS unique_fct_daily_revenue_sale_date ................................. [PASS in 0.02s]
+# 11:40:52  7 of 9 PASS not_null_stg_coffee_sales_transaction_id ........................... [PASS in 0.03s]
+# 11:40:52  9 of 9 PASS unique_stg_coffee_sales_transaction_id ............................. [PASS in 0.01s]
+# 11:40:52  
+# 11:40:52  Finished running 9 data tests in 0 hours 0 minutes and 0.14 seconds (0.14s).
+# 11:40:52  
+# 11:40:52  Completed successfully
+# 11:40:52  
+# 11:40:52  Done. PASS=9 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=9
