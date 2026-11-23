@@ -1,0 +1,2 @@
+Batch 1 - Line 1: Sent before the first consumer run.
+Batch 1 - Line 2: Read by Run 1 of consumer group demo.

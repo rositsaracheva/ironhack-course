@@ -1,0 +1,5 @@
+1: Kafka moves messages between programs.
+2: Each line of this file is one message.
+3: Producers write to topics.
+4: Consumers read from topics.
+5: This is the last line.
