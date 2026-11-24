@@ -151,6 +151,8 @@ SELECT * FROM workspace.kafka_demo.orders ORDER BY order_id LIMIT 5;
 
 [![Open Live Dashboard](https://img.shields.io/badge/Open_Live_Dashboard-Databricks_AI%2FBI-FF3621?style=for-the-badge&logo=databricks&logoColor=white)](https://dbc-9044289c-3f13.cloud.databricks.com/dashboardsv3/01f1e8246f9a1b5ab12bd5ee4a53923d/published?o=7474645737278966)
 
+![Real-Time E-Commerce Streaming Dashboard](dashboard_preview.jpg)
+
 - **Published Dashboard Link:** [Real-Time E-Commerce Streaming Dashboard (Databricks AI/BI)](https://dbc-9044289c-3f13.cloud.databricks.com/dashboardsv3/01f1e8246f9a1b5ab12bd5ee4a53923d/published?o=7474645737278966)
 - **Verified Dashboard SQL Queries:** [Part 9_10_dashboard_queries.sql](Part%209_10_dashboard_queries.sql)
 
