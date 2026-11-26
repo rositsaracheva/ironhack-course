@@ -1,0 +1,59 @@
+# ==============================================================================
+# Week 08 - Day 03: Installation of Apache NiFi (Docker Setup)
+# ==============================================================================
+# I created this Docker Compose file so I can easily start, stop, and manage
+# Apache NiFi on my Mac without manually configuring everything locally.
+
+services:
+  # Here I define the main service for Apache NiFi
+  nifi:
+    # I use the official Apache NiFi image from Docker Hub (latest 2.x version,
+    # which natively supports Apple Silicon / arm64 Macs)
+    image: apache/nifi:latest
+
+    # I give the container a clear, easy-to-remember name for Docker commands
+    container_name: nifi
+
+    # I map port 8443 on my Mac (left) to port 8443 inside the container (right)
+    # so I can open the NiFi web interface at https://localhost:8443/nifi
+    ports:
+      - "8443:8443"
+
+    # Environment variables that configure how NiFi starts up and secures access
+    environment:
+      # I tell NiFi to listen on port 8443 for HTTPS traffic
+      - NIFI_WEB_HTTPS_PORT=8443
+
+      # I bind NiFi to 0.0.0.0 inside the container so Docker can forward
+      # requests from my Mac's localhost into the container
+      - NIFI_WEB_HTTPS_HOST=0.0.0.0
+
+      # I tell NiFi that it is safe to accept browser requests coming from
+      # localhost:8443 (prevents "Invalid Host Header" security errors)
+      - NIFI_WEB_PROXY_HOST=localhost:8443
+
+      # I read my login username from my local .env file so I never commit private
+      # credentials to GitHub (Docker Compose loads .env automatically)
+      - SINGLE_USER_CREDENTIALS_USERNAME=${NIFI_USERNAME}
+
+      # I read my login password from my local .env file (NiFi requires this to be
+      # at least 12 characters long, otherwise the container will refuse to start)
+      - SINGLE_USER_CREDENTIALS_PASSWORD=${NIFI_PASSWORD}
+
+    # Volumes connect folders between my Mac and the NiFi container
+    volumes:
+      # I mount a local "data" folder inside this directory to /opt/nifi/nifi-current/data
+      # inside the container so I can easily drop sample files in and out for NiFi labs
+      - ./data:/opt/nifi/nifi-current/data
+
+      # I use a Docker-managed volume to keep my NiFi flows and state saved
+      # even if I stop and restart the container later
+      - nifi_state:/opt/nifi/nifi-current/state
+
+    # Automatically restart the container if it stops unexpectedly, unless I
+    # manually stop it myself with "docker compose down" or "docker compose stop"
+    restart: unless-stopped
+
+# Here I declare the named Docker volume used above to persist NiFi's internal state
+volumes:
+  nifi_state:
